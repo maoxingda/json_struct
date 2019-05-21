@@ -40,6 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(ProjectDir)/test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
+    <ExecutablePath>C:\Users\Administrator\Desktop\json2cxxstruct\json2cxxstruct\Win32\Debug;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -55,6 +56,10 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -78,7 +83,10 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="test\json2cxxstruct1.h" />
+    <ClInclude Include="test\json2cxxstruct1.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelper.exe "%(FullPath)"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">register struct fields%27</Outputs>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="json2cxxstructDemo.cpp" />
