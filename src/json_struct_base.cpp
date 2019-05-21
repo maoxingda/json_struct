@@ -6,14 +6,21 @@
 #include <Windows.h>
 #include <algorithm>
 
+#include <boost/lexical_cast.hpp>
+#include <boost/xpressive/xpressive.hpp>
+
+//use namespaces
+using namespace boost::xpressive;
 
 //predefined declarations
 static bool is_array				(const type_info* ptype_info);
 static int	array_size				(const type_info* ptype_info);
+static std::pair<int,int> table_size(const type_info* ptype_info);
 static bool is_bool					(const type_info* ptype_info);
 static bool is_number				(const type_info* ptype_info);
 static bool is_wide_string			(const type_info* ptype_info);
 static bool is_narrow_string		(const type_info* ptype_info);
+static bool is_wide_string_array	(const type_info* ptype_info);
 static bool is_user_defined			(const type_info* ptype_info);
 static void from_bool				(const type_info* field_type, void* field_address, cJSON* item);
 static void from_number				(const type_info* field_type, void* field_address, cJSON* item);
@@ -39,6 +46,18 @@ struct field_info
 /************************************************************************/
 static std::map<std::string, int> struct_object_size_info;
 
+/************************************************************************/
+/* array information regular expressions                                */
+/************************************************************************/
+//character string
+static const char* wide_string			= "wchar_t\\s*\\[\\d+\\]";					//wchar_t\s*\[\d+\]
+static const char* wide_string_array	= "wchar_t\\s*\\[\\d+\\]\\s*\\[\\d+\\]";	//wchar_t\s*\[\d+\]\s*\[\d+\]
+static const char* narrow_string		= "char\\s*\\[\\d+\\]";						//char\s*\[\d+\]
+
+//array size
+static const char* array_len			= "\\w+\\s*\\[\\d+\\]";						//\w+\s*\[\d+\]
+static const char* wchar_table_len		= "wchar_t\\s*\\[(\\d+)\\]\\s*\\[(\\d+)\\]";//wchar_t\s*\[\d+\]\s*\[\d+\]
+
 static bool is_array(const type_info* ptype_info)
 {
 	return std::string::npos != std::string(ptype_info->name()).find("[");
@@ -46,27 +65,51 @@ static bool is_array(const type_info* ptype_info)
 
 static int array_size(const type_info* ptype_info)
 {
-	int beg_index = std::string(ptype_info->name()).find("[");
-	int end_index = std::string(ptype_info->name()).find("]");
+	smatch sm;
+	static sregex w_string_regex = sregex::compile(wide_string);
 
-	if (std::string::npos != beg_index && std::string::npos != end_index)
+	if (regex_match(std::string(ptype_info->name()), sm, w_string_regex))
 	{
-		return atoi(std::string(ptype_info->name()).substr(beg_index + 1, end_index - beg_index).c_str());
+		return atoi(sm[1].str().c_str());
 	}
 
 	return 0;
 }
 
+static std::pair<int, int> table_size(const type_info* ptype_info)
+{
+	smatch sm;
+	static sregex wchar_table_regex = sregex::compile(wchar_table_len);
+
+	std::string table_info = std::string(ptype_info->name());
+
+	if (regex_match(table_info, sm, wchar_table_regex))
+	{
+		return std::make_pair(atoi(sm[1].str().c_str()), atoi(sm[2].str().c_str()));
+	}
+
+	return std::make_pair(0, 0);
+}
+
 static bool is_wide_string(const type_info* ptype_info)
 {
-	return std::string::npos != std::string(ptype_info->name()).find(typeid(wchar_t).name());
+	static sregex w_string_regex = sregex::compile(wide_string);
+
+	return regex_match(std::string(ptype_info->name()), w_string_regex);
+}
+
+static bool is_wide_string_array(const type_info* ptype_info)
+{
+	static sregex w_string_a_regex = sregex::compile(wide_string_array);
+
+	return regex_match(std::string(ptype_info->name()), w_string_a_regex);
 }
 
 static bool is_narrow_string(const type_info* ptype_info)
 {
-	std::string name = std::string(ptype_info->name());
+	static sregex n_string_regex = sregex::compile(narrow_string);
 
-	return std::string::npos != name.find(typeid(char).name()) && 0 == name.find(typeid(char).name());
+	return regex_match(std::string(ptype_info->name()), n_string_regex);
 }
 
 static bool is_bool(const type_info* ptype_info)
@@ -97,7 +140,6 @@ void from_bool(const type_info* field_type, void* field_address, cJSON* item)
 	{
 		*(bool*)field_address = 1 == item->valueint ? true : false;
 	}
-
 }
 
 void from_number(const type_info* field_type, void* field_address, cJSON* item)
@@ -215,6 +257,23 @@ bool json_struct_base::from_json_object(cJSON* object)
 				std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(item->valuestring);
 
 				wcsncpy_s((WCHAR*)field_address, array_size(field_type) - 1, ucs2.c_str(), ucs2.size());
+			}
+		}
+		else if (is_wide_string_array(field_type))
+		{
+			if (cJSON_Array != item->type) return false;
+
+			auto table_info = table_size(field_type);
+
+			for (auto i = 0; i < table_info.first && i < cJSON_GetArraySize(item); ++i)
+			{
+				cJSON* arrItem = cJSON_GetArrayItem(item, i);
+
+				if (cJSON_String != arrItem->type) return false;
+
+				std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
+
+				wcsncpy_s((WCHAR*)field_address + i * table_info.second, table_info.second - 1, ucs2.c_str(), ucs2.size());
 			}
 		}
 		else if (is_user_defined(field_type))

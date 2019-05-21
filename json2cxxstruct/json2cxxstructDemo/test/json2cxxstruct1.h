@@ -1,4 +1,5 @@
 #pragma once
+#include <Windows.h>
 #include "json_struct_base.h"
 
 
@@ -47,7 +48,7 @@ JSON_STRUCT(res)
 
 JSON_STRUCT(anchor)
 {
-	int retcode;
+	BOOL retcode;
 	res result;
 
 	anchor()
