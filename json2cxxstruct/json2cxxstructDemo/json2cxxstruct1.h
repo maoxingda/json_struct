@@ -24,10 +24,11 @@ JSON_STRUCT(anchor_info)
 
 JSON_STRUCT(res)
 {
+	int runtime;
 	int state;
 	int qs;
 	int residueTime;
-	wchar_t msg[256];
+	wchar_t m_wzMsg[256];
 	bool isShow;
 	anchor_info info;
 
@@ -36,9 +37,11 @@ JSON_STRUCT(res)
 		JSON_REGISTER_FIELD(state);
 		JSON_REGISTER_FIELD(qs);
 		JSON_REGISTER_FIELD(residueTime);
-		JSON_REGISTER_FIELD(msg);
 		JSON_REGISTER_FIELD(isShow);
 		JSON_REGISTER_FIELD(info);
+
+		JSON_REGISTER_MAP_FIELD(m_wzMsg, "msg");
+		JSON_REGISTER_MAP_FIELD(runtime, "run-time");
 	}
 };
 

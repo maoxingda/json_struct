@@ -4,62 +4,44 @@
 #include <codecvt>
 #include <typeinfo>
 #include <Windows.h>
+#include <algorithm>
+
+
+//predefined declarations
+static bool is_array				(const type_info* ptype_info);
+static int	array_size				(const type_info* ptype_info);
+static bool is_bool					(const type_info* ptype_info);
+static bool is_number				(const type_info* ptype_info);
+static bool is_wide_string			(const type_info* ptype_info);
+static bool is_narrow_string		(const type_info* ptype_info);
+static bool is_user_defined			(const type_info* ptype_info);
+static void from_bool				(const type_info* field_type, void* field_address, cJSON* item);
+static void from_number				(const type_info* field_type, void* field_address, cJSON* item);
+static void from_bumber_array		(const type_info* field_type, void* field_address, cJSON* item, int index);
 
 
 struct field_info
 {
-	void*				field_address;	//结构体成员字段地址
-	std::string			field_name;		//结构体成员字段名称
-	const type_info*	field_type;		//结构体成员字段类型
+	void*				address;
+	std::string			name;
+	const type_info*	type;
 
 	field_info()
-		: field_address(nullptr)
-		, field_type(nullptr)
+		: address(nullptr)
+		, type(nullptr)
 	{
-
 	}
 };
 
-std::map<std::string, int> struct_info;
-
-static bool is_bool(const type_info* ptype_info)
-{
-	return std::string::npos != std::string(ptype_info->name()).find(typeid(bool).name());
-		//|| std::string::npos != std::string(ptype_info->name()).find(typeid(BOOL).name());
-}
-
-static bool is_number(const type_info* ptype_info)
-{
-	return std::string::npos != std::string(ptype_info->name()).find(typeid(int).name())
-		|| std::string::npos != std::string(ptype_info->name()).find(typeid(long).name())
-		|| std::string::npos != std::string(ptype_info->name()).find(typeid(INT64).name())
-		|| std::string::npos != std::string(ptype_info->name()).find(typeid(DWORD).name())
-		|| std::string::npos != std::string(ptype_info->name()).find(typeid(double).name());
-}
-
-static bool is_string(const type_info* ptype_info)
-{
-	return std::string::npos != std::string(ptype_info->name()).find(typeid(wchar_t).name());
-}
+/************************************************************************/
+/* save your c++ struct size information                                */
+/* key is struct name, value is struct size                             */
+/************************************************************************/
+static std::map<std::string, int> struct_object_size_info;
 
 static bool is_array(const type_info* ptype_info)
 {
 	return std::string::npos != std::string(ptype_info->name()).find("[");
-}
-
-static bool is_number_array(const type_info* ptype_info)
-{
-	return is_number(ptype_info) && is_array(ptype_info);
-}
-
-static bool is_user_defined(const type_info* ptype_info)
-{
-	return std::string::npos != std::string(ptype_info->name()).find("struct");
-}
-
-static bool is_user_defined_array(const type_info* ptype_info)
-{
-	return is_user_defined(ptype_info) && is_array(ptype_info);
 }
 
 static int array_size(const type_info* ptype_info)
@@ -75,7 +57,41 @@ static int array_size(const type_info* ptype_info)
 	return 0;
 }
 
-static void from_bool(cJSON* item, const type_info* field_type, void* field_address)
+static bool is_wide_string(const type_info* ptype_info)
+{
+	return std::string::npos != std::string(ptype_info->name()).find(typeid(wchar_t).name());
+}
+
+static bool is_narrow_string(const type_info* ptype_info)
+{
+	std::string name = std::string(ptype_info->name());
+
+	return std::string::npos != name.find(typeid(char).name()) && 0 == name.find(typeid(char).name());
+}
+
+static bool is_bool(const type_info* ptype_info)
+{
+	return std::string::npos != std::string(ptype_info->name()).find(typeid(bool).name());
+	//|| std::string::npos != std::string(ptype_info->name()).find(typeid(BOOL).name());
+}
+
+static bool is_number(const type_info* ptype_info)
+{
+	std::string name = std::string(ptype_info->name());
+
+	return std::string::npos != name.find(typeid(int	).name())
+		|| std::string::npos != name.find(typeid(long	).name())
+		|| std::string::npos != name.find(typeid(INT64	).name())
+		|| std::string::npos != name.find(typeid(DWORD	).name())
+		|| std::string::npos != name.find(typeid(double	).name());
+}
+
+static bool is_user_defined(const type_info* ptype_info)
+{
+	return std::string::npos != std::string(ptype_info->name()).find("struct");
+}
+
+void from_bool(const type_info* field_type, void* field_address, cJSON* item)
 {
 	if (typeid(bool) == *field_type)
 	{
@@ -84,7 +100,7 @@ static void from_bool(cJSON* item, const type_info* field_type, void* field_addr
 
 }
 
-static void from_number(cJSON* item, const type_info* field_type, void* field_address)
+void from_number(const type_info* field_type, void* field_address, cJSON* item)
 {
 	if (typeid(int) == *field_type)
 	{
@@ -108,7 +124,7 @@ static void from_number(cJSON* item, const type_info* field_type, void* field_ad
 	}
 }
 
-static void from_bumber_array(cJSON* item, int index, const type_info* field_type, void* field_address)
+void from_bumber_array(const type_info* field_type, void* field_address, cJSON* item, int index)
 {
 	if (std::string::npos != std::string(field_type->name()).find("int"))
 	{
@@ -151,50 +167,32 @@ bool json_struct_base::from_json_object(cJSON* object)
 
 	for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
 	{
-		field_info* pfield_info		= *iter;
+		field_info*			pfield_info		= *iter;
 
-		void* field_address			= pfield_info->field_address;
-		const type_info* field_type	= pfield_info->field_type;
+		void*				field_address	= pfield_info->address;
+		const type_info*	field_type		= pfield_info->type;
 
-		cJSON* item = cJSON_GetObjectItem(object, pfield_info->field_name.c_str());
+		cJSON* item = cJSON_GetObjectItem(object, pfield_info->name.c_str());
 
-		if (nullptr == item) return false;
+		if (nullptr == item								) return false;
+		if (is_narrow_string(field_type)				) return false; // not support narrow character array
+		if (is_bool(field_type) && is_array(field_type)	) return false;	// not support bool array
 
-		if (!is_array(field_type))
+		if (is_bool(field_type))
 		{
-			if (is_bool(field_type))
-			{
-				if (cJSON_False != item->type && cJSON_True != item->type) return false;
+			if (cJSON_False != item->type && cJSON_True != item->type) return false;
 
-				from_bool(item, field_type, field_address);
-			}
-			else if (is_number(field_type))
+			from_bool(field_type, field_address, item);
+		}
+		else if (is_number(field_type))
+		{
+			if (!is_array(field_type))
 			{
 				if (cJSON_Number != item->type) return false;
 
-				from_number(item, field_type, field_address);
+				from_number(field_type, field_address, item);
 			}
-			else if (is_user_defined(field_type))
-			{
-				bool success = ((json_struct_base*)field_address)->from_json_object(item);
-
-				if (!success) return false;
-			}
-		}
-		else
-		{
-			if (is_string(field_type))
-			{
-				for(int i = 0; i < array_size(field_type); ++i)
-				{
-					if (cJSON_String != item->type) return false;
-
-					std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(item->valuestring);
-
-					wcsncpy_s((WCHAR*)field_address, array_size(field_type) - 1, ucs2.c_str(), ucs2.size());
-				}
-			}
-			else if (is_number_array(field_type))
+			else
 			{
 				if (cJSON_Array != item->type) return false;
 
@@ -204,13 +202,33 @@ bool json_struct_base::from_json_object(cJSON* object)
 
 					if (cJSON_Number != arrItem->type) return false;
 
-					from_bumber_array(arrItem, i, field_type, field_address);
+					from_bumber_array(field_type, field_address, arrItem, i);
 				}
 			}
-			else if (is_user_defined_array(field_type))
+		}
+		else if (is_wide_string(field_type))
+		{
+			for(int i = 0; i < array_size(field_type); ++i)
+			{
+				if (cJSON_String != item->type) return false;
+
+				std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(item->valuestring);
+
+				wcsncpy_s((WCHAR*)field_address, array_size(field_type) - 1, ucs2.c_str(), ucs2.size());
+			}
+		}
+		else if (is_user_defined(field_type))
+		{
+			if (!is_array(field_type))
+			{
+				bool success = ((json_struct_base*)field_address)->from_json_object(item);
+
+				if (!success) return false;
+			}
+			else
 			{
 				int size = 0;
-				for (auto iter = struct_info.begin(); iter != struct_info.end(); ++iter)
+				for (auto iter = struct_object_size_info.begin(); iter != struct_object_size_info.end(); ++iter)
 				{
 					if (std::string::npos != std::string(field_type->name()).find(iter->first))
 					{
@@ -233,13 +251,18 @@ bool json_struct_base::from_json_object(cJSON* object)
 
 void json_struct_base::register_field(std::string st_name, int st_size, const type_info* field_type, std::string field_name, void* field_address)
 {
-	field_info* pfield_info		= new field_info;
+	field_info* pfield_info	= new field_info;
 
-	pfield_info->field_address	= field_address;
-	pfield_info->field_name		= field_name;
-	pfield_info->field_type		= field_type;
+	pfield_info->address	= field_address;
+	pfield_info->name		= field_name;
+	pfield_info->type		= field_type;
 
 	fields_info.push_back(pfield_info);
 
-	struct_info.insert(std::make_pair(st_name, st_size));
+	struct_object_size_info.insert(std::make_pair(st_name, st_size));
+}
+
+json_struct_base::~json_struct_base()
+{
+	std::for_each(fields_info.begin(), fields_info.end(), [&](field_info* pointer) { delete pointer; });
 }

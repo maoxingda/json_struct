@@ -1,15 +1,43 @@
+/*!
+ * \file json_struct_base.h
+ * \date 2019/05/21 12:59
+ *
+ * \author Administrator
+ * Contact: user@company.com
+ *
+ * \brief
+ *		deserialize c++ struct from json stream
+ *
+ * \usage
+ *		1. declare  your c++ struct by macro JSON_STRUCT defined in this file
+ *		2. register your c++ struct fields by macro JSON_STRUCT in your struct constructor function
+ *		3. create   your c++ struct object instance and call member function from_json subsequently
+ *
+ * \note
+ *		1. can only support utf8 json stream
+ *		2. not support bool array
+ *		3. not support BOOL and BOOL array, because can not distinguish between typeid(int) and typeid(BOOL)
+ *		4. not support narrow character array, because the conversion from narrow to wide was done internally
+*/
 #pragma once
 #include <list>
+#include <string>
 
 
 //predefined declarations
-struct cJSON;
-struct field_info;
+struct	cJSON;
+struct	field_info;
+class	type_info;
 
 
+/************************************************************************/
+/* the base struct where save your c++ struct fields information        */
+/************************************************************************/
 struct json_struct_base
 {
 public:
+	~json_struct_base();
+
 	bool from_json(std::string json);
 
 private:
@@ -21,7 +49,6 @@ protected:
 private:
 	std::list<field_info*> fields_info;
 };
-
 /************************************************************************/
 /*                            helper macros                             */
 /************************************************************************/
@@ -29,7 +56,7 @@ private:
 //declare your struct by this macro
 #define JSON_STRUCT(struct_name) struct struct_name : public json_struct_base
 
-//register your struct fields by this macro where your struct constructor function
+//register your struct fields by this macro in your struct constructor function
 #define JSON_REGISTER_FIELD(field_name) register_field(typeid(*this).name(), sizeof(*this), &typeid(field_name), #field_name, &field_name)
 
 //register your struct fields by this macro when your struct field name is not similar to json field
