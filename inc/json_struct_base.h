@@ -32,6 +32,5 @@ private:
 //register your struct fields by this macro where your struct constructor function
 #define JSON_REGISTER_FIELD(field_name) register_field(typeid(*this).name(), sizeof(*this), &typeid(field_name), #field_name, &field_name)
 
-
 //register your struct fields by this macro when your struct field name is not similar to json field
 #define JSON_REGISTER_MAP_FIELD(field_name, json_field_name) register_field(typeid(*this).name(), sizeof(*this), &typeid(field_name), json_field_name, &field_name)
