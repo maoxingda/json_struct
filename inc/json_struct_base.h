@@ -9,15 +9,14 @@
  *		deserialize c++ struct from json stream
  *
  * \usage
- *		1. declare  your c++ struct by macro JSON_STRUCT defined in this file
- *		2. register your c++ struct fields by macro JSON_STRUCT in your struct constructor function
+ *		1. declare  your c++ struct by macro "JSON_STRUCT" defined in this file
+ *		2. register your c++ struct fields by macro "JSON_STRUCT" in your struct constructor function
  *		3. create   your c++ struct object instance and call member function from_json subsequently
  *
  * \note
- *		1. can only support utf8 json stream
- *		2. not support bool array
- *		3. not support BOOL and BOOL array, because can not distinguish between typeid(int) and typeid(BOOL)
- *		4. not support narrow character array, because the conversion from narrow to wide was done internally
+ *		1. not support bool array
+ *		2. BOOL is equal to int, because typeid(int) == typeid(BOOL)
+ *		3. can only support utf8 json stream, because the conversion from utf8 to utf16 was done internally
 */
 #pragma once
 #include <list>
