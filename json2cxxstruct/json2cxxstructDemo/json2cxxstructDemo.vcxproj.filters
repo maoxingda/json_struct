@@ -27,12 +27,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="json2cxxstruct1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="json2cxxstruct2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="test\json2cxxstruct1.h">
       <Filter>test</Filter>
     </ClInclude>
