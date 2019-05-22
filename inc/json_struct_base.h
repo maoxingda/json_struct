@@ -54,6 +54,12 @@ private:
 //declare your struct by this macro
 #define JSON_STRUCT(struct_name) struct struct_name : public json_struct_base
 
+//declare your json struct field by this macro
+#define JSON_STRUCT_FIELD(struct_name, field_name) struct_name field_name;
+
+//declare your json struct field array by this macro
+#define JSON_STRUCT_FIELD_ARRAY(struct_name, field_name, array_size) struct_name field_name##[##array_size##];
+
 //register your struct fields by this macro in your struct constructor function
 #define JSON_REGISTER_FIELD(field_name) register_field(typeid(*this).name(), sizeof(*this), &typeid(field_name), #field_name, &field_name)
 
