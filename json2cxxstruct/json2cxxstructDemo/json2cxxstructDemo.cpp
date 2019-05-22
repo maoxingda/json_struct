@@ -4,7 +4,8 @@
 #include "stdafx.h"
 #include <cassert>
 #include <codecvt>
-#include "json2cxxstruct1.h"
+//#include "json2cxxstruct1.h"
+#include "GeneratedFiles\json_json2cxxstruct1.h"
 
 JSON_STRUCT(student)
 {

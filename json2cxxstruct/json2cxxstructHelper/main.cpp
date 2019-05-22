@@ -50,11 +50,11 @@ static bool already_register_field(std::list<std::string>::const_iterator beg, s
 	return false;
 }
 
-void register_fields(std::string file_name)
+void register_fields(std::string in_file_name, std::string out_file_name)
 {
 	std::list<std::string> lines;
 
-	std::fstream in(file_name, std::ios_base::in);
+	std::fstream in(in_file_name, std::ios_base::in);
 
 	if (in)
 	{
@@ -123,7 +123,7 @@ void register_fields(std::string file_name)
 			lines.insert(iter1->iter_struct_end, "\t}");
 		}
 
-		std::fstream out(file_name, std::ios_base::out);
+		std::fstream out(out_file_name, std::ios_base::out);
 
 		if (out)
 		{
@@ -143,9 +143,9 @@ int main(int argc, char *argv[])
 	//return false;
 	QApplication a(argc, argv);
 
-	if (2 > argc) return false;
+	if (3 > argc) return -1;
 
-	register_fields(argv[1]);
+	register_fields(argv[1], argv[2]);
 
-	return true;
+	return 0;
 }

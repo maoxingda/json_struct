@@ -1,0 +1,10 @@
+bool
+	bool array, table... - not support
+
+number
+	number array
+	number table... - not support
+
+character array
+
+character table

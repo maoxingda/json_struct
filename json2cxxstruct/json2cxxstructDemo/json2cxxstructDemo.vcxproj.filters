@@ -16,6 +16,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{35ee72bf-4d03-4ab0-b9e1-3d993aeccfa2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GeneratedFiles">
+      <UniqueIdentifier>{848cf1bb-b3e3-46ca-84f4-b92d91e4f8ea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -27,8 +30,8 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\json2cxxstruct1.h">
-      <Filter>test</Filter>
+    <ClInclude Include="GeneratedFiles\json_json2cxxstruct1.h">
+      <Filter>GeneratedFiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -41,5 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Debug\json2cxxstruct.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="test\json2cxxstruct1.h">
+      <Filter>test</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

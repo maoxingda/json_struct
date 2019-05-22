@@ -27,16 +27,26 @@ static void from_number				(const type_info* field_type, void* field_address, cJ
 static void from_bumber_array		(const type_info* field_type, void* field_address, cJSON* item, int index);
 
 
+enum field_type
+{
+	enum_bool,
+	enum_bool_array,
+};
+
 struct field_info
 {
-	void*				address;
-	std::string			name;
-	const type_info*	type;
+	void*				address_;
+	bool				array_;
+	bool				table_;
+	int					array_size_;
+	int					table_row_;
+	int					table_col_;
+	std::string			name_;
+	const type_info*	type_;
 
 	field_info()
-		: address(nullptr)
-		, type(nullptr)
 	{
+		ZeroMemory(this, sizeof(*this));
 	}
 };
 
@@ -211,10 +221,10 @@ bool json_struct_base::from_json_object(cJSON* object)
 	{
 		field_info*			pfield_info		= *iter;
 
-		void*				field_address	= pfield_info->address;
-		const type_info*	field_type		= pfield_info->type;
+		void*				field_address	= pfield_info->address_;
+		const type_info*	field_type		= pfield_info->type_;
 
-		cJSON* item = cJSON_GetObjectItem(object, pfield_info->name.c_str());
+		cJSON* item = cJSON_GetObjectItem(object, pfield_info->name_.c_str());
 
 		if (nullptr == item								) return false;
 		if (is_narrow_string(field_type)				) return false; // not support narrow character array
@@ -312,9 +322,9 @@ void json_struct_base::register_field(std::string st_name, int st_size, const ty
 {
 	field_info* pfield_info	= new field_info;
 
-	pfield_info->address	= field_address;
-	pfield_info->name		= field_name;
-	pfield_info->type		= field_type;
+	pfield_info->address_	= field_address;
+	pfield_info->name_		= field_name;
+	pfield_info->type_		= field_type;
 
 	fields_info.push_back(pfield_info);
 
