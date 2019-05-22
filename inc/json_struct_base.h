@@ -15,8 +15,7 @@
  *
  * \note
  *		1. not support bool array
- *		2. BOOL is equal to int, because typeid(int) == typeid(BOOL)
- *		3. can only support utf8 json stream, because the conversion from utf8 to utf16 was done internally
+ *		2. can only support utf8 json stream, because the conversion from utf8 to utf16 was done internally
 */
 #pragma once
 #include <list>
