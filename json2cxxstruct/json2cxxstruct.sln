@@ -5,6 +5,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json2cxxstruct", "json2cxxs
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json2cxxstructDemo", "json2cxxstructDemo\json2cxxstructDemo.vcxproj", "{A61C3B53-BD59-4EB7-A744-61EB7BA6EDFB}"
 	ProjectSection(ProjectDependencies) = postProject
+		{4D638952-C414-4E29-8C8A-3741F216A1CC} = {4D638952-C414-4E29-8C8A-3741F216A1CC}
 		{92975F5F-E86B-4058-AED3-8F596627BBFE} = {92975F5F-E86B-4058-AED3-8F596627BBFE}
 	EndProjectSection
 EndProject

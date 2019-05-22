@@ -3,29 +3,18 @@
 #include "json_struct_base.h"
 
 
-JSON_STRUCT(anchor_info)
+JSON_STRUCT(date)
 {
-	int				userid;					//用户Id
-	int				anchorId;
-	int				amount;
-	int				roomId;
-	wchar_t			userNickName[256];
-	wchar_t			anchorNickName[256];
+	wchar_t year[6];
+	wchar_t month[4];
+	wchar_t day[4];
 };
 
-JSON_STRUCT(res)
+JSON_STRUCT(student)
 {
-	int				runtime;
-	int				state;
-	int				qs;
-	int				residueTime;
-	wchar_t			m_wzMsg[256];
-	bool			isShow;
-	anchor_info		info;
-};
-
-JSON_STRUCT(anchor)
-{
-	BOOL			retcode;
-	res				result;
+	int		id;
+	date	birthday1;
+	int		qqs[2];
+	wchar_t name[16];
+	date	birthday2;
 };
