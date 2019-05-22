@@ -50,8 +50,8 @@ struct data_type_info
 	{
 		data_type_regex[enum_bool]					= "bool";
 
-		data_type_regex[enum_number]				= "(?:int|long|__int64|float|double)";
-		data_type_regex[enum_number_array]			= "(?:int|long|__int64|float|double) \\[(\\d+)\\]";
+		data_type_regex[enum_number]				= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
+		data_type_regex[enum_number_array]			= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
 
 		data_type_regex[enum_wchar_array]			= "wchar_t \\[(\\d+)\\]";
 		data_type_regex[enum_wchar_table]			= "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
@@ -202,6 +202,10 @@ void from_number(const type_info* field_type, void* field_address, cJSON* item, 
 	{
 		*((int*)field_address + offset) = item->valuedouble;
 	}
+	if (typeid(unsigned int) == *field_type)
+	{
+		*((unsigned int*)field_address + offset) = item->valuedouble;
+	}
 	else if (typeid(__int64) == *field_type)
 	{
 		*((__int64*)field_address + offset) = item->valuedouble;
@@ -209,6 +213,10 @@ void from_number(const type_info* field_type, void* field_address, cJSON* item, 
 	else if (typeid(long) == *field_type)
 	{
 		*((long*)field_address + offset) = item->valuedouble;
+	}
+	else if (typeid(unsigned short) == *field_type)
+	{
+		*((unsigned short*)field_address + offset) = item->valuedouble;
 	}
 	else if (typeid(unsigned long) == *field_type)
 	{
