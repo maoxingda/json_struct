@@ -112,7 +112,36 @@ void register_fields(std::string in_file_name, std::string out_file_name)
 		{
 			lines.insert(iter1->iter_struct_end, (boost::format("\n\t%1%()") % iter1->struct_name).str());
 			lines.insert(iter1->iter_struct_end, "\t{");
+			
+			//bool first = true;
+			//std::string first_field_name;
+			//for (auto iter2 = iter1->fields.begin(); iter2 != iter1->fields.end(); ++iter2)
+			//{
+			//	if (iter2->empty()) continue;
 
+			//	if (first)
+			//	{
+			//		first = false;
+			//		first_field_name = *iter2;
+			//	}
+			//}
+
+			//if (!first_field_name.empty())
+			//{
+			//	//initialize child struct fields
+			//	boost::format zero_fill_fields("\t\tZeroMemory((byte*)this + offsetof(%1%, %2%), sizeof(%1%) - sizeof(json_struct_base));");
+
+			//	zero_fill_fields % iter1->struct_name;
+			//	zero_fill_fields % first_field_name;
+
+			//	lines.insert(iter1->iter_struct_end, zero_fill_fields.str());
+			//}
+			for (auto iter2 = iter1->fields.begin(); iter2 != iter1->fields.end(); ++iter2)
+			{
+				if (iter2->empty()) continue;
+			}
+			//////////////////////////////////////////////////////////////////////////
+			//TODO:
 			for (auto iter2 = iter1->fields.begin(); iter2 != iter1->fields.end(); ++iter2)
 			{
 				if (iter2->empty()) continue;
