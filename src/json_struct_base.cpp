@@ -9,40 +9,32 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/xpressive/xpressive.hpp>
 
-//use namespaces
 using namespace boost::xpressive;
 
-//predefined declarations
-static bool is_array				(const type_info* ptype_info);
-static int	array_size				(const type_info* ptype_info);
-static std::pair<int,int> table_size(const type_info* ptype_info);
-static bool is_bool					(const type_info* ptype_info);
-static bool is_number				(const type_info* ptype_info);
-static bool is_wide_string			(const type_info* ptype_info);
-static bool is_narrow_string		(const type_info* ptype_info);
-static bool is_wide_string_array	(const type_info* ptype_info);
-static bool is_user_defined			(const type_info* ptype_info);
-static void from_bool				(const type_info* field_type, void* field_address, cJSON* item);
-static void from_number				(const type_info* field_type, void* field_address, cJSON* item);
-static void from_bumber_array		(const type_info* field_type, void* field_address, cJSON* item, int index);
-
-
-enum field_type
+enum type
 {
+	enum_no,
+
 	enum_bool,
-	enum_bool_array,
+
+	enum_number,
+	enum_number_array,
+
+	enum_wchar_array,
+	enum_wchar_table,
+
+	enum_user_def_struct,
+	enum_user_def_struct_array,
 };
 
 struct field_info
 {
+	type				type_;
+	std::string			name_;
 	void*				address_;
-	bool				array_;
-	bool				table_;
-	int					array_size_;
 	int					table_row_;
 	int					table_col_;
-	std::string			name_;
-	const type_info*	type_;
+	const type_info*	field_type_;
 
 	field_info()
 	{
@@ -50,153 +42,185 @@ struct field_info
 	}
 };
 
+struct data_type_info
+{
+	std::map<type, const char*> data_type_regex;
+
+	data_type_info()
+	{
+		data_type_regex[enum_bool]					= "bool";
+
+		data_type_regex[enum_number]				= "(?:int|long|__int64|float|double)";
+		data_type_regex[enum_number_array]			= "(?:int|long|__int64|float|double) \\[(\\d+)\\]";
+
+		data_type_regex[enum_wchar_array]			= "wchar_t \\[(\\d+)\\]";
+		data_type_regex[enum_wchar_table]			= "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
+
+		data_type_regex[enum_user_def_struct]		= "struct \\w+";
+		data_type_regex[enum_user_def_struct_array] = "struct \\w+\\[(\\d+)\\]";
+	}
+};
+
 /************************************************************************/
-/* save your c++ struct size information                                */
-/* key is struct name, value is struct size                             */
+/*               save your c++ struct size information                  */
+/*               key is struct name, value is struct size               */
 /************************************************************************/
 static std::map<std::string, int> struct_object_size_info;
 
 /************************************************************************/
-/* array information regular expressions                                */
+/*               data type regular expressions                          */
 /************************************************************************/
-//character string
-static const char* wide_string			= "wchar_t\\s*\\[\\d+\\]";					//wchar_t\s*\[\d+\]
-static const char* wide_string_array	= "wchar_t\\s*\\[\\d+\\]\\s*\\[\\d+\\]";	//wchar_t\s*\[\d+\]\s*\[\d+\]
-static const char* narrow_string		= "char\\s*\\[\\d+\\]";						//char\s*\[\d+\]
-
-//array size
-static const char* array_len			= "\\w+\\s*\\[\\d+\\]";						//\w+\s*\[\d+\]
-static const char* wchar_table_len		= "wchar_t\\s*\\[(\\d+)\\]\\s*\\[(\\d+)\\]";//wchar_t\s*\[\d+\]\s*\[\d+\]
-
-static bool is_array(const type_info* ptype_info)
-{
-	return std::string::npos != std::string(ptype_info->name()).find("[");
-}
+static data_type_info data_type_infos;
 
 static int array_size(const type_info* ptype_info)
 {
-	smatch sm;
-	static sregex w_string_regex = sregex::compile(wide_string);
+	static cregex pattern_number_array			= cregex::compile(data_type_infos.data_type_regex[enum_number_array]);
+	static cregex pattern_number_wchar_array	= cregex::compile(data_type_infos.data_type_regex[enum_wchar_array]);
+	static cregex pattern_user_def_struct_array	= cregex::compile(data_type_infos.data_type_regex[enum_user_def_struct_array]);
 
-	if (regex_match(std::string(ptype_info->name()), sm, w_string_regex))
+	cmatch array_info;
+
+	if (regex_match(ptype_info->name(), array_info, pattern_number_array))
 	{
-		return atoi(sm[1].str().c_str());
+		return atoi(array_info[1].str().c_str());
+	}
+	else if (regex_match(ptype_info->name(), array_info, pattern_number_wchar_array))
+	{
+		return atoi(array_info[1].str().c_str());
+	}
+	else if (regex_match(ptype_info->name(), array_info, pattern_number_array))
+	{
+		return atoi(array_info[1].str().c_str());
 	}
 
 	return 0;
 }
 
-static std::pair<int, int> table_size(const type_info* ptype_info)
+void table_size(const type_info* ptype_info, int& row, int& col)
 {
-	smatch sm;
-	static sregex wchar_table_regex = sregex::compile(wchar_table_len);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_wchar_table]);
 
-	std::string table_info = std::string(ptype_info->name());
+	cmatch table_info;
 
-	if (regex_match(table_info, sm, wchar_table_regex))
+	if (regex_match(ptype_info->name(), table_info, pattern))
 	{
-		return std::make_pair(atoi(sm[1].str().c_str()), atoi(sm[2].str().c_str()));
+		row = atoi(table_info[1].str().c_str());
+		col = atoi(table_info[2].str().c_str());
 	}
-
-	return std::make_pair(0, 0);
-}
-
-static bool is_wide_string(const type_info* ptype_info)
-{
-	static sregex w_string_regex = sregex::compile(wide_string);
-
-	return regex_match(std::string(ptype_info->name()), w_string_regex);
-}
-
-static bool is_wide_string_array(const type_info* ptype_info)
-{
-	static sregex w_string_a_regex = sregex::compile(wide_string_array);
-
-	return regex_match(std::string(ptype_info->name()), w_string_a_regex);
-}
-
-static bool is_narrow_string(const type_info* ptype_info)
-{
-	static sregex n_string_regex = sregex::compile(narrow_string);
-
-	return regex_match(std::string(ptype_info->name()), n_string_regex);
 }
 
 static bool is_bool(const type_info* ptype_info)
 {
-	return std::string::npos != std::string(ptype_info->name()).find(typeid(bool).name());
-	//|| std::string::npos != std::string(ptype_info->name()).find(typeid(BOOL).name());
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_bool]);
+
+	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_number(const type_info* ptype_info)
 {
-	std::string name = std::string(ptype_info->name());
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_number]);
 
-	return std::string::npos != name.find(typeid(int	).name())
-		|| std::string::npos != name.find(typeid(long	).name())
-		|| std::string::npos != name.find(typeid(INT64	).name())
-		|| std::string::npos != name.find(typeid(DWORD	).name())
-		|| std::string::npos != name.find(typeid(double	).name());
+	return regex_match(ptype_info->name(), pattern);
 }
 
-static bool is_user_defined(const type_info* ptype_info)
+static bool is_number_array(const type_info* ptype_info)
 {
-	return std::string::npos != std::string(ptype_info->name()).find("struct");
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_number_array]);
+
+	return regex_match(ptype_info->name(), pattern);
 }
 
-void from_bool(const type_info* field_type, void* field_address, cJSON* item)
+static bool is_wchar_array(const type_info* ptype_info)
 {
-	if (typeid(bool) == *field_type)
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_wchar_array]);
+
+	return regex_match(ptype_info->name(), pattern);
+}
+
+static bool is_wchar_table(const type_info* ptype_info)
+{
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_wchar_table]);
+
+	return regex_match(ptype_info->name(), pattern);
+}
+
+static bool is_user_defined_struct(const type_info* ptype_info)
+{
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_user_def_struct]);
+
+	return regex_match(ptype_info->name(), pattern);
+}
+
+static bool is_user_defined_struct_array(const type_info* ptype_info)
+{
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_user_def_struct_array]);
+
+	return regex_match(ptype_info->name(), pattern);
+}
+
+static type data_type(const type_info* ptype_info, field_info* pfield_info = nullptr)
+{
+	if (is_bool(ptype_info))
 	{
-		*(bool*)field_address = 1 == item->valueint ? true : false;
+		return enum_bool;
 	}
+	else if (is_number(ptype_info))
+	{
+		return enum_number;
+	}
+	else if (is_number_array(ptype_info))
+	{
+		return enum_number_array;
+	}
+	else if (is_wchar_array(ptype_info))
+	{
+		return enum_wchar_array;
+	}
+	else if (is_wchar_table(ptype_info))
+	{
+		if (pfield_info)
+		{
+			table_size(ptype_info, pfield_info->table_row_, pfield_info->table_col_);
+		}
+		return enum_wchar_table;
+	}
+	else if (is_user_defined_struct(ptype_info))
+	{
+		return enum_user_def_struct;
+	}
+	else if (is_user_defined_struct_array(ptype_info))
+	{
+		return enum_user_def_struct_array;
+	}
+
+	return enum_no;
 }
 
-void from_number(const type_info* field_type, void* field_address, cJSON* item)
+void from_number(const type_info* field_type, void* field_address, cJSON* item, int offset)
 {
 	if (typeid(int) == *field_type)
 	{
-		*(int*)field_address = item->valuedouble;
+		*((int*)field_address + offset) = item->valuedouble;
+	}
+	else if (typeid(__int64) == *field_type)
+	{
+		*((__int64*)field_address + offset) = item->valuedouble;
 	}
 	else if (typeid(long) == *field_type)
 	{
-		*(long*)field_address = item->valuedouble;
+		*((long*)field_address + offset) = item->valuedouble;
 	}
-	else if (typeid(INT64) == *field_type)
+	else if (typeid(unsigned long) == *field_type)
 	{
-		*(INT64*)field_address = item->valuedouble;
+		*((unsigned long*)field_address + offset) = item->valuedouble;
 	}
-	else if (typeid(DWORD) == *field_type)
+	else if (typeid(float) == *field_type)
 	{
-		*(DWORD*)field_address = item->valuedouble;
+		*((float*)field_address + offset) = item->valuedouble;
 	}
 	else if (typeid(double) == *field_type)
 	{
-		*(double*)field_address = item->valuedouble;
-	}
-}
-
-void from_bumber_array(const type_info* field_type, void* field_address, cJSON* item, int index)
-{
-	if (std::string::npos != std::string(field_type->name()).find("int"))
-	{
-		*((int*)field_address + index) = item->valuedouble;
-	}
-	else if (std::string::npos != std::string(field_type->name()).find("long"))
-	{
-		*((long*)field_address + index) = item->valuedouble;
-	}
-	else if (std::string::npos != std::string(field_type->name()).find("INT64"))
-	{
-		*((INT64*)field_address + index) = item->valuedouble;
-	}
-	else if (std::string::npos != std::string(field_type->name()).find("DWORD"))
-	{
-		*((DWORD*)field_address + index) = item->valuedouble;
-	}
-	else if (std::string::npos != std::string(field_type->name()).find("double"))
-	{
-		*((double*)field_address + index) = item->valuedouble;
+		*((double*)field_address + offset) = item->valuedouble;
 	}
 }
 
@@ -219,99 +243,110 @@ bool json_struct_base::from_json_object(cJSON* object)
 
 	for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
 	{
-		field_info*			pfield_info		= *iter;
+		field_info*			field_information	= *iter;
+		void*				field_address		= field_information->address_;
 
-		void*				field_address	= pfield_info->address_;
-		const type_info*	field_type		= pfield_info->type_;
+		cJSON* item = cJSON_GetObjectItem(object, field_information->name_.c_str());
 
-		cJSON* item = cJSON_GetObjectItem(object, pfield_info->name_.c_str());
+		if (nullptr == item) return false;
 
-		if (nullptr == item								) return false;
-		if (is_narrow_string(field_type)				) return false; // not support narrow character array
-		if (is_bool(field_type) && is_array(field_type)	) return false;	// not support bool array
-
-		if (is_bool(field_type))
+		switch (field_information->type_)
 		{
-			if (cJSON_False != item->type && cJSON_True != item->type) return false;
+		case enum_bool:
+			{
+				if (cJSON_False != item->type && cJSON_True != item->type) return false;
 
-			from_bool(field_type, field_address, item);
-		}
-		else if (is_number(field_type))
-		{
-			if (!is_array(field_type))
+				*(bool*)field_address = 1 == item->valueint ? true : false;
+			}
+			break;
+		case enum_number:
 			{
 				if (cJSON_Number != item->type) return false;
 
-				from_number(field_type, field_address, item);
+				from_number(field_information->field_type_, field_address, item, 0);
 			}
-			else
+			break;
+		case enum_number_array:
 			{
 				if (cJSON_Array != item->type) return false;
 
-				for (int i = 0; i < cJSON_GetArraySize(item) && i < array_size(field_type); ++i)
+				int arrSize1 = cJSON_GetArraySize(item);
+				int arrSize2 = array_size(field_information->field_type_);
+
+				for (int i = 0; i < arrSize1 && i < arrSize2; ++i)
 				{
 					cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
 					if (cJSON_Number != arrItem->type) return false;
 
-					from_bumber_array(field_type, field_address, arrItem, i);
+					from_number(field_information->field_type_, field_address, item, i);
 				}
 			}
-		}
-		else if (is_wide_string(field_type))
-		{
-			for(int i = 0; i < array_size(field_type); ++i)
+			break;
+		case enum_wchar_array:
 			{
 				if (cJSON_String != item->type) return false;
 
 				std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(item->valuestring);
 
-				wcsncpy_s((WCHAR*)field_address, array_size(field_type) - 1, ucs2.c_str(), ucs2.size());
+				WCHAR* dst = (WCHAR*)field_address;
+
+				wcsncpy_s(dst, array_size(field_information->field_type_) - 1, ucs2.c_str(), ucs2.size());
+
+				*(dst + ucs2.size()) = '\0';
 			}
-		}
-		else if (is_wide_string_array(field_type))
-		{
-			if (cJSON_Array != item->type) return false;
-
-			auto table_info = table_size(field_type);
-
-			for (auto i = 0; i < table_info.first && i < cJSON_GetArraySize(item); ++i)
+			break;
+		case enum_wchar_table:
 			{
-				cJSON* arrItem = cJSON_GetArrayItem(item, i);
+				if (cJSON_Array != item->type) return false;
 
-				if (cJSON_String != arrItem->type) return false;
+				int arrSize = cJSON_GetArraySize(item);
 
-				std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
+				for (auto i = 0; i < field_information->table_row_ && i < arrSize; ++i)
+				{
+					cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-				wcsncpy_s((WCHAR*)field_address + i * table_info.second, table_info.second - 1, ucs2.c_str(), ucs2.size());
+					if (cJSON_String != arrItem->type) return false;
+
+					std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
+
+					WCHAR* dst = (WCHAR*)field_address + i * field_information->table_col_;
+
+					wcsncpy_s(dst, field_information->table_col_ - 1, ucs2.c_str(), ucs2.size());
+
+					*(dst + ucs2.size()) = '\0';
+				}
 			}
-		}
-		else if (is_user_defined(field_type))
-		{
-			if (!is_array(field_type))
+			break;
+		case enum_user_def_struct:
 			{
 				bool success = ((json_struct_base*)field_address)->from_json_object(item);
 
 				if (!success) return false;
 			}
-			else
+			break;
+		case enum_user_def_struct_array:
 			{
 				int size = 0;
 				for (auto iter = struct_object_size_info.begin(); iter != struct_object_size_info.end(); ++iter)
 				{
-					if (std::string::npos != std::string(field_type->name()).find(iter->first))
+					if (std::string::npos != field_information->name_.find(iter->first))
 					{
 						size = iter->second;
 						break;
 					}
 				}
-				for (int i = 0; i < array_size(field_type); ++i)
+
+				int arrSize = array_size(field_information->field_type_);
+
+				for (int i = 0; i < arrSize; ++i)
 				{
 					bool success = ((json_struct_base*)((BYTE*)field_address + i * size))->from_json_object(cJSON_GetArrayItem(item, i));
 
 					if (!success) return false;
 				}
 			}
+			break;
 		}
 	}
 
@@ -322,9 +357,10 @@ void json_struct_base::register_field(std::string st_name, int st_size, const ty
 {
 	field_info* pfield_info	= new field_info;
 
-	pfield_info->address_	= field_address;
-	pfield_info->name_		= field_name;
-	pfield_info->type_		= field_type;
+	pfield_info->type_			= data_type(field_type);
+	pfield_info->name_			= field_name;
+	pfield_info->address_		= field_address;
+	pfield_info->field_type_	= field_type;
 
 	fields_info.push_back(pfield_info);
 
