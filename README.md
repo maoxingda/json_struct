@@ -18,8 +18,8 @@
 4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
 
 ###### TODO
-1. support serialize c++ struct to json stream
-2. memory leak
+*. support serialize c++ struct to json stream
+*. memory leak
 
 ## example
 ```
