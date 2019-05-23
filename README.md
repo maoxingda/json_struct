@@ -55,5 +55,5 @@ JSON_STRUCT(student)
 
 student stu1;
 
-stu1.from_json("");
+stu1.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}}");
 ```
