@@ -3,7 +3,7 @@
 ## usage
 
 1. declare your c++ struct by macro ***JSON_STRUCT***.
-2. register your c++ struct fields by macro ***JSON_REGISTER_FIELD*** in your struct constructor function.
+2. register your c++ struct fields by macro ***JSON_REGISTER[_MAP]_FIELD*** in your struct constructor function.
 3. create your c++ struct object instance and call member function ***from_json*** subsequently and so that's all.
 
 ## automation
