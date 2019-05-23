@@ -49,15 +49,15 @@ struct data_type_info
 
 	data_type_info()
 	{
-		data_type_regexs[enum_bool]					= "bool";
-
-		data_type_regexs[enum_number]				= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
-		data_type_regexs[enum_number_array]			= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
-
-		data_type_regexs[enum_wchar_array]			= "wchar_t \\[(\\d+)\\]";
-		data_type_regexs[enum_wchar_table]			= "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
-
-		data_type_regexs[enum_user_def_struct]		= "struct \\w+";
+		data_type_regexs[enum_bool]					 = "bool";
+													 
+		data_type_regexs[enum_number]				 = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
+		data_type_regexs[enum_number_array]			 = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
+													 
+		data_type_regexs[enum_wchar_array]			 = "wchar_t \\[(\\d+)\\]";
+		data_type_regexs[enum_wchar_table]			 = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
+													 
+		data_type_regexs[enum_user_def_struct]		 = "struct \\w+";
 		data_type_regexs[enum_user_def_struct_array] = "struct \\w+ \\[(\\d+)\\]";
 	}
 };
