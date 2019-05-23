@@ -21,6 +21,7 @@
 * support serialize c++ struct to json stream  
 * memory leak  
 * support required and optional fields
+* support comment struct, can only support comment fields now
 
 ## example
 ```
