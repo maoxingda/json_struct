@@ -1,7 +1,4 @@
 # json2cxxstruct
-deserialize c++ struct from json byte stream
-
-
  \brief
 		deserialize c++ struct from json stream
 
