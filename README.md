@@ -17,5 +17,39 @@
 3. not support - user_defined_type var_name([array_size]){2,}
 4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
 
+## example
+```
+JSON_STRUCT(date)
+{
+	wchar_t year;
+	wchar_t month;
+	wchar_t day;
+
+	date()
+	{
+		JSON_REGISTER_FIELD(year);
+		JSON_REGISTER_FIELD(month);
+		JSON_REGISTER_FIELD(day);
+	}
+};
+
+JSON_STRUCT(student)
+{
+	int		id;
+	wchar_t name[32];
+	date	birthday;
+
+	student()
+	{
+		JSON_REGISTER_FIELD(id);
+		JSON_REGISTER_FIELD(name);
+		JSON_REGISTER_NESTED_FIELD(birthday);
+	}
+};
+
+student stu1;
+
+stu1.from_json("");
+```
 ###### TODO
 1. support serialize c++ struct to json stream
