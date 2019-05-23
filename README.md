@@ -1,11 +1,11 @@
 # deserialize c++ struct from json stream 
 
 ## usage
-
+```
 1. declare your c++ struct by macro ***JSON_STRUCT***.
 2. register your c++ struct fields by macro ***JSON_REGISTER_FIELD*** in your struct constructor function.
 3. create your c++ struct object instance and call member function ***from_json*** subsequently and so that's all.
-
+```
 ## automation
 1. inorder to use **json2cxxstructHelper.exe** tool, you must follow the rules below.
 2. declare your c++ nested struct fields by macro ***JSON_STRUCT_FIELD[_ARRAY]?***.
