@@ -3,23 +3,24 @@
 #include "json_struct_base.h"
 
 
-JSON_STRUCT(date)
+JSON_STRUCT(struct_test_bool)
 {
-	wchar_t year[6];
-	/*
-	wchar_t month[4];
-	wchar_t day[4];*/
+	bool field_bool;
 
-	JSON_STRUCT_DEF_CTOR(date);
+	JSON_STRUCT_DEF_CTOR(struct_test_bool);
 };
 
-JSON_STRUCT(student)
+//note data range
+JSON_STRUCT(struct_test_number)
 {
-	int		id;
-	JSON_STRUCT_FIELD(date birthday1);
-	//int		qqs[2];
-	wchar_t name[16];
-	//JSON_STRUCT_FIELD(date birthday2);
-	JSON_STRUCT_FIELD(date birthday3[3]);
-	JSON_STRUCT_DEF_CTOR(student);
+	int				field_int;
+	__int64			field_int64;
+	long			field_long;
+	unsigned short	field_ushort;
+	unsigned int	field_uint;
+	unsigned long	field_ulong;
+	float			field_float;
+	double			field_double;
+
+	JSON_STRUCT_DEF_CTOR(struct_test_number);
 };

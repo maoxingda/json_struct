@@ -207,6 +207,12 @@ void from_number(const type_info * field_type, void *field_address, cJSON * item
 	}
 	else if (typeid(long) == *field_type)
 	{
+		if (LONG_MAX <= item->valuedouble)
+		{
+		}
+		else if ()
+		{
+		}
 		*((long*)field_address + offset) = item->valuedouble;
 	}
 	else if (typeid(unsigned short) == *field_type)

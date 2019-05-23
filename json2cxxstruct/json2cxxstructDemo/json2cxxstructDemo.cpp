@@ -7,36 +7,23 @@
 #include <codecvt>
 #include <typeinfo>
 #include "json2cxxstruct1.h"
-
-
-JSON_STRUCT(test)
-{
-	wchar_t urls[4][128];
-
-	test()
-	{
-		JSON_REGISTER_MAP_FIELD(urls, "urlsssss");
-		JSON_STRUCT_FIELD_FILL_ZERO(test, urls);
-	}
-};
+//#include <vld.h>
 
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cnv;
+	struct_test_bool stb_true;
+
+	assert(stb_true.from_json("{\"field_bool\":true}"));
+
+	struct_test_bool stb_false;
+
+	assert(stb_false.from_json("{\"field_bool\":false}"));
 	//////////////////////////////////////////////////////////////////////////
-	std::string test_json = cnv.to_bytes(L"{\"urlsssss\":[\"url1\",\"url2\",\"url3\"]}");
+	struct_test_number stn;
 
-	test t1;
+	assert(stn.from_json("{\"field_int\":123,\"field_int64\":4611686018427387904,\"field_long\":4611686018427387904,\"field_ushort\":456,\"field_uint\":2147483648,\"field_ulong\":2147483648,\"field_double\":3.1415926,\"field_float\":3.1415926}"));
 
-	assert(t1.from_json(test_json));
-	//////////////////////////////////////////////////////////////////////////
-	std::string stu_json = cnv.to_bytes(L"{\"id\":1001,\"name\":\"Ã«ÐË´ï\",\"birthday1\":{\"year\":\"1990\"},\"birthday3\":[{\"year\":\"1990\"},{\"year\":\"1991\"},{\"year\":\"1992\"},{\"year\":\"1993\"}]}");
-
-	student s1;
-
-	assert(s1.from_json(stu_json));
-	//////////////////////////////////////////////////////////////////////////
+	char b = 128;
 	return true;
 }
-
