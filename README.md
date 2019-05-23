@@ -39,7 +39,7 @@ JSON_STRUCT(date)
 
 JSON_STRUCT(student)
 {
-	int		id;
+	int	id;
 	wchar_t name[32];
 	date	birthday;
 
