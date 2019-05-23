@@ -13,7 +13,7 @@ using namespace boost::xpressive;
 
 enum type
 {
-	enum_no,
+	enum_none,
 
 	enum_bool,
 
@@ -32,6 +32,7 @@ struct field_info
 	type				type_;
 	std::string			name_;
 	void*				address_;
+	int					offset_;
 	int					table_row_;
 	int					table_col_;
 	const type_info*	field_type_;
@@ -44,28 +45,22 @@ struct field_info
 
 struct data_type_info
 {
-	std::map<type, const char*> data_type_regex;
+	std::map<type, const char*> data_type_regexs;
 
 	data_type_info()
 	{
-		data_type_regex[enum_bool]					= "bool";
+		data_type_regexs[enum_bool]					= "bool";
 
-		data_type_regex[enum_number]				= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
-		data_type_regex[enum_number_array]			= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
+		data_type_regexs[enum_number]				= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
+		data_type_regexs[enum_number_array]			= "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
 
-		data_type_regex[enum_wchar_array]			= "wchar_t \\[(\\d+)\\]";
-		data_type_regex[enum_wchar_table]			= "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
+		data_type_regexs[enum_wchar_array]			= "wchar_t \\[(\\d+)\\]";
+		data_type_regexs[enum_wchar_table]			= "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
 
-		data_type_regex[enum_user_def_struct]		= "struct \\w+";
-		data_type_regex[enum_user_def_struct_array] = "struct \\w+\\[(\\d+)\\]";
+		data_type_regexs[enum_user_def_struct]		= "struct \\w+";
+		data_type_regexs[enum_user_def_struct_array] = "struct \\w+ \\[(\\d+)\\]";
 	}
 };
-
-/************************************************************************/
-/*               save your c++ struct size information                  */
-/*               key is struct name, value is struct size               */
-/************************************************************************/
-static std::map<std::string, int> struct_object_size_info;
 
 /************************************************************************/
 /*               data type regular expressions                          */
@@ -74,9 +69,9 @@ static data_type_info data_type_infos;
 
 static int array_size(const type_info* ptype_info)
 {
-	static cregex pattern_number_array			= cregex::compile(data_type_infos.data_type_regex[enum_number_array]);
-	static cregex pattern_number_wchar_array	= cregex::compile(data_type_infos.data_type_regex[enum_wchar_array]);
-	static cregex pattern_user_def_struct_array	= cregex::compile(data_type_infos.data_type_regex[enum_user_def_struct_array]);
+	static cregex pattern_number_array			= cregex::compile(data_type_infos.data_type_regexs[enum_number_array]);
+	static cregex pattern_number_wchar_array	= cregex::compile(data_type_infos.data_type_regexs[enum_wchar_array]);
+	static cregex pattern_user_def_struct_array	= cregex::compile(data_type_infos.data_type_regexs[enum_user_def_struct_array]);
 
 	cmatch array_info;
 
@@ -88,7 +83,7 @@ static int array_size(const type_info* ptype_info)
 	{
 		return atoi(array_info[1].str().c_str());
 	}
-	else if (regex_match(ptype_info->name(), array_info, pattern_number_array))
+	else if (regex_match(ptype_info->name(), array_info, pattern_user_def_struct_array))
 	{
 		return atoi(array_info[1].str().c_str());
 	}
@@ -98,7 +93,7 @@ static int array_size(const type_info* ptype_info)
 
 void table_size(const type_info* ptype_info, int& row, int& col)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_wchar_table]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_wchar_table]);
 
 	cmatch table_info;
 
@@ -111,49 +106,49 @@ void table_size(const type_info* ptype_info, int& row, int& col)
 
 static bool is_bool(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_bool]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_bool]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_number(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_number]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_number]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_number_array(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_number_array]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_number_array]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_wchar_array(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_wchar_array]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_wchar_array]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_wchar_table(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_wchar_table]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_wchar_table]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_user_defined_struct(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_user_def_struct]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_user_def_struct]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
 static bool is_user_defined_struct_array(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regex[enum_user_def_struct_array]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_user_def_struct_array]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
@@ -193,7 +188,7 @@ static type data_type(const type_info* ptype_info, field_info* pfield_info = nul
 		return enum_user_def_struct_array;
 	}
 
-	return enum_no;
+	return enum_none;
 }
 
 void from_number(const type_info* field_type, void* field_address, cJSON* item, int offset)
@@ -247,7 +242,8 @@ bool json_struct_base::from_json(std::string json)
 
 bool json_struct_base::from_json_object(cJSON* object)
 {
-	if (nullptr == object) return false;
+	if (nullptr == object)			return false;
+	if (0 == fields_info.size())	return false;
 
 	for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
 	{
@@ -335,25 +331,19 @@ bool json_struct_base::from_json_object(cJSON* object)
 			break;
 		case enum_user_def_struct_array:
 			{
-				int size = 0;
-				for (auto iter = struct_object_size_info.begin(); iter != struct_object_size_info.end(); ++iter)
-				{
-					if (std::string::npos != field_information->name_.find(iter->first))
-					{
-						size = iter->second;
-						break;
-					}
-				}
+				int arrSizeReal		= cJSON_GetArraySize(item);
+				int arrSizeExpected = array_size(field_information->field_type_);
 
-				int arrSize = array_size(field_information->field_type_);
-
-				for (int i = 0; i < arrSize; ++i)
+				for (int i = 0; i < arrSizeExpected && i < arrSizeReal; ++i)
 				{
-					bool success = ((json_struct_base*)((BYTE*)field_address + i * size))->from_json_object(cJSON_GetArrayItem(item, i));
+					bool success = ((json_struct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json_object(cJSON_GetArrayItem(item, i));
 
 					if (!success) return false;
 				}
 			}
+			break;
+		case enum_none:
+			return false;
 			break;
 		}
 	}
@@ -361,18 +351,17 @@ bool json_struct_base::from_json_object(cJSON* object)
 	return true;
 }
 
-void json_struct_base::register_field(std::string st_name, int st_size, const type_info* field_type, std::string field_name, void* field_address)
+void json_struct_base::register_field(const type_info* field_type, std::string field_name, void* field_address, int offset)
 {
 	field_info* pfield_info	= new field_info;
 
-	pfield_info->type_			= data_type(field_type);
+	pfield_info->type_			= data_type(field_type, pfield_info);
 	pfield_info->name_			= field_name;
 	pfield_info->address_		= field_address;
+	pfield_info->offset_		= offset;
 	pfield_info->field_type_	= field_type;
 
 	fields_info.push_back(pfield_info);
-
-	struct_object_size_info.insert(std::make_pair(st_name, st_size));
 }
 
 json_struct_base::~json_struct_base()

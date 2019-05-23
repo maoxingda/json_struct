@@ -19,6 +19,12 @@
     <Filter Include="GeneratedFiles">
       <UniqueIdentifier>{848cf1bb-b3e3-46ca-84f4-b92d91e4f8ea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GeneratedFiles\Debug">
+      <UniqueIdentifier>{d838f025-6e14-4e24-b638-c63994d26f1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GeneratedFiles\Release">
+      <UniqueIdentifier>{602ea185-311a-4025-9474-b89626758b97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -30,9 +36,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\json_json2cxxstruct1.h">
-      <Filter>GeneratedFiles</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -41,9 +44,12 @@
     <ClCompile Include="json2cxxstructDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Library Include="..\Debug\json2cxxstruct.lib" />
+    <ClCompile Include="GeneratedFiles\Debug\json_json2cxxstruct1.cpp">
+      <Filter>GeneratedFiles\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\json_json2cxxstruct1.cpp">
+      <Filter>GeneratedFiles\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="test\json2cxxstruct1.h">
