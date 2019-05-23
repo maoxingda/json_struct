@@ -1,5 +1,5 @@
 # deserialize c++ struct from json stream 
-
+---
 ## usage
 
 1. declare your c++ struct by macro ***JSON_STRUCT***.
