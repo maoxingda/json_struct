@@ -1,5 +1,4 @@
 # json2cxxstruct
- \brief
 		deserialize c++ struct from json stream
 
  \usage
