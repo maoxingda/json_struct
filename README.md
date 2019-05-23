@@ -20,6 +20,7 @@
 ###### TODO
 * support serialize c++ struct to json stream  
 * memory leak  
+* support required and optional fields
 
 ## example
 ```
