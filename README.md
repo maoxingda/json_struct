@@ -17,6 +17,10 @@
 3. not support - user_defined_type var_name([array_size]){2,}
 4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
 
+###### TODO
+1. support serialize c++ struct to json stream
+2. memory leak
+
 ## example
 ```
 JSON_STRUCT(date)
@@ -51,5 +55,3 @@ student stu1;
 
 stu1.from_json("");
 ```
-###### TODO
-1. support serialize c++ struct to json stream
