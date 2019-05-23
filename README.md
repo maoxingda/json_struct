@@ -1,6 +1,6 @@
-# 				deserialize c++ struct from json stream 
+# deserialize c++ struct from json stream 
 
- ##usage
+## usage
 
 		1. declare your c++ struct by macro ___JSON_STRUCT___
 		2. register your c++ struct fields by macro "JSON_STRUCT" in your struct constructor function
