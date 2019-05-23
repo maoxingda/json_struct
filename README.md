@@ -6,6 +6,7 @@ deserialize c++ struct from json byte stream
  *		deserialize c++ struct from json stream
  *
  * \usage
+ *
  *		1. declare your c++ struct by macro "JSON_STRUCT"
  *		2. register your c++ struct fields by macro "JSON_STRUCT" in your struct constructor function
  *		3. create your c++ struct object instance and call member function from_json subsequently and so on
