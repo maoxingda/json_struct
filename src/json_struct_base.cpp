@@ -50,13 +50,13 @@ struct data_type_info
 	data_type_info()
 	{
 		data_type_regexs[enum_bool]					 = "bool";
-													 
+
 		data_type_regexs[enum_number]				 = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
 		data_type_regexs[enum_number_array]			 = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
-													 
+
 		data_type_regexs[enum_wchar_array]			 = "wchar_t \\[(\\d+)\\]";
 		data_type_regexs[enum_wchar_table]			 = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
-													 
+
 		data_type_regexs[enum_user_def_struct]		 = "struct \\w+";
 		data_type_regexs[enum_user_def_struct_array] = "struct \\w+ \\[(\\d+)\\]";
 	}
@@ -153,7 +153,7 @@ static bool is_user_defined_struct_array(const type_info* ptype_info)
 	return regex_match(ptype_info->name(), pattern);
 }
 
-static type data_type(const type_info* ptype_info, field_info* pfield_info = nullptr)
+static type data_type(const type_info * ptype_info, field_info * pfield_info = nullptr)
 {
 	if (is_bool(ptype_info))
 	{
@@ -191,13 +191,13 @@ static type data_type(const type_info* ptype_info, field_info* pfield_info = nul
 	return enum_none;
 }
 
-void from_number(const type_info* field_type, void* field_address, cJSON* item, int offset)
+void from_number(const type_info * field_type, void *field_address, cJSON * item, int offset)
 {
 	if (typeid(int) == *field_type)
 	{
 		*((int*)field_address + offset) = item->valuedouble;
 	}
-	if (typeid(unsigned int) == *field_type)
+	else if (typeid(unsigned int) == *field_type)
 	{
 		*((unsigned int*)field_address + offset) = item->valuedouble;
 	}
@@ -240,17 +240,17 @@ bool json_struct_base::from_json(std::string json)
 	return success;
 }
 
-bool json_struct_base::from_json_object(cJSON* object)
+bool json_struct_base::from_json_object(cJSON * object)
 {
-	if (nullptr == object)			return false;
-	if (0 == fields_info.size())	return false;
+	if (nullptr == object) return false;
+	if (0 == fields_info.size()) return false;
 
 	for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
 	{
 		field_info*			field_information	= *iter;
 		void*				field_address		= field_information->address_;
 
-		cJSON* item = cJSON_GetObjectItem(object, field_information->name_.c_str());
+		cJSON *item = cJSON_GetObjectItem(object, field_information->name_.c_str());
 
 		if (nullptr == item) return false;
 
@@ -291,7 +291,7 @@ bool json_struct_base::from_json_object(cJSON* object)
 			{
 				if (cJSON_String != item->type) return false;
 
-				std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(item->valuestring);
+				std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > ().from_bytes(item->valuestring);
 
 				WCHAR* dst = (WCHAR*)field_address;
 
@@ -312,9 +312,9 @@ bool json_struct_base::from_json_object(cJSON* object)
 
 					if (cJSON_String != arrItem->type) return false;
 
-					std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
+					std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > ().from_bytes(arrItem->valuestring);
 
-					WCHAR* dst = (WCHAR*)field_address + i * field_information->table_col_;
+					WCHAR *dst = (WCHAR *) field_address + i * field_information->table_col_;
 
 					wcsncpy_s(dst, field_information->table_col_ - 1, ucs2.c_str(), ucs2.size());
 
@@ -324,7 +324,7 @@ bool json_struct_base::from_json_object(cJSON* object)
 			break;
 		case enum_user_def_struct:
 			{
-				bool success = ((json_struct_base*)field_address)->from_json_object(item);
+				bool success = ((json_struct_base *) field_address)->from_json_object(item);
 
 				if (!success) return false;
 			}
@@ -353,7 +353,7 @@ bool json_struct_base::from_json_object(cJSON* object)
 
 void json_struct_base::register_field(const type_info* field_type, std::string field_name, void* field_address, int offset)
 {
-	field_info* pfield_info	= new field_info;
+	field_info* pfield_info		= new field_info;
 
 	pfield_info->type_			= data_type(field_type, pfield_info);
 	pfield_info->name_			= field_name;
@@ -366,5 +366,5 @@ void json_struct_base::register_field(const type_info* field_type, std::string f
 
 json_struct_base::~json_struct_base()
 {
-	std::for_each(fields_info.begin(), fields_info.end(), [&](field_info* pointer) { delete pointer; });
+	std::for_each(fields_info.begin(), fields_info.end(),[&](field_info * pointer) { delete pointer; });
 }
