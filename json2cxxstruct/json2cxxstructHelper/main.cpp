@@ -121,8 +121,29 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 		sregex struct_end_re = sregex::compile("\\}\\s*;");
 		sregex struct_beg_re = sregex::compile("JSON_STRUCT\\s*\\([a-zA-Z_$][a-zA-Z0-9_$]*\\)");
 
+		bool in_multiline_comment = false;
+
 		for (auto iter = lines.begin(); iter != lines.end(); ++iter)
 		{
+			if (is_single_line_comment(*iter)) continue;
+
+			if (is_multiline_comment_beg(*iter))
+			{
+				in_multiline_comment = true;
+
+				continue;
+			}
+			else if (is_multiline_comment_end(*iter))
+			{
+				in_multiline_comment = false;
+
+				continue;
+			}
+			else if (in_multiline_comment)
+			{
+				continue;
+			}
+
 			if (regex_search(*iter, struct_beg_re))
 			{
 				reg_info.iter_struct_beg = iter;
