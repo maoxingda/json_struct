@@ -16,3 +16,6 @@
 2. not support - basic_data_type var_name([array_size]){2,} **other than** wchar_t[row][col]
 3. not support - user_defined_type var_name([array_size]){2,}
 4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
+
+### TODO
+1. support serialize c++ sruct to json stream
