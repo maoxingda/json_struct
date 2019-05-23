@@ -1,5 +1,4 @@
-# json2cxxstruct
-		# deserialize c++ struct from json stream
+# 				deserialize c++ struct from json stream 
 
  ##usage
 
