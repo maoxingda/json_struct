@@ -24,6 +24,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	assert(stn.from_json("{\"field_int\":123,\"field_int64\":4611686018427387904,\"field_long\":4611686018427387904,\"field_ushort\":456,\"field_uint\":2147483648,\"field_ulong\":2147483648,\"field_double\":3.1415926,\"field_float\":3.1415926}"));
 
-	char b = 128;
+	//////////////////////////////////////////////////////////////////////////
+	std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > cnv;
+
+	student stu;
+
+	assert(stu.from_json(cnv.to_bytes(L"{\"id\":1001,\"name\":\"Ã«ÐË´ï\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}}")));
+
 	return true;
 }

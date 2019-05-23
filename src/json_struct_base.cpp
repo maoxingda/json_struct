@@ -195,11 +195,22 @@ void from_number(const type_info * field_type, void *field_address, cJSON * item
 {
 	if (typeid(int) == *field_type)
 	{
-		*((int*)field_address + offset) = item->valuedouble;
+		*((int*)field_address + offset) = item->valueint;
 	}
 	else if (typeid(unsigned int) == *field_type)
 	{
-		*((unsigned int*)field_address + offset) = item->valuedouble;
+		if (UINT_MAX <= item->valuedouble)
+		{
+			*((unsigned int*)field_address + offset) = UINT_MAX;
+		}
+		//else if ((unsigned int)UINT_MIN >= item->valuedouble)
+		//{
+		//	*((unsigned int*)field_address + offset) = UINT_MIN;
+		//}
+		else
+		{
+			*((unsigned int*)field_address + offset) = (unsigned int)item->valuedouble;
+		}
 	}
 	else if (typeid(__int64) == *field_type)
 	{
@@ -209,11 +220,16 @@ void from_number(const type_info * field_type, void *field_address, cJSON * item
 	{
 		if (LONG_MAX <= item->valuedouble)
 		{
+			*((long*)field_address + offset) = LONG_MAX;
 		}
-		else if ()
+		else if ((double)LONG_MIN >= item->valuedouble)
 		{
+			*((long*)field_address + offset) = LONG_MIN;
 		}
-		*((long*)field_address + offset) = item->valuedouble;
+		else
+		{
+			*((long*)field_address + offset) = (long)item->valuedouble;
+		}
 	}
 	else if (typeid(unsigned short) == *field_type)
 	{
