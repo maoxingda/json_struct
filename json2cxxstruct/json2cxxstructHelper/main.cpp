@@ -11,6 +11,7 @@ struct field_info
 {
 	bool		nested;
 	bool		array;
+	std::string qualifier;
 	std::string name;
 };
 
@@ -23,6 +24,20 @@ struct register_info
 	std::list<std::string>::const_iterator	iter_struct_beg;
 	std::list<std::string>::const_iterator	iter_struct_end;
 };
+
+static std::string field_qualifier(std::string declaration)
+{
+    smatch qualifier;
+    
+    static sregex field_qualifier_regex = sregex::compile(“((OPTIONREQUIRED)”);
+    
+    if (regex_search(declaration, qualifier, field_qualifier_regex))
+    {
+        return qualifier[1];
+    }
+    
+    return “”;
+}
 
 static std::string field_name(std::string declaration, bool& nested, bool& array)
 {
