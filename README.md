@@ -2,14 +2,14 @@
 ---
 ## usage
 
-1. declare your c++ struct by macro ***JSON_STRUCT***.
-2. register your c++ struct fields by macro ***JSON_REGISTER[_MAP]?_FIELD*** in your struct constructor function.
-3. create your c++ struct object instance and call member function ***from_json*** subsequently and so that's all.
+1. declare struct by ***JSON_STRUCT(struct_name)***.
+2. register struct fields by ***JSON_STRUCT_REGISTER[_[MAP|NESTED]]_FIELD(qualifier, field_name)*** in constructor function where qualifier is ***REQUIRED*** or ***OPTIONAL***.
+3. create struct object and call member function ***from_json(json_stream_utf8)***, so that's all.
 
 ## automation
 1. inorder to use **json2cxxstructHelper.exe** tool, you must follow the rules below.
-2. declare your c++ nested struct fields by macro ***JSON_STRUCT_FIELD[_ARRAY]?***.
-3. declare your c++ struct default constructor by macro ***JSON_STRUCT_DEF_CTOR***.
+2. declare nested struct fields by ***JSON_STRUCT_DECL_NESTED_FIELD[_ARRAY]***.
+3. declare struct default constructor.
 
 ## note
 1. not support - bool var_name([array_size])+
@@ -20,8 +20,6 @@
 ###### TODO
 * support serialize c++ struct to json stream  
 * memory leak  
-* support required and optional fields
-* support comment struct, can only support comment fields now
 
 ## example
 ```
@@ -49,7 +47,7 @@ JSON_STRUCT(student)
 	{
 		JSON_REGISTER_FIELD(id);
 		JSON_REGISTER_FIELD(name);
-		JSON_REGISTER_NESTED_FIELD(birthday);
+		JSON_STRUCT_REGISTER_NESTED_FIELD(birthday);
 	}
 };
 
