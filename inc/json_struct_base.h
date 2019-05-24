@@ -92,14 +92,26 @@ private:
 //declare your json struct field by this macro
 #define JSON_STRUCT_FIELD(type_and_name) type_and_name
 
+//declare your json struct field by this macro
+#define JSON_STRUCT_DECL_FIELD(qualified_name, type_and_name) qualified_name type_and_name
+
 //zero fill your json struct field by this macro
 #define JSON_STRUCT_FIELD_FILL_ZERO(struct_name, field_name) ZeroMemory((byte*)this + offsetof(struct_name, field_name), sizeof(field_name))
 
 //register your json struct fields by this macro in your struct constructor function
 #define JSON_REGISTER_FIELD(field_name) register_field(&typeid(field_name), #field_name, &field_name, 0)
 
+//register your json struct fields by this macro in your struct constructor function
+#define JSON_STRUCT_REGISTER_FIELD(qualified_name, field_name) register_field(#qualified_name, &typeid(field_name), #field_name, &field_name, 0)
+
 //register your json struct fields by this macro when your struct field name is not similar to json field
 #define JSON_REGISTER_MAP_FIELD(field_name, json_field_name) register_field(&typeid(field_name), json_field_name, &field_name, 0)
 
+//register your json struct fields by this macro when your struct field name is not similar to json field
+#define JSON_STRUCT_REGISTER_MAP_FIELD(qualified_name, field_name, map_to_name) register_field(#qualified_name, &typeid(field_name), map_to_name, &field_name, 0)
+
 //register your nested json struct field array by this macro in your struct constructor function
 #define JSON_REGISTER_NESTED_FIELD(field_name) register_field(&typeid(field_name), #field_name, &field_name, sizeof(field_name[0]))
+
+//register your nested json struct field array by this macro in your struct constructor function
+#define JSON_STRUCT_REGISTER_NESTED_FIELD(qualified_name, field_name) register_field(#qualified_name, &typeid(field_name), #field_name, &field_name, sizeof(field_name[0]))
