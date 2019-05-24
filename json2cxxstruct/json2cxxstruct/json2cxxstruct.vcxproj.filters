@@ -12,19 +12,28 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\inc\json_struct_base.h">
-      <Filter>inc</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\cjson\cJSON.h">
       <Filter>cjson</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\inc\jstruct.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\jstruct_base.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\jmacro.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\inc\jqualifier.h">
+      <Filter>inc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\json_struct_base.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\cjson\cJSON.c">
       <Filter>cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\jstruct_base.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -67,11 +67,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cjson\cJSON.h" />
-    <ClInclude Include="..\..\inc\json_struct_base.h" />
+    <ClInclude Include="..\..\inc\jmacro.h" />
+    <ClInclude Include="..\..\inc\jqualifier.h" />
+    <ClInclude Include="..\..\inc\jstruct.h" />
+    <ClInclude Include="..\..\inc\jstruct_base.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\cjson\cJSON.c" />
-    <ClCompile Include="..\..\src\json_struct_base.cpp" />
+    <ClCompile Include="..\..\src\jstruct_base.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

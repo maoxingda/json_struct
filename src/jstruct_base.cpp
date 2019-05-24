@@ -1,12 +1,13 @@
-#include "json_struct_base.h"
 #include "cJSON.h"
+#include "jstruct_base.h"
+#include "../inc/jmacro.h"
+
 #include <map>
 #include <codecvt>
 #include <typeinfo>
 #include <Windows.h>
 #include <algorithm>
 
-#include <boost/lexical_cast.hpp>
 #include <boost/xpressive/xpressive.hpp>
 
 using namespace boost::xpressive;
@@ -192,7 +193,7 @@ static type data_type(const type_info * ptype_info, field_info * pfield_info = n
 	return enum_none;
 }
 
-void from_number(const type_info * field_type, void *field_address, cJSON * item, int offset)
+static void from_number(const type_info * field_type, void *field_address, cJSON * item, int offset)
 {
 	if (typeid(int) == *field_type)
 	{
@@ -250,20 +251,31 @@ void from_number(const type_info * field_type, void *field_address, cJSON * item
 	}
 }
 
-bool json_struct_base::from_json(std::string json)
+static std::string alias_name(std::string name)
+{
+	static smatch sm;
+
+	static sregex pattern = sregex::compile("[a-zA-Z_$][a-zA-Z0-9_$]*@(\\w+)");
+
+	if (regex_match(name, sm, pattern)) return sm[1];
+
+	return "";
+}
+
+bool jstruct_base::from_json(std::string json)
 {
 	if (json.empty()) return false;
 
 	cJSON* root = cJSON_Parse(json.c_str());
 
-	bool success = from_json_object(root);
+	bool success = from_json(root);
 
 	cJSON_Delete(root);
 
 	return success;
 }
 
-bool json_struct_base::from_json_object(void* object)
+bool jstruct_base::from_json(void* object)
 {
 	if (nullptr == object) return false;
 	if (0 == fields_info.size()) return false;
@@ -272,13 +284,18 @@ bool json_struct_base::from_json_object(void* object)
 	{
 		field_info*			field_information	= (field_info*)*iter;
 		void*				field_address		= field_information->address_;
+		std::string			alias				= alias_name(field_information->name_);
 
-		cJSON *item = cJSON_GetObjectItem((cJSON*)object, field_information->name_.c_str());
+		cJSON*				item				= nullptr;
+		if (!alias.empty()) item				= cJSON_GetObjectItem((cJSON*)object, alias.c_str());
+		if (!item)			item				= cJSON_GetObjectItem((cJSON*)object, field_information->name_.c_str());
 
 		if (nullptr == item)
 		{
-			if ("OPTIONAL" == field_information->qualifier) continue;
-			if ("REQUIRED" == field_information->qualifier) return false;
+			if (ESTR(Y)			== field_information->qualifier) return false;
+			if (ESTR(N)			== field_information->qualifier) return false;
+			if (ESTR(OPTIONAL)	== field_information->qualifier) continue;
+			if (ESTR(REQUIRED)	== field_information->qualifier) return false;
 		}
 
 		switch (field_information->type_)
@@ -351,7 +368,7 @@ bool json_struct_base::from_json_object(void* object)
 			break;
 		case enum_user_def_struct:
 			{
-				bool success = ((json_struct_base *) field_address)->from_json_object(item);
+				bool success = ((jstruct_base *) field_address)->from_json(item);
 
 				if (!success) return false;
 			}
@@ -363,7 +380,7 @@ bool json_struct_base::from_json_object(void* object)
 
 				for (int i = 0; i < arrSizeExpected && i < arrSizeReal; ++i)
 				{
-					bool success = ((json_struct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json_object(cJSON_GetArrayItem(item, i));
+					bool success = ((jstruct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json(cJSON_GetArrayItem(item, i));
 
 					if (!success) return false;
 				}
@@ -378,21 +395,21 @@ bool json_struct_base::from_json_object(void* object)
 	return true;
 }
 
-void json_struct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, void* field_address, int offset)
+void jstruct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, void* field_address, int offset)
 {
-	field_info* pfield_info		= new field_info;
+	field_info* finfo		= new field_info;
 
-	pfield_info->type_			= data_type(field_type, pfield_info);
-	pfield_info->qualifier        = field_qualifier;
-	pfield_info->name_			= field_name;
-	pfield_info->address_		= field_address;
-	pfield_info->offset_		= offset;
-	pfield_info->field_type_	= field_type;
+	finfo->type_			= data_type(field_type, finfo);
+	finfo->qualifier		= field_qualifier;
+	finfo->name_			= field_name;
+	finfo->address_			= field_address;
+	finfo->offset_			= offset;
+	finfo->field_type_		= field_type;
 
-	fields_info.push_back(pfield_info);
+	fields_info.push_back(finfo);
 }
 
-json_struct_base::~json_struct_base()
+jstruct_base::~jstruct_base()
 {
-	std::for_each(fields_info.begin(), fields_info.end(),[&](void* pointer) { field_info* p = (field_info*)pointer; delete pointer; });
+	std::for_each(fields_info.begin(), fields_info.end(), [&](void* pointer) { field_info* p = (field_info*)pointer; delete pointer; });
 }

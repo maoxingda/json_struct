@@ -44,8 +44,8 @@ static std::string field_name(std::string declaration, bool& nested, bool& array
 	smatch name;
 
 	static sregex struct_field_regex				= sregex::compile("[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\])?\\s*;");
-	static sregex nested_struct_field_regex			= sregex::compile("JSON_STRUCT_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
-	static sregex nested_struct_field_array_regex	= sregex::compile("JSON_STRUCT_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\[(\\d+)\\]\\)");
+	static sregex nested_struct_field_regex			= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
+	static sregex nested_struct_field_array_regex	= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\[(\\d+)\\]\\)");
 
 	if (regex_search(declaration, name, nested_struct_field_array_regex))
 	{
@@ -74,7 +74,7 @@ static std::string struct_name(std::string declaration)
 {
 	smatch name;
 
-	if (regex_search(declaration, name, sregex::compile("JSON_STRUCT\\s*\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)")))
+	if (regex_search(declaration, name, sregex::compile("JSTRUCT\\s*\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)")))
 	{
 		return name[1];
 	}
@@ -136,7 +136,7 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 		std::list<register_info>	reg_infos;
 
 		sregex struct_end_re = sregex::compile("\\}\\s*;");
-		sregex struct_beg_re = sregex::compile("JSON_STRUCT\\s*\\([a-zA-Z_$][a-zA-Z0-9_$]*\\)");
+		sregex struct_beg_re = sregex::compile("JSTRUCT\\s*\\([a-zA-Z_$][a-zA-Z0-9_$]*\\)");
 
 		bool in_multiline_comment = false;
 

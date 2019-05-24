@@ -1,9 +1,9 @@
 #pragma once
 #include <Windows.h>
-#include "json_struct_base.h"
+#include "jstruct.h"
 
 
-//JSON_STRUCT(struct_test_bool)
+//JSTRUCT(struct_test_bool)
 //{
 //	REQUIRED bool field_bool;
 //
@@ -11,7 +11,7 @@
 //	//JSON_STRUCT_DEF_CTOR(struct_test_bool);
 //};
 
-JSON_STRUCT(struct_test_number)
+JSTRUCT(struct_test_number)
 {
 	OPTIONAL int			field_int;
 	//REQUIRED __int64		field_int64;
@@ -26,21 +26,21 @@ JSON_STRUCT(struct_test_number)
 	//JSON_STRUCT_DEF_CTOR(struct_test_number);
 };
 
-JSON_STRUCT(date)
+JSTRUCT(date)
 {
-	REQUIRED wchar_t year[6];
-	REQUIRED wchar_t month[4];
-	REQUIRED wchar_t day[4];
+	REQUIRED N wchar_t year[6];
+	REQUIRED N wchar_t month[4];
+	REQUIRED Y wchar_t day[4];
 
 	date();
 	//JSON_STRUCT_DEF_CTOR(date);
 };
 
-JSON_STRUCT(student)
+JSTRUCT(student)
 {
-	REQUIRED int		id;
-	REQUIRED wchar_t name[32];
-	REQUIRED JSON_STRUCT_FIELD(date birthday);
+	REQUIRED N int		id;
+	REQUIRED N wchar_t	name[32];
+	REQUIRED Y date		birthday;
 
 	student();
 	//JSON_STRUCT_DEF_CTOR(student);
