@@ -3,7 +3,10 @@
 ## usage
 
 1. declare struct by ***JSON_STRUCT(struct_name)***.
-2. register struct fields by ***JSON_STRUCT_REGISTER[_[MAP|NESTED]]_FIELD(qualifier, field_name)*** in constructor function where qualifier is ***REQUIRED*** or ***OPTIONAL***.
+2. register struct fields in constructor function by follows  
+* ***JSON_STRUCT_REGISTER_FIELD(qualifier, field_name)***  
+* ***JSON_STRUCT_REGISTER_MAP_FIELD(qualifier, field_name, map_to_name)***  
+* ***JSON_STRUCT_REGISTER_NESTED_FIELD(qualifier, field_name)***
 3. create struct object and call member function ***from_json(json_stream_utf8)***, so that's all.
 
 ## automation
