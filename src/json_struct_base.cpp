@@ -30,6 +30,7 @@ enum type
 struct field_info
 {
 	type				type_;
+	std::string         qualifier;
 	std::string			name_;
 	void*				address_;
 	int					offset_;
@@ -262,7 +263,7 @@ bool json_struct_base::from_json(std::string json)
 	return success;
 }
 
-bool json_struct_base::from_json_object(cJSON * object)
+bool json_struct_base::from_json_object(void* object)
 {
 	if (nullptr == object) return false;
 	if (0 == fields_info.size()) return false;
@@ -272,9 +273,9 @@ bool json_struct_base::from_json_object(cJSON * object)
 		field_info*			field_information	= (field_info*)*iter;
 		void*				field_address		= field_information->address_;
 
-		cJSON *item = cJSON_GetObjectItem(object, field_information->name_.c_str());
+		cJSON *item = cJSON_GetObjectItem((cJSON*)object, field_information->name_.c_str());
 
-		if (nullptr == item) return false;
+		if (nullptr == item && “REQUIRED” == field_information->qualifier) return false;
 
 		switch (field_information->type_)
 		{
@@ -373,11 +374,12 @@ bool json_struct_base::from_json_object(cJSON * object)
 	return true;
 }
 
-void json_struct_base::register_field(const type_info* field_type, std::string field_name, void* field_address, int offset)
+void json_struct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, void* field_address, int offset)
 {
 	field_info* pfield_info		= new field_info;
 
 	pfield_info->type_			= data_type(field_type, pfield_info);
+	pfield_info->qualifier        = field_qualifier;
 	pfield_info->name_			= field_name;
 	pfield_info->address_		= field_address;
 	pfield_info->offset_		= offset;
