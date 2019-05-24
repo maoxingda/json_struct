@@ -71,7 +71,7 @@ private:
 	bool from_json_object(void* object);
 
 protected:
-	void register_field(const type_info*, std::string, void*, int);
+	void register_field(const type_info*, std::string, std::string, void*, int);
 
 private:
 	std::list<void*> fields_info;
