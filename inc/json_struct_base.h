@@ -57,12 +57,6 @@
 #include <string>
 
 
-//predefined declarations
-struct	cJSON;
-struct	field_info;
-class	type_info;
-
-
 /************************************************************************/
 /* the base struct where save your c++ struct fields information        */
 /************************************************************************/
@@ -74,17 +68,20 @@ public:
 	bool from_json(std::string json);
 
 private:
-	bool from_json_object(cJSON* object);
+	bool from_json_object(void* object);
 
 protected:
 	void register_field(const type_info*, std::string, void*, int);
 
 private:
-	std::list<field_info*> fields_info;
+	std::list<void*> fields_info;
 };
 /************************************************************************/
 /*                            helper macros                             */
 /************************************************************************/
+
+#define OPTIONAL
+#define REQUIRED
 
 //declare your json struct by this macro
 #define JSON_STRUCT(struct_name) struct struct_name : public json_struct_base
