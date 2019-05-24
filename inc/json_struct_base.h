@@ -9,7 +9,7 @@
  *
  * \automation
  *      1. inorder to use json2cxxstructHelper.exe tool, you must follow the rules below
- *		2. declare nested struct fields by JSON_STRUCT_FIELD[_ARRAY]
+ *		2. declare nested struct fields by JSON_STRUCT_DECL_NESTED_FIELD[_ARRAY]
  *		3. declare struct default constructor by JSON_STRUCT_DEF_CTOR
  *
  * \note
@@ -44,7 +44,7 @@
  *			{
  *				JSON_REGISTER_FIELD(id);
  *				JSON_REGISTER_FIELD(name);
- *				JSON_REGISTER_NESTED_FIELD(birthday);
+ *				JSON_STRUCT_REGISTER_NESTED_FIELD(birthday);
  *			}
  *		};
  *
@@ -86,14 +86,8 @@ private:
 //declare your json struct by this macro
 #define JSON_STRUCT(struct_name) struct struct_name : public json_struct_base
 
-//declare your json struct default constructor by this macro
-#define JSON_STRUCT_DEF_CTOR(struct_name) struct_name()
-
 //declare your json struct field by this macro
-#define JSON_STRUCT_FIELD(type_and_name) type_and_name
-
-//declare your json struct field by this macro
-#define JSON_STRUCT_DECL_FIELD(qualifier, type_and_name) qualifier type_and_name
+#define JSON_STRUCT_DECL_NESTED_FIELD(qualifier, type_and_name) qualifier type_and_name
 
 //zero fill your json struct field by this macro
 #define JSON_STRUCT_FIELD_FILL_ZERO(struct_name, field_name) ZeroMemory((byte*)this + offsetof(struct_name, field_name), sizeof(field_name))
@@ -103,9 +97,6 @@ private:
 
 //register your json struct fields by this macro when your struct field name is not similar to json field
 #define JSON_STRUCT_REGISTER_MAP_FIELD(qualifier, field_name, map_to_name) register_field(&typeid(field_name), #qualifier, map_to_name, &field_name, 0)
-
-//register your nested json struct field array by this macro in your struct constructor function
-#define JSON_REGISTER_NESTED_FIELD(field_name) register_field(&typeid(field_name), #field_name, &field_name, sizeof(field_name[0]))
 
 //register your nested json struct field array by this macro in your struct constructor function
 #define JSON_STRUCT_REGISTER_NESTED_FIELD(qualifier, field_name) register_field(&typeid(field_name), #qualifier, #field_name, &field_name, sizeof(field_name[0]))
