@@ -24,6 +24,7 @@
 * support serialize c++ struct to json stream  
 * memory leak  
 * support alias field
+* output custom warning message when qualifier is ***NESTED***  
 
 ## example
 ```
