@@ -29,14 +29,14 @@ static std::string field_qualifier(std::string declaration)
 {
     smatch qualifier;
     
-    static sregex field_qualifier_regex = sregex::compile(“((OPTIONREQUIRED)”);
+    static sregex field_qualifier_regex = sregex::compile("(REQUIRED|OPTIONAL)");
     
     if (regex_search(declaration, qualifier, field_qualifier_regex))
     {
         return qualifier[1];
     }
     
-    return “”;
+    return "REQUIRED";
 }
 
 static std::string field_name(std::string declaration, bool& nested, bool& array)
@@ -103,11 +103,13 @@ static bool is_multiline_comment_end(std::string line)
 	return regex_search(line, multiline_comment_end_re);
 }
 
-static bool is_struct_default_ctor(std::string line)
+static bool is_struct_default_ctor(std::string struct_name, std::string line)
 {
-	static sregex multiline_comment_end_re = sregex::compile("JSON_STRUCT_DEF_CTOR");
+	static std::string ctor_decl_re_str = (boost::format("%1%\\(\\s*\\)\\s*;") % struct_name).str();
 
-	return regex_search(line, multiline_comment_end_re);
+	static sregex ctor_decl_re			= sregex::compile(ctor_decl_re_str);
+
+	return regex_search(line, ctor_decl_re);
 }
 
 static void register_fields(std::string in_file_name, std::string out_file_name)
@@ -201,7 +203,7 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 				{
 					continue;
 				}
-				else if (is_struct_default_ctor(*iter2))
+				else if (is_struct_default_ctor(st_name, *iter2))
 				{
 					continue;
 				}
@@ -215,6 +217,7 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 				f_info.nested		= nested;
 				f_info.array		= array;
 				f_info.name			= name;
+				f_info.qualifier	= field_qualifier(*iter2);
 
 				if (!name.empty()) iter1->fields.push_back(f_info);
 			}
@@ -243,7 +246,7 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 
 						if (!iter2->array)
 						{
-							out << boost::format("\tJSON_REGISTER_FIELD(%1%);\n") % iter2->name;
+							out << boost::format("\tJSON_STRUCT_REGISTER_FIELD(%1%, %2%);\n") % iter2->qualifier % iter2->name;
 						}
 					}
 					//////////////////////////////////////////////////////////////////////////
@@ -253,7 +256,7 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 
 						if (iter2->array)
 						{
-							out << boost::format("\tJSON_REGISTER_NESTED_FIELD(%1%);\n") % iter2->name;
+							out << boost::format("\tJSON_STRUCT_REGISTER_NESTED_FIELD(%1%, %2%);\n") % iter2->qualifier % iter2->name;
 						}
 					}
 					out << "\n";

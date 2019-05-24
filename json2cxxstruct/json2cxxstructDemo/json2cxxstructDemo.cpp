@@ -22,7 +22,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//////////////////////////////////////////////////////////////////////////
 	struct_test_number stn;
 
-	assert(stn.from_json("{\"field_int\":123,\"field_int64\":4611686018427387904,\"field_long\":4611686018427387904,\"field_ushort\":456,\"field_uint\":2147483648,\"field_ulong\":2147483648,\"field_double\":3.1415926,\"field_float\":3.1415926}"));
+	assert(stn.from_json("{\"field_int64\":4611686018427387904,\"field_long\":4611686018427387904,\"field_ushort\":456,\"field_uint\":2147483648,\"field_ulong\":2147483648,\"field_double\":3.1415926,\"field_float\":3.1415926}"));
 
 	//////////////////////////////////////////////////////////////////////////
 	std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > cnv;

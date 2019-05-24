@@ -275,7 +275,11 @@ bool json_struct_base::from_json_object(void* object)
 
 		cJSON *item = cJSON_GetObjectItem((cJSON*)object, field_information->name_.c_str());
 
-		if (nullptr == item && “REQUIRED” == field_information->qualifier) return false;
+		if (nullptr == item)
+		{
+			if ("OPTIONAL" == field_information->qualifier) continue;
+			if ("REQUIRED" == field_information->qualifier) return false;
+		}
 
 		switch (field_information->type_)
 		{
