@@ -269,7 +269,7 @@ bool json_struct_base::from_json_object(cJSON * object)
 
 	for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
 	{
-		field_info*			field_information	= *iter;
+		field_info*			field_information	= (field_info*)*iter;
 		void*				field_address		= field_information->address_;
 
 		cJSON *item = cJSON_GetObjectItem(object, field_information->name_.c_str());
@@ -388,5 +388,5 @@ void json_struct_base::register_field(const type_info* field_type, std::string f
 
 json_struct_base::~json_struct_base()
 {
-	std::for_each(fields_info.begin(), fields_info.end(),[&](field_info * pointer) { delete pointer; });
+	std::for_each(fields_info.begin(), fields_info.end(),[&](void* pointer) { field_info* p = (field_info*)pointer; delete pointer; });
 }
