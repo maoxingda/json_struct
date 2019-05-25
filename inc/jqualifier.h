@@ -1,7 +1,9 @@
 #pragma once
 
 
-#define Y
-#define N
 #define OPTIONAL
 #define REQUIRED
+
+#define BASIC
+#define CUSTOM
+#define CUSTOMARRAY
