@@ -10,10 +10,10 @@ using namespace boost::xpressive;
 
 struct field_info
 {
-	bool		nested_;
-	bool		array_;
-	smatch		qualifier_;
-	std::string name_;
+	bool						nested_;
+	bool						array_;
+	std::string					name_;
+	std::vector<std::string>	qualifier_;
 };
 
 std::list<field_info>						fields;
@@ -22,19 +22,23 @@ struct register_info
 {
 	std::string								sname_;
 	std::list<field_info>					fields_;
-	std::list<std::string>::const_iterator	iter_struct_beg_;
-	std::list<std::string>::const_iterator	iter_struct_end_;
+	std::list<std::string>::iterator		iter_struct_beg_;
+	std::list<std::string>::iterator		iter_struct_end_;
 };
 
-static smatch field_qualifier(std::string declaration)
+static void field_qualifier(std::string declaration, std::vector<std::string>& qualifiers)
 {
     smatch qualifier;
+
+	boost::format fmt("^\\s*(%1%|%2%)\\s*(%3%|%4%|%5%)\\s+");
+
+	fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY);
     
-    static sregex field_qualifier_regex = sregex::compile("^\\s*(REQUIRED|OPTIONAL)\\s*(BASIC|CUSTOM|CUSTOMARRAY)\\s+");
+    static sregex field_qualifier_regex = sregex::compile(fmt.str());
     
     regex_search(declaration, qualifier, field_qualifier_regex);
     
-    return qualifier;
+    2 < qualifier.size() ? qualifiers.push_back(qualifier[1]), qualifiers.push_back(qualifier[2]) : 0;
 }
 
 static std::string field_name(std::string declaration, bool& nested, bool& array)
@@ -110,18 +114,19 @@ static void read_file(std::string in_file_name, std::list<std::string>& lines)
 	}
 }
 
-static void read_struct(const std::list<std::string> lines, std::list<register_info>& reg_infos)
+static void read_struct(std::list<std::string>& lines, std::list<register_info>& reg_infos)
 {
 	register_info reg_info;
 
 	sregex struct_end_re = sregex::compile("^\\s*\\}\\s*;");
-	sregex struct_beg_re = sregex::compile("JSTRUCT\\s*\\(\\s*?:[a-zA-Z_$][a-zA-Z0-9_$]*\\)");
+	sregex struct_beg_re = sregex::compile("JSTRUCT\\s*\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\)");
 
 	bool in_multiline_comment = false;
 
 	for (auto iter = lines.begin(); iter != lines.end(); ++iter)
 	{
-		if (is_single_line_comment(*iter)) continue;
+		if (iter->empty())					continue;
+		if (is_single_line_comment(*iter))	continue;
 
 		if (is_multiline_comment_beg(*iter))
 		{
@@ -167,6 +172,7 @@ static void read_fields(std::list<register_info> &reg_infos)
 
 		for (auto iter2 = iter1->iter_struct_beg_; iter2 != iter1->iter_struct_end_; ++iter2)
 		{
+			if (iter2->empty())					continue;
 			if (is_single_line_comment(*iter2)) continue;
 
 			if (is_multiline_comment_beg(*iter2))
@@ -199,7 +205,8 @@ static void read_fields(std::list<register_info> &reg_infos)
 			f_info.nested_		= nested;
 			f_info.array_		= array;
 			f_info.name_		= name;
-			f_info.qualifier_	= field_qualifier(*iter2);
+
+			field_qualifier(*iter2, f_info.qualifier_);
 
 			if (!name.empty()) iter1->fields_.push_back(f_info);
 		}
@@ -219,54 +226,49 @@ static std::string base_file_name(std::string in_file_name)
 	return "";
 }
 
-static void write_impl(std::string out_file_name, std::string in_file_name, std::list<register_info> &reg_infos)
+static void write_impl(std::string out_file_name, std::string bfile_name, std::list<register_info> &reg_infos)
 {
 	std::fstream out(out_file_name, std::ios_base::out);
 
-	if (out)
+	if (out && !bfile_name.empty())
 	{
-		std::string bfile_name = base_file_name(in_file_name);
+		out << "#include \"stdafx.h\"\n";
+		out << boost::format("#include <%1%>\n\n\n") % bfile_name;
 
-		if (!bfile_name.empty())
+		int count = 0;
+		for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1, ++count)
 		{
-			out << "#include \"stdafx.h\"\n";
-			out << boost::format("#include <%1%>\n\n\n") % bfile_name;
-
-			int count = 0;
-			for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1, ++count)
+			out << boost::format("%1%::%1%()\n") % iter1->sname_;
+			out << "{\n";
+			//////////////////////////////////////////////////////////////////////////
+			for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
 			{
-				out << boost::format("%1%::%1%()\n") % iter1->sname_;
-				out << "{\n";
-				//////////////////////////////////////////////////////////////////////////
-				for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+				if (iter2->name_.empty())			continue;
+				if (2 != iter2->qualifier_.size())	continue;
+
+				if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(CUSTOM) == iter2->qualifier_[1])
 				{
-					if (iter2->name_.empty())			continue;
-					if (3 > iter2->qualifier_.size())	continue;
-
-					if (ESTR(BASIC) == iter2->qualifier_[2] || ESTR(CUSTOM) == iter2->qualifier_[2])
-					{
-						out << boost::format("\tJSTRUCT_REG_BASIC_FIELD(%1%, %2%);\n") % iter2->qualifier_[1] % iter2->name_;
-					}
-					else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[2])
-					{
-						out << boost::format("\tJSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);\n") % iter2->qualifier_[1] % iter2->name_;
-					}
+					out << boost::format("\tJSTRUCT_REG_BASIC_FIELD(%1%, %2%);\n") % iter2->qualifier_[0] % iter2->name_;
 				}
-				//////////////////////////////////////////////////////////////////////////
-				for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+				else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[1])
 				{
-					if (iter2->name_.empty())			continue;
-					if (3 > iter2->qualifier_.size())	continue;
-
-					if (ESTR(BASIC) == iter2->qualifier_[2])
-					{
-						out << boost::format("\tJSTRUCT_INIT_BASIC_FIELD_ZERO(%1%, %2%);\n") % iter2->qualifier_ % iter2->name_;
-					}
+					out << boost::format("\tJSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);\n") % iter2->qualifier_[0] % iter2->name_;
 				}
-				out << "\n";
-
-				count + 1 == reg_infos.size() ? out << "}\n" : out << "}\n\n";
 			}
+			out << "\n";
+			//////////////////////////////////////////////////////////////////////////
+			for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+			{
+				if (iter2->name_.empty())			continue;
+				if (2 != iter2->qualifier_.size())	continue;
+
+				if (ESTR(BASIC) == iter2->qualifier_[1])
+				{
+					out << boost::format("\tJSTRUCT_INIT_BASIC_FIELD_ZERO(%1%, %2%);\n") % iter1->sname_ % iter2->name_;
+				}
+			}
+
+			count + 1 == reg_infos.size() ? out << "}\n" : out << "}\n\n";
 		}
 		out.close();
 	}
@@ -286,7 +288,7 @@ static void parse(std::string in_file_name, std::string out_file_name)
 
 		read_fields(reg_infos);
 
-		write_impl(out_file_name, in_file_name, reg_infos);
+		write_impl(out_file_name, base_file_name(in_file_name), reg_infos);
 	}
 }
 

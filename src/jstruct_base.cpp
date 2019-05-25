@@ -257,14 +257,14 @@ bool jstruct_base::from_json(std::string json)
 
 	cJSON* root = cJSON_Parse(json.c_str());
 
-	bool success = from_json(root);
+	bool success = from_json_(root);
 
 	cJSON_Delete(root);
 
 	return success;
 }
 
-bool jstruct_base::from_json(void* object)
+bool jstruct_base::from_json_(void* object)
 {
 	if (nullptr == object) return false;
 	if (0 == fields_info.size()) return false;
@@ -357,7 +357,7 @@ bool jstruct_base::from_json(void* object)
 			break;
 		case enum_custom:
 			{
-				bool success = ((jstruct_base *) field_address)->from_json(item);
+				bool success = ((jstruct_base *) field_address)->from_json_(item);
 
 				if (!success) return false;
 			}
@@ -369,7 +369,7 @@ bool jstruct_base::from_json(void* object)
 
 				for (int i = 0; i < arrSizeExpected && i < arrSizeReal; ++i)
 				{
-					bool success = ((jstruct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json(cJSON_GetArrayItem(item, i));
+					bool success = ((jstruct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json_(cJSON_GetArrayItem(item, i));
 
 					if (!success) return false;
 				}
