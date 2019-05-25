@@ -3,45 +3,42 @@
 #include "jstruct.h"
 
 
-//JSTRUCT(struct_test_bool)
-//{
-//	REQUIRED bool field_bool;
-//
-//	struct_test_bool();
-//	//JSON_STRUCT_DEF_CTOR(struct_test_bool);
-//};
+JSTRUCT(struct_test_bool)
+{
+	REQUIRED BASIC bool field_bool;
+
+	struct_test_bool();
+};
 
 JSTRUCT(struct_test_number)
 {
-	OPTIONAL int			field_int;
-	//REQUIRED __int64		field_int64;
-	//REQUIRED long			field_long;
-	//REQUIRED unsigned short	field_ushort;
-	//REQUIRED unsigned int	field_uint;
-	//REQUIRED unsigned long	field_ulong;
-	//REQUIRED float			field_float;
-	//REQUIRED double			field_double;
+	OPTIONAL BASIC int				field_int;
+	REQUIRED BASIC __int64			field_int64;
+	REQUIRED BASIC long				field_long;
+	REQUIRED BASIC unsigned short	field_ushort;
+	REQUIRED BASIC unsigned int		field_uint;
+	REQUIRED BASIC unsigned long	field_ulong;
+	REQUIRED BASIC float			field_float;
+	REQUIRED BASIC double			field_double;
 
 	struct_test_number();
-	//JSON_STRUCT_DEF_CTOR(struct_test_number);
 };
 
 JSTRUCT(date)
 {
-	REQUIRED N wchar_t year[6];
-	REQUIRED N wchar_t month[4];
-	REQUIRED Y wchar_t day[4];
+	REQUIRED BASIC wchar_t year[6];
+	REQUIRED BASIC wchar_t month[4];
+	REQUIRED BASIC wchar_t day[4];
 
 	date();
-	//JSON_STRUCT_DEF_CTOR(date);
 };
 
 JSTRUCT(student)
 {
-	REQUIRED N int		id;
-	REQUIRED N wchar_t	name[32];
-	REQUIRED Y date		birthday;
+	REQUIRED BASIC			int			id;
+	REQUIRED BASIC			wchar_t		name[32];
+	REQUIRED CUSTOM			date		birthday;
+	REQUIRED CUSTOM_ARRAY	date		birthday1[2];
 
 	student();
-	//JSON_STRUCT_DEF_CTOR(student);
 };

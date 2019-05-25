@@ -6,4 +6,4 @@
 
 #define BASIC
 #define CUSTOM
-#define CUSTOMARRAY
+#define CUSTOM_ARRAY

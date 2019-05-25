@@ -3,26 +3,27 @@
 #include <fstream>
 #include <boost/format.hpp>
 #include <boost/xpressive/xpressive.hpp>
+#include "../../inc/jmacro.h"
 
 using namespace boost::xpressive;
 
 
 struct field_info
 {
-	bool		nested;
-	bool		array;
-	std::string qualifier;
-	std::string name;
+	bool		nested_;
+	bool		array_;
+	smatch		qualifier_;
+	std::string name_;
 };
 
 std::list<field_info>						fields;
 
 struct register_info
 {
-	std::string								struct_name;
-	std::list<field_info>					fields;
-	std::list<std::string>::const_iterator	iter_struct_beg;
-	std::list<std::string>::const_iterator	iter_struct_end;
+	std::string								sname_;
+	std::list<field_info>					fields_;
+	std::list<std::string>::const_iterator	iter_struct_beg_;
+	std::list<std::string>::const_iterator	iter_struct_end_;
 };
 
 static smatch field_qualifier(std::string declaration)
@@ -40,26 +41,9 @@ static std::string field_name(std::string declaration, bool& nested, bool& array
 {
 	smatch name;
 
-	static sregex struct_field_regex				= sregex::compile("[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\])?\\s*;");
-	//static sregex nested_struct_field_regex			= sregex::compile("\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
-	//static sregex nested_struct_field_array_regex	= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\[(\\d+)\\]\\)");
+	static sregex struct_field_regex = sregex::compile("([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\])?\\s*;");
 
-	//if (regex_search(declaration, name, nested_struct_field_array_regex))
-	{
-		nested	= true;
-		array	= true;
-
-		return name[1];
-	}
-
-	//if (regex_search(declaration, name, nested_struct_field_regex))
-	{
-		nested	= true;
-
-		return name[1];
-	}
-
-	//if (regex_search(declaration, name, struct_field_regex))
+	if (regex_search(declaration, name, struct_field_regex))
 	{
 		return name[1];
 	}
@@ -109,7 +93,7 @@ static bool is_struct_default_ctor(std::string struct_name, std::string line)
 	return regex_search(line, ctor_decl_re);
 }
 
-static void read(std::string in, std::list<std::string>& lines)
+static void read_file(std::string in_file_name, std::list<std::string>& lines)
 {    
 	std::fstream in(in_file_name, std::ios_base::in);
 
@@ -126,27 +110,72 @@ static void read(std::string in, std::list<std::string>& lines)
 	}
 }
 
-static void read_struct_info(const std::list<std::string> lines, std::list<register_info>& reg_infos)
+static void read_struct(const std::list<std::string> lines, std::list<register_info>& reg_infos)
 {
-    register_info reg_info;
+	register_info reg_info;
 
+	sregex struct_end_re = sregex::compile("^\\s*\\}\\s*;");
+	sregex struct_beg_re = sregex::compile("JSTRUCT\\s*\\(\\s*?:[a-zA-Z_$][a-zA-Z0-9_$]*\\)");
 
-		sregex struct_end_re = sregex::compile("\\}\\s*;");
-		sregex struct_beg_re = sregex::compile("JSTRUCT\\s*\\([a-zA-Z_$][a-zA-Z0-9_$]*\\)");
+	bool in_multiline_comment = false;
+
+	for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+	{
+		if (is_single_line_comment(*iter)) continue;
+
+		if (is_multiline_comment_beg(*iter))
+		{
+			in_multiline_comment = true;
+
+			continue;
+		}
+		else if (is_multiline_comment_end(*iter))
+		{
+			in_multiline_comment = false;
+
+			continue;
+		}
+		else if (in_multiline_comment)
+		{
+			continue;
+		}
+
+		if (regex_search(*iter, struct_beg_re))
+		{
+			reg_info.iter_struct_beg_ = iter;
+		}
+		else if (regex_search(*iter, struct_end_re))
+		{
+			reg_info.iter_struct_end_ = iter;
+
+			reg_infos.push_back(reg_info);
+		}
+	}
+}
+
+static void read_fields(std::list<register_info> &reg_infos)
+{
+	for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1)
+	{
+		std::string st_name = struct_name(*iter1->iter_struct_beg_);
+
+		if (st_name.empty()) continue;
+
+		iter1->sname_ = st_name;
 
 		bool in_multiline_comment = false;
 
-		for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+		for (auto iter2 = iter1->iter_struct_beg_; iter2 != iter1->iter_struct_end_; ++iter2)
 		{
-			if (is_single_line_comment(*iter)) continue;
+			if (is_single_line_comment(*iter2)) continue;
 
-			if (is_multiline_comment_beg(*iter))
+			if (is_multiline_comment_beg(*iter2))
 			{
 				in_multiline_comment = true;
 
 				continue;
 			}
-			else if (is_multiline_comment_end(*iter))
+			else if (is_multiline_comment_end(*iter2))
 			{
 				in_multiline_comment = false;
 
@@ -156,146 +185,118 @@ static void read_struct_info(const std::list<std::string> lines, std::list<regis
 			{
 				continue;
 			}
-
-			if (regex_search(*iter, struct_beg_re))
+			else if (is_struct_default_ctor(st_name, *iter2))
 			{
-				reg_info.iter_struct_beg = iter;
+				continue;
 			}
-			else if (regex_search(*iter, struct_end_re))
-			{
-				reg_info.iter_struct_end = iter;
 
-				reg_infos.push_back(reg_info);
-			}
+			field_info f_info;
+
+			bool nested			= false;
+			bool array			= false;
+			std::string name	= field_name(*iter2, nested, array);
+
+			f_info.nested_		= nested;
+			f_info.array_		= array;
+			f_info.name_		= name;
+			f_info.qualifier_	= field_qualifier(*iter2);
+
+			if (!name.empty()) iter1->fields_.push_back(f_info);
 		}
+	}
 }
 
-static void register_fields(std::string in_file_name, std::string out_file_name)
+static std::string base_file_name(std::string in_file_name)
+{
+	smatch base_file_name_sm;
+	sregex base_file_name_regex = sregex::compile("(\\w+\\.h)");
+
+	if (regex_search(in_file_name, base_file_name_sm, base_file_name_regex))
+	{
+		return base_file_name_sm[1];
+	}
+
+	return "";
+}
+
+static void write_impl(std::string out_file_name, std::string in_file_name, std::list<register_info> &reg_infos)
+{
+	std::fstream out(out_file_name, std::ios_base::out);
+
+	if (out)
+	{
+		std::string bfile_name = base_file_name(in_file_name);
+
+		if (!bfile_name.empty())
+		{
+			out << "#include \"stdafx.h\"\n";
+			out << boost::format("#include <%1%>\n\n\n") % bfile_name;
+
+			int count = 0;
+			for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1, ++count)
+			{
+				out << boost::format("%1%::%1%()\n") % iter1->sname_;
+				out << "{\n";
+				//////////////////////////////////////////////////////////////////////////
+				for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+				{
+					if (iter2->name_.empty())			continue;
+					if (3 > iter2->qualifier_.size())	continue;
+
+					if (ESTR(BASIC) == iter2->qualifier_[2] || ESTR(CUSTOM) == iter2->qualifier_[2])
+					{
+						out << boost::format("\tJSTRUCT_REG_BASIC_FIELD(%1%, %2%);\n") % iter2->qualifier_[1] % iter2->name_;
+					}
+					else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[2])
+					{
+						out << boost::format("\tJSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);\n") % iter2->qualifier_[1] % iter2->name_;
+					}
+				}
+				//////////////////////////////////////////////////////////////////////////
+				for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+				{
+					if (iter2->name_.empty())			continue;
+					if (3 > iter2->qualifier_.size())	continue;
+
+					if (ESTR(BASIC) == iter2->qualifier_[2])
+					{
+						out << boost::format("\tJSTRUCT_INIT_BASIC_FIELD_ZERO(%1%, %2%);\n") % iter2->qualifier_ % iter2->name_;
+					}
+				}
+				out << "\n";
+
+				count + 1 == reg_infos.size() ? out << "}\n" : out << "}\n\n";
+			}
+		}
+		out.close();
+	}
+}
+
+static void parse(std::string in_file_name, std::string out_file_name)
 {
 	std::list<std::string> lines;
 
-    read(in_file_name, lines);
+    read_file(in_file_name, lines);
 
 	if (!lines.empty())
 	{
-		std::list<register_info>	reg_infos;
+		std::list<register_info> reg_infos;
 		
-		read_struct_info(lines, reg_infos);
+		read_struct(lines, reg_infos);
 
-		for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1)
-		{
-			std::string st_name = struct_name(*iter1->iter_struct_beg);
+		read_fields(reg_infos);
 
-			if (st_name.empty()) continue;
-
-			iter1->struct_name = st_name;
-
-			bool in_multiline_comment = false;
-
-			for (auto iter2 = iter1->iter_struct_beg; iter2 != iter1->iter_struct_end; ++iter2)
-			{
-				if (is_single_line_comment(*iter2)) continue;
-
-				if (is_multiline_comment_beg(*iter2))
-				{
-					in_multiline_comment = true;
-
-					continue;
-				}
-				else if (is_multiline_comment_end(*iter2))
-				{
-					in_multiline_comment = false;
-
-					continue;
-				}
-				else if (in_multiline_comment)
-				{
-					continue;
-				}
-				else if (is_struct_default_ctor(st_name, *iter2))
-				{
-					continue;
-				}
-
-				field_info f_info;
-
-				bool nested			= false;
-				bool array			= false;
-				std::string name	= field_name(*iter2, nested, array);
-
-				f_info.nested		= nested;
-				f_info.array		= array;
-				f_info.name			= name;
-				f_info.qualifier	= field_qualifier(*iter2);
-
-				if (!name.empty()) iter1->fields.push_back(f_info);
-			}
-		}
-
-		std::fstream out(out_file_name, std::ios_base::out);
-
-		if (out)
-		{
-			smatch base_file_name_sm;
-			sregex base_file_name_regex = sregex::compile("(\\w+\\.h)");
-			if (regex_search(in_file_name, base_file_name_sm, base_file_name_regex))
-			{
-				out << "#include \"stdafx.h\"\n";
-				out << boost::format("#include <%1%>\n\n\n") % base_file_name_sm[1];
-
-				int count = 0;
-				for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1, ++count)
-				{
-					out << boost::format("%1%::%1%()\n") % iter1->struct_name;
-					out << "{\n";
-					//////////////////////////////////////////////////////////////////////////
-					for (auto iter2 = iter1->fields.begin(); iter2 != iter1->fields.end(); ++iter2)
-					{
-						if (iter2->name.empty()) continue;
-
-						if (!iter2->array)
-						{
-							out << boost::format("\tJSON_STRUCT_REGISTER_FIELD(%1%, %2%);\n") % iter2->qualifier % iter2->name;
-						}
-					}
-					//////////////////////////////////////////////////////////////////////////
-					for (auto iter2 = iter1->fields.begin(); iter2 != iter1->fields.end(); ++iter2)
-					{
-						if (iter2->name.empty()) continue;
-
-						if (iter2->array)
-						{
-							out << boost::format("\tJSON_STRUCT_REGISTER_NESTED_FIELD(%1%, %2%);\n") % iter2->qualifier % iter2->name;
-						}
-					}
-					out << "\n";
-					//////////////////////////////////////////////////////////////////////////
-					for (auto iter2 = iter1->fields.begin(); iter2 != iter1->fields.end(); ++iter2)
-					{
-						if (iter2->name.empty()) continue;
-
-						if (!iter2->nested)
-						{
-							out << boost::format("\tJSON_STRUCT_FIELD_FILL_ZERO(%1%, %2%);\n") % iter1->struct_name % iter2->name;
-						}
-					}
-
-					count + 1 == reg_infos.size() ? out << "}\n" : out << "}\n\n";
-				}
-			}
-			out.close();
-		}
+		write_impl(out_file_name, in_file_name, reg_infos);
 	}
 }
 
 int main(int argc, char *argv[])
 {
-	//return false;
 	QApplication a(argc, argv);
 
 	if (3 > argc) return -1;
 
-	register_fields(argv[1], argv[2]);
+	parse(argv[1], argv[2]);
 
 	return 0;
 }

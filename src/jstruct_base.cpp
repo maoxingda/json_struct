@@ -23,8 +23,8 @@ enum type
 	enum_wchar_array,
 	enum_wchar_table,
 
-	enum_user_def_struct,
-	enum_user_def_struct_array,
+	enum_custom,
+	enum_custom_array,
 };
 
 struct field_info
@@ -32,6 +32,7 @@ struct field_info
 	type				type_;
 	std::string         qualifier;
 	std::string			name_;
+	std::string			alias_;
 	void*				address_;
 	int					offset_;
 	int					table_row_;
@@ -58,8 +59,8 @@ struct data_type_info
 		data_type_regexs[enum_wchar_array]			 = "wchar_t \\[(\\d+)\\]";
 		data_type_regexs[enum_wchar_table]			 = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
 
-		data_type_regexs[enum_user_def_struct]		 = "struct \\w+";
-		data_type_regexs[enum_user_def_struct_array] = "struct \\w+ \\[(\\d+)\\]";
+		data_type_regexs[enum_custom]				= "struct \\w+";
+		data_type_regexs[enum_custom_array]			= "struct \\w+ \\[(\\d+)\\]";
 	}
 };
 
@@ -70,9 +71,9 @@ static data_type_info data_type_infos;
 
 static int array_size(const type_info* ptype_info)
 {
-	static cregex pattern_number_array			= cregex::compile(data_type_infos.data_type_regexs[enum_number_array]);
-	static cregex pattern_number_wchar_array	= cregex::compile(data_type_infos.data_type_regexs[enum_wchar_array]);
-	static cregex pattern_user_def_struct_array	= cregex::compile(data_type_infos.data_type_regexs[enum_user_def_struct_array]);
+	static cregex pattern_number_array	= cregex::compile(data_type_infos.data_type_regexs[enum_number_array]);
+	static cregex pattern_wchar_array	= cregex::compile(data_type_infos.data_type_regexs[enum_wchar_array]);
+	static cregex pattern_custom_array	= cregex::compile(data_type_infos.data_type_regexs[enum_custom_array]);
 
 	cmatch array_info;
 
@@ -80,11 +81,11 @@ static int array_size(const type_info* ptype_info)
 	{
 		return atoi(array_info[1].str().c_str());
 	}
-	else if (regex_match(ptype_info->name(), array_info, pattern_number_wchar_array))
+	else if (regex_match(ptype_info->name(), array_info, pattern_wchar_array))
 	{
 		return atoi(array_info[1].str().c_str());
 	}
-	else if (regex_match(ptype_info->name(), array_info, pattern_user_def_struct_array))
+	else if (regex_match(ptype_info->name(), array_info, pattern_custom_array))
 	{
 		return atoi(array_info[1].str().c_str());
 	}
@@ -140,16 +141,16 @@ static bool is_wchar_table(const type_info* ptype_info)
 	return regex_match(ptype_info->name(), pattern);
 }
 
-static bool is_user_defined_struct(const type_info* ptype_info)
+static bool is_custom(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_user_def_struct]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_custom]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
 
-static bool is_user_defined_struct_array(const type_info* ptype_info)
+static bool is_custom_array(const type_info* ptype_info)
 {
-	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_user_def_struct_array]);
+	static cregex pattern = cregex::compile(data_type_infos.data_type_regexs[enum_custom_array]);
 
 	return regex_match(ptype_info->name(), pattern);
 }
@@ -180,13 +181,13 @@ static type data_type(const type_info * ptype_info, field_info * pfield_info = n
 		}
 		return enum_wchar_table;
 	}
-	else if (is_user_defined_struct(ptype_info))
+	else if (is_custom(ptype_info))
 	{
-		return enum_user_def_struct;
+		return enum_custom;
 	}
-	else if (is_user_defined_struct_array(ptype_info))
+	else if (is_custom_array(ptype_info))
 	{
-		return enum_user_def_struct_array;
+		return enum_custom_array;
 	}
 
 	return enum_none;
@@ -250,17 +251,6 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 	}
 }
 
-static std::string alias_name(std::string name)
-{
-	static smatch sm;
-
-	static sregex pattern = sregex::compile("[a-zA-Z_$][a-zA-Z0-9_$]*@(\\w+)");
-
-	if (regex_match(name, sm, pattern)) return sm[1];
-
-	return "";
-}
-
 bool jstruct_base::from_json(std::string json)
 {
 	if (json.empty()) return false;
@@ -283,7 +273,7 @@ bool jstruct_base::from_json(void* object)
 	{
 		field_info*			field_information	= (field_info*)*iter;
 		void*				field_address		= field_information->address_;
-		std::string			alias				= alias_name(field_information->name_);
+		std::string			alias				= field_information->alias_;
 
 		cJSON*				item				= nullptr;
 		if (!alias.empty()) item				= cJSON_GetObjectItem((cJSON*)object, alias.c_str());
@@ -291,8 +281,8 @@ bool jstruct_base::from_json(void* object)
 
 		if (nullptr == item)
 		{
-			if (ESTR(Y)			== field_information->qualifier) return false;
-			if (ESTR(N)			== field_information->qualifier) return false;
+			//if (ESTR(Y)			== field_information->qualifier) return false;
+			//if (ESTR(N)			== field_information->qualifier) return false;
 			if (ESTR(OPTIONAL)	== field_information->qualifier) continue;
 			if (ESTR(REQUIRED)	== field_information->qualifier) return false;
 		}
@@ -365,14 +355,14 @@ bool jstruct_base::from_json(void* object)
 				}
 			}
 			break;
-		case enum_user_def_struct:
+		case enum_custom:
 			{
 				bool success = ((jstruct_base *) field_address)->from_json(item);
 
 				if (!success) return false;
 			}
 			break;
-		case enum_user_def_struct_array:
+		case enum_custom_array:
 			{
 				int arrSizeReal		= cJSON_GetArraySize(item);
 				int arrSizeExpected = array_size(field_information->field_type_);
@@ -394,13 +384,14 @@ bool jstruct_base::from_json(void* object)
 	return true;
 }
 
-void jstruct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, void* field_address, int offset)
+void jstruct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, std::string field_name_alias, void* field_address, int offset)
 {
 	field_info* finfo		= new field_info;
 
 	finfo->type_			= data_type(field_type, finfo);
 	finfo->qualifier		= field_qualifier;
 	finfo->name_			= field_name;
+	finfo->alias_			= field_name_alias;
 	finfo->address_			= field_address;
 	finfo->offset_			= offset;
 	finfo->field_type_		= field_type;

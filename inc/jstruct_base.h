@@ -44,7 +44,7 @@
  *			{
  *				JSON_REGISTER_FIELD(id);
  *				JSON_REGISTER_FIELD(name);
- *				JSTRUCT_REGISTER_NESTED_FIELD_ARRAY(birthday);
+ *				JSTRUCT_REG_CUSTOM_ARRAY_FIELD(birthday);
  *			}
  *		};
  *
@@ -65,13 +65,13 @@ struct jstruct_base
 public:
 	~jstruct_base();
 
-	bool from_json(std::string json);
+	bool from_json(std::string);
 
 private:
 	bool from_json(void*);
 
 protected:
-	void register_field(const type_info*, std::string, std::string, void*, int);
+	void register_field(const type_info*, std::string, std::string, std::string, void*, int);
 
 private:
 	std::list<void*> fields_info;
