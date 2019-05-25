@@ -25,18 +25,15 @@ struct register_info
 	std::list<std::string>::const_iterator	iter_struct_end;
 };
 
-static std::string field_qualifier(std::string declaration)
+static smatch field_qualifier(std::string declaration)
 {
     smatch qualifier;
     
-    static sregex field_qualifier_regex = sregex::compile("^\\s*(REQUIRED|OPTIONAL|Y|N)\\s*(REQUIRED|OPTIONAL|Y|N)\\s+");
+    static sregex field_qualifier_regex = sregex::compile("^\\s*(REQUIRED|OPTIONAL)\\s*(BASIC|CUSTOM|CUSTOMARRAY)\\s+");
     
-    if (regex_search(declaration, qualifier, field_qualifier_regex))
-    {
-        return qualifier[1] + qualifier[2];
-    }
+    regex_search(declaration, qualifier, field_qualifier_regex);
     
-    return "";
+    return qualifier;
 }
 
 static std::string field_name(std::string declaration, bool& nested, bool& array)
@@ -44,10 +41,10 @@ static std::string field_name(std::string declaration, bool& nested, bool& array
 	smatch name;
 
 	static sregex struct_field_regex				= sregex::compile("[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\])?\\s*;");
-	static sregex nested_struct_field_regex			= sregex::compile("\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
-	static sregex nested_struct_field_array_regex	= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\[(\\d+)\\]\\)");
+	//static sregex nested_struct_field_regex			= sregex::compile("\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
+	//static sregex nested_struct_field_array_regex	= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\[(\\d+)\\]\\)");
 
-	if (regex_search(declaration, name, nested_struct_field_array_regex))
+	//if (regex_search(declaration, name, nested_struct_field_array_regex))
 	{
 		nested	= true;
 		array	= true;
@@ -55,14 +52,14 @@ static std::string field_name(std::string declaration, bool& nested, bool& array
 		return name[1];
 	}
 
-	if (regex_search(declaration, name, nested_struct_field_regex))
+	//if (regex_search(declaration, name, nested_struct_field_regex))
 	{
 		nested	= true;
 
 		return name[1];
 	}
 
-	if (regex_search(declaration, name, struct_field_regex))
+	//if (regex_search(declaration, name, struct_field_regex))
 	{
 		return name[1];
 	}
@@ -112,10 +109,8 @@ static bool is_struct_default_ctor(std::string struct_name, std::string line)
 	return regex_search(line, ctor_decl_re);
 }
 
-static void register_fields(std::string in_file_name, std::string out_file_name)
-{
-	std::list<std::string> lines;
-
+static void read(std::string in, std::list<std::string>& lines)
+{    
 	std::fstream in(in_file_name, std::ios_base::in);
 
 	if (in)
@@ -129,11 +124,12 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 
 		in.close();
 	}
+}
 
-	if (!lines.empty())
-	{
-		register_info				reg_info;
-		std::list<register_info>	reg_infos;
+static void read_struct_info(const std::list<std::string> lines, std::list<register_info>& reg_infos)
+{
+    register_info reg_info;
+
 
 		sregex struct_end_re = sregex::compile("\\}\\s*;");
 		sregex struct_beg_re = sregex::compile("JSTRUCT\\s*\\([a-zA-Z_$][a-zA-Z0-9_$]*\\)");
@@ -172,6 +168,19 @@ static void register_fields(std::string in_file_name, std::string out_file_name)
 				reg_infos.push_back(reg_info);
 			}
 		}
+}
+
+static void register_fields(std::string in_file_name, std::string out_file_name)
+{
+	std::list<std::string> lines;
+
+    read(in_file_name, lines);
+
+	if (!lines.empty())
+	{
+		std::list<register_info>	reg_infos;
+		
+		read_struct_info(lines, reg_infos);
 
 		for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1)
 		{
