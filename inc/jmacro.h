@@ -5,7 +5,7 @@
 
 #define JSTRUCT(struct_name)															struct struct_name : public jstruct_base
 
-#define JTRUCT_INIT_FIELD_ZERO(struct_name, field_name)									memset((byte*)this + offsetof(struct_name, field_name), 0, sizeof(field_name))
+#define JSTRUCT_INIT_FIELD_ZERO(struct_name, field_name)									memset((byte*)this + offsetof(struct_name, field_name), 0, sizeof(field_name))
 
 #define JSTRUCT_REGISTER_FIELD(qualifier, field_name)									register_field(&typeid(field_name), #qualifier, #field_name, &field_name, 0)
 
