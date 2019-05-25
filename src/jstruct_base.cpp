@@ -1,6 +1,5 @@
 #include "cJSON.h"
-#include "jstruct_base.h"
-#include "../inc/jmacro.h"
+#include "jstruct.h"
 
 #include <map>
 #include <codecvt>
