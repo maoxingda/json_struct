@@ -29,14 +29,14 @@ static std::string field_qualifier(std::string declaration)
 {
     smatch qualifier;
     
-    static sregex field_qualifier_regex = sregex::compile("(REQUIRED|OPTIONAL)");
+    static sregex field_qualifier_regex = sregex::compile("^\\s*(REQUIRED|OPTIONAL|Y|N)\\s*(REQUIRED|OPTIONAL|Y|N)\\s+");
     
     if (regex_search(declaration, qualifier, field_qualifier_regex))
     {
-        return qualifier[1];
+        return qualifier[1] + qualifier[2];
     }
     
-    return "REQUIRED";
+    return "";
 }
 
 static std::string field_name(std::string declaration, bool& nested, bool& array)
