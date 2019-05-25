@@ -44,7 +44,7 @@ static std::string field_name(std::string declaration, bool& nested, bool& array
 	smatch name;
 
 	static sregex struct_field_regex				= sregex::compile("[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\])?\\s*;");
-	static sregex nested_struct_field_regex			= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
+	static sregex nested_struct_field_regex			= sregex::compile("\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
 	static sregex nested_struct_field_array_regex	= sregex::compile("JSTRUCT_DECL_NESTED_FIELD\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\\[(\\d+)\\]\\)");
 
 	if (regex_search(declaration, name, nested_struct_field_array_regex))
