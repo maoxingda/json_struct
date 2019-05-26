@@ -6,8 +6,6 @@
 JSTRUCT(struct_test_bool)
 {
 	REQUIRED BASIC bool field_bool;
-
-	struct_test_bool();
 };
 
 JSTRUCT(struct_test_number)
@@ -20,8 +18,6 @@ JSTRUCT(struct_test_number)
 	REQUIRED BASIC unsigned long	field_ulong;
 	REQUIRED BASIC float			field_float;
 	REQUIRED BASIC double			field_double;
-
-	struct_test_number();
 };
 
 JSTRUCT(date)
@@ -29,8 +25,6 @@ JSTRUCT(date)
 	REQUIRED BASIC wchar_t year[6];
 	REQUIRED BASIC wchar_t month[4];
 	REQUIRED BASIC wchar_t day[4];
-
-	date();
 };
 
 JSTRUCT(student)
@@ -39,6 +33,4 @@ JSTRUCT(student)
 	REQUIRED BASIC			wchar_t		name[32];
 	REQUIRED CUSTOM			date		birthday;
 	REQUIRED CUSTOM_ARRAY	date		birthday1[2];
-
-	student();
 };

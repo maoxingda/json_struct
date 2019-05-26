@@ -2,10 +2,12 @@
 #include <QtGui/QApplication>
 #include <fstream>
 #include <boost/format.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include "../../inc/jmacro.h"
 
 using namespace boost::xpressive;
+using namespace boost::filesystem;
 
 
 struct field_info
@@ -208,7 +210,7 @@ static void read_fields(std::list<register_info> &reg_infos)
 static std::string base_file_name(std::string in_file_name)
 {
 	smatch base_file_name_sm;
-	sregex base_file_name_regex = sregex::compile("(\\w+\\.h)");
+	sregex base_file_name_regex = sregex::compile("(\\w+)\\.h");
 
 	if (regex_search(in_file_name, base_file_name_sm, base_file_name_regex))
 	{
@@ -218,7 +220,56 @@ static std::string base_file_name(std::string in_file_name)
 	return "";
 }
 
-static void write_impl(std::string out_file_name, std::string bfile_name, std::list<register_info> &reg_infos)
+static void write_decl_file(std::string out_file_name, std::list<register_info> &reg_infos, std::list<std::string>& lines)
+{
+	std::fstream out(out_file_name, std::ios_base::out);
+
+	if (out)
+	{
+		for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1)
+		{
+			lines.insert(iter1->iter_struct_end_, (boost::format("\n\t%1%()") % iter1->sname_).str());
+			lines.insert(iter1->iter_struct_end_, "\t{");
+			//////////////////////////////////////////////////////////////////////////
+			for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+			{
+				if (iter2->name_.empty())			continue;
+				if (2 != iter2->qualifier_.size())	continue;
+
+				if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(CUSTOM) == iter2->qualifier_[1])
+				{
+					lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_BASIC_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+				}
+				else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[1])
+				{
+					lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+				}
+			}
+			lines.insert(iter1->iter_struct_end_, "");
+			//////////////////////////////////////////////////////////////////////////
+			for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+			{
+				if (iter2->name_.empty())			continue;
+				if (2 != iter2->qualifier_.size())	continue;
+
+				if (ESTR(BASIC) == iter2->qualifier_[1])
+				{
+					lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_INIT_BASIC_FIELD_ZERO(%1%, %2%);") % iter1->sname_ % iter2->name_).str());
+				}
+			}
+
+			lines.insert(iter1->iter_struct_end_, "\t}");
+		}
+		//////////////////////////////////////////////////////////////////////////
+		for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+		{
+			out << *iter << "\n";
+		}
+		out.close();
+	}
+}
+
+static void write_impl_file(std::string out_file_name, std::string bfile_name, std::list<register_info> &reg_infos)
 {
 	std::fstream out(out_file_name, std::ios_base::out);
 
@@ -280,7 +331,20 @@ static void parse(std::string in_file_name, std::string out_file_name)
 
 		read_fields(reg_infos);
 
-		write_impl(out_file_name, base_file_name(in_file_name), reg_infos);
+		smatch file_ext_sm;
+		sregex file_ext_regex = sregex::compile("(\\.h|\\.cpp)");
+
+		if (regex_search(out_file_name, file_ext_sm, file_ext_regex))
+		{
+			if (".h" == file_ext_sm[1].str())
+			{
+				write_decl_file(out_file_name, reg_infos, lines);
+			}
+			else if (".cpp" == file_ext_sm[1].str())
+			{
+				write_impl_file(out_file_name, base_file_name(in_file_name), reg_infos);
+			}
+		}
 	}
 }
 
