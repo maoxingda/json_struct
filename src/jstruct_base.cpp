@@ -205,10 +205,10 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 		{
 			*((unsigned int*)field_address + offset) = UINT_MAX;
 		}
-		//else if ((unsigned int)UINT_MIN >= item->valuedouble)
-		//{
-		//	*((unsigned int*)field_address + offset) = UINT_MIN;
-		//}
+		else if ((double)0 >= item->valuedouble)
+		{
+			*((unsigned int*)field_address + offset) = (unsigned int)0;
+		}
 		else
 		{
 			*((unsigned int*)field_address + offset) = (unsigned int)item->valuedouble;
@@ -216,7 +216,18 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 	}
 	else if (typeid(__int64) == *field_type)
 	{
-		*((__int64*)field_address + offset) = item->valuedouble;
+		if (INT64_MAX <= item->valuedouble)
+		{
+			*((__int64*)field_address + offset) = INT64_MAX;
+		}
+		else if ((double)INT64_MIN >= item->valuedouble)
+		{
+			*((double*)field_address + offset) = (double)INT64_MIN;
+		}
+		else
+		{
+			*((__int64*)field_address + offset) = (double)item->valuedouble;
+		}
 	}
 	else if (typeid(long) == *field_type)
 	{
@@ -235,11 +246,33 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 	}
 	else if (typeid(unsigned short) == *field_type)
 	{
-		*((unsigned short*)field_address + offset) = item->valuedouble;
+		if (0xffff <= item->valuedouble)
+		{
+			*((unsigned short*)field_address + offset) = (unsigned short)0xffff;
+		}
+		else if ((double)0 >= item->valuedouble)
+		{
+			*((unsigned short*)field_address + offset) = (unsigned short)0;
+		}
+		else
+		{
+			*((unsigned short*)field_address + offset) = (unsigned short)item->valuedouble;
+		}
 	}
 	else if (typeid(unsigned long) == *field_type)
 	{
-		*((unsigned long*)field_address + offset) = item->valuedouble;
+		if (ULONG_MAX <= item->valuedouble)
+		{
+			*((unsigned long*)field_address + offset) = ULONG_MAX;
+		}
+		else if ((double)0 >= item->valuedouble)
+		{
+			*((unsigned long*)field_address + offset) = (double)0;
+		}
+		else
+		{
+			*((unsigned long*)field_address + offset) = (unsigned long)item->valuedouble;
+		}
 	}
 	else if (typeid(float) == *field_type)
 	{
