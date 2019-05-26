@@ -10,8 +10,6 @@ using namespace boost::xpressive;
 
 struct field_info
 {
-	bool						nested_;
-	bool						array_;
 	std::string					name_;
 	std::vector<std::string>	qualifier_;
 };
@@ -41,7 +39,7 @@ static void field_qualifier(std::string declaration, std::vector<std::string>& q
     2 < qualifier.size() ? qualifiers.push_back(qualifier[1]), qualifiers.push_back(qualifier[2]) : 0;
 }
 
-static std::string field_name(std::string declaration, bool& nested, bool& array)
+static std::string field_name(std::string declaration)
 {
 	smatch name;
 
@@ -198,17 +196,11 @@ static void read_fields(std::list<register_info> &reg_infos)
 
 			field_info f_info;
 
-			bool nested			= false;
-			bool array			= false;
-			std::string name	= field_name(*iter2, nested, array);
-
-			f_info.nested_		= nested;
-			f_info.array_		= array;
-			f_info.name_		= name;
+			f_info.name_ = field_name(*iter2);
 
 			field_qualifier(*iter2, f_info.qualifier_);
 
-			if (!name.empty()) iter1->fields_.push_back(f_info);
+			if (!f_info.name_.empty()) iter1->fields_.push_back(f_info);
 		}
 	}
 }
