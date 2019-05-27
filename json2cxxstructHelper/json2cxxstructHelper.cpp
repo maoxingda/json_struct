@@ -2,10 +2,10 @@
 //
 
 #include "stdafx.h"
+#include "../inc/jstruct.h"
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/xpressive/xpressive.hpp>
-#include "../../inc/jmacro.h"
 
 using namespace boost::xpressive;
 using namespace boost::filesystem;

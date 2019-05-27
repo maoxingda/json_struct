@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="cjson">
+      <UniqueIdentifier>{a7a1c7c6-661d-4726-a7dc-4782b196d844}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="inc">
+      <UniqueIdentifier>{be84da29-38e9-4004-bc5b-09126b8cf69e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{983c2d7d-a632-4be0-b858-48a0fbfb9fc2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\inc\jmacro.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\jqualifier.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\jstruct.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\inc\jstruct_base.h">
+      <Filter>inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\cjson\cJSON.h">
+      <Filter>cjson</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\jstruct_base.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\cjson\cJSON.c">
+      <Filter>cjson</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,6 +1,6 @@
 #pragma once
 #include <Windows.h>
-#include "jstruct.h"
+#include "../../inc/jstruct.h"
 
 
 JSTRUCT(struct_test_bool)
