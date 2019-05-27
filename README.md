@@ -49,14 +49,14 @@ JSTRUCT(student)
 	REQUIRED BASIC		int	id;
 	REQUIRED BASIC		wchar_t	name[32];
 	REQUIRED CUSTOM		date	birthday;
-	REQUIRED CUSTOM_ARRAY	date	birthday1[2];
+	REQUIRED CUSTOM_ARRAY	date	birthday_array[2];
 
 	student()
 	{
 		JSTRUCT_REG_BASIC_FIELD(REQUIRED, id);
 		JSTRUCT_REG_BASIC_FIELD(REQUIRED, name);
 		JSTRUCT_REG_BASIC_FIELD(REQUIRED, birthday);
-		JSTRUCT_REG_CUSTOM_ARRAY_FIELD(REQUIRED, birthday1);
+		JSTRUCT_REG_CUSTOM_ARRAY_FIELD(REQUIRED, birthday_array);
 	}
 };
 
@@ -64,6 +64,6 @@ int main(int argc, char** argv)
 {
 	student stu1;
 
-	assert(stu1.from_json("{\"id\":1001,\"name\":\"张三\",\"birthday\":{\"year\":\"1970\",\"month\":\"00\",\"day\":\"00\"}}"))
+	assert(stu1.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"))
 }
 ```
