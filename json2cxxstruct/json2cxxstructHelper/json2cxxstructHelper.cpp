@@ -1,6 +1,7 @@
-#include "json2cxxstructhelper.h"
-#include <QtGui/QApplication>
-#include <fstream>
+// json2cxxstructHelper.cpp : Defines the entry point for the console application.
+//
+
+#include "stdafx.h"
 #include <boost/format.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/xpressive/xpressive.hpp>
@@ -30,19 +31,19 @@ struct register_info
 static void field_qualifier(std::string declaration, std::vector<std::string>& qualifiers)
 {
 	smatch qualifier;
-    smatch qualifier_alias;
+	smatch qualifier_alias;
 
 	boost::format fmt("^\\s*(%1%|%2%)\\s+(%3%|%4%|%5%)\\s+");
 
 	fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY);
-    
+
 	static sregex field_qualifier_regex			= sregex::compile(fmt.str());
-    static sregex field_qualifier_alias_regex	= sregex::compile("ALIAS\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)\\s+");
-    
+	static sregex field_qualifier_alias_regex	= sregex::compile("ALIAS\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)\\s+");
+
 	regex_search(declaration, qualifier, field_qualifier_regex);
-    regex_search(declaration, qualifier_alias, field_qualifier_alias_regex);
-    
-    3 == qualifier.size() ? qualifiers.push_back(qualifier[1]), qualifiers.push_back(qualifier[2]) : 0;
+	regex_search(declaration, qualifier_alias, field_qualifier_alias_regex);
+
+	3 == qualifier.size() ? qualifiers.push_back(qualifier[1]), qualifiers.push_back(qualifier[2]) : 0;
 	2 == qualifier_alias.size() ? qualifiers.push_back(qualifier_alias[1]) : 0;
 }
 
@@ -345,40 +346,35 @@ static void parse(std::string in_file_name, std::string out_file_name)
 {
 	std::list<std::string> lines;
 
-    read_file(in_file_name, lines);
+	read_file(in_file_name, lines);
 
 	if (!lines.empty())
 	{
 		std::list<register_info> reg_infos;
-		
+
 		read_struct(lines, reg_infos);
 
 		read_fields(reg_infos);
 
-		smatch file_ext_sm;
-		sregex file_ext_regex = sregex::compile("(\\.h|\\.cpp)");
+		std::string file_ext = path(out_file_name).extension().string();
 
-		if (regex_search(out_file_name, file_ext_sm, file_ext_regex))
+		if (".h" == file_ext)
 		{
-			if (".h" == file_ext_sm[1].str())
-			{
-				write_decl_file(out_file_name, reg_infos, lines);
-			}
-			else if (".cpp" == file_ext_sm[1].str())
-			{
-				write_impl_file(out_file_name, base_file_name(in_file_name), reg_infos);
-			}
+			write_decl_file(out_file_name, reg_infos, lines);
+		}
+		else if (".cpp" == file_ext)
+		{
+			write_impl_file(out_file_name, base_file_name(in_file_name), reg_infos);
 		}
 	}
 }
 
 int main(int argc, char *argv[])
 {
-	QApplication a(argc, argv);
-
 	if (3 > argc) return -1;
 
 	parse(argv[1], argv[2]);
 
 	return 0;
 }
+

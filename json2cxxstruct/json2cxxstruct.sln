@@ -5,11 +5,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json2cxxstruct", "json2cxxs
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json2cxxstructDemo", "json2cxxstructDemo\json2cxxstructDemo.vcxproj", "{A61C3B53-BD59-4EB7-A744-61EB7BA6EDFB}"
 	ProjectSection(ProjectDependencies) = postProject
-		{4D638952-C414-4E29-8C8A-3741F216A1CC} = {4D638952-C414-4E29-8C8A-3741F216A1CC}
 		{92975F5F-E86B-4058-AED3-8F596627BBFE} = {92975F5F-E86B-4058-AED3-8F596627BBFE}
+		{2A9B7ED2-431A-4FE8-BB57-F0614B171BAA} = {2A9B7ED2-431A-4FE8-BB57-F0614B171BAA}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json2cxxstructHelper", "json2cxxstructHelper\json2cxxstructHelper.vcxproj", "{4D638952-C414-4E29-8C8A-3741F216A1CC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "json2cxxstructHelper", "json2cxxstructHelper\json2cxxstructHelper.vcxproj", "{2A9B7ED2-431A-4FE8-BB57-F0614B171BAA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,10 +25,10 @@ Global
 		{A61C3B53-BD59-4EB7-A744-61EB7BA6EDFB}.Debug|Win32.Build.0 = Debug|Win32
 		{A61C3B53-BD59-4EB7-A744-61EB7BA6EDFB}.Release|Win32.ActiveCfg = Release|Win32
 		{A61C3B53-BD59-4EB7-A744-61EB7BA6EDFB}.Release|Win32.Build.0 = Release|Win32
-		{4D638952-C414-4E29-8C8A-3741F216A1CC}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4D638952-C414-4E29-8C8A-3741F216A1CC}.Debug|Win32.Build.0 = Debug|Win32
-		{4D638952-C414-4E29-8C8A-3741F216A1CC}.Release|Win32.ActiveCfg = Release|Win32
-		{4D638952-C414-4E29-8C8A-3741F216A1CC}.Release|Win32.Build.0 = Release|Win32
+		{2A9B7ED2-431A-4FE8-BB57-F0614B171BAA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2A9B7ED2-431A-4FE8-BB57-F0614B171BAA}.Debug|Win32.Build.0 = Debug|Win32
+		{2A9B7ED2-431A-4FE8-BB57-F0614B171BAA}.Release|Win32.ActiveCfg = Release|Win32
+		{2A9B7ED2-431A-4FE8-BB57-F0614B171BAA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

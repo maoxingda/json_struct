@@ -6,7 +6,6 @@
 #include <cassert>
 #include <codecvt>
 #include <typeinfo>
-//#include "json2cxxstruct1.h"
 #include "json_json2cxxstruct1.h"
 //#include <vld.h>
 

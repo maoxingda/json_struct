@@ -40,7 +40,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>.\GeneratedFiles;$(ProjectDir)/test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
-    <ExecutablePath>$(SolutionDir)$(Platform)\$(Configuration);$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(SolutionDir)$(Configuration);$(ExecutablePath)</ExecutablePath>
     <LibraryPath>$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
