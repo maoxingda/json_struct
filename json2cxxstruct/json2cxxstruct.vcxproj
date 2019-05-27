@@ -52,7 +52,7 @@
     <TargetName>$(ProjectName)d</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(SolutionDir)../cjson;$(SolutionDir)../inc;C:\Qt\4.8.3\trunk\include\Qt;C:\Qt\4.8.3\trunk\include\QtGui;C:\Qt\4.8.3\trunk\include\QtCore;C:\Qt\4.8.3\trunk\include;D:\open_sources\boost_1_68_0;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)/cjson;$(SolutionDir)/inc;C:\Qt\4.8.3\trunk\include\Qt;C:\Qt\4.8.3\trunk\include\QtGui;C:\Qt\4.8.3\trunk\include\QtCore;C:\Qt\4.8.3\trunk\include;D:\open_sources\boost_1_68_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
