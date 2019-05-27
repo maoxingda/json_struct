@@ -30,7 +30,7 @@ enum type
 struct field_info
 {
 	type				type_;
-	std::string         qualifier;
+	std::string         qualifier_;
 	std::string			name_;
 	std::string			alias_;
 	void*				address_;
@@ -316,8 +316,8 @@ bool jstruct_base::from_json_(void* object)
 		{
 			//if (ESTR(Y)			== field_information->qualifier) return false;
 			//if (ESTR(N)			== field_information->qualifier) return false;
-			if (ESTR(OPTIONAL)	== field_information->qualifier) continue;
-			if (ESTR(REQUIRED)	== field_information->qualifier) return false;
+			if (ESTR(OPTIONAL)	== field_information->qualifier_) continue;
+			if (ESTR(REQUIRED)	== field_information->qualifier_) return false;
 		}
 
 		switch (field_information->type_)
@@ -422,7 +422,7 @@ void jstruct_base::register_field(const type_info* field_type, std::string field
 	field_info* finfo		= new field_info;
 
 	finfo->type_			= data_type(field_type, finfo);
-	finfo->qualifier		= field_qualifier;
+	finfo->qualifier_		= field_qualifier;
 	finfo->name_			= field_name;
 	finfo->alias_			= field_name_alias;
 	finfo->address_			= field_address;
