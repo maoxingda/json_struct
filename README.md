@@ -24,7 +24,6 @@
 
 ###### TODO
 * support serialize c++ struct to json stream
-* memory leak
 * output custom warning message when qualifier is not ***[REQUIRED|OPTIONAL]***
 * support #include
 
