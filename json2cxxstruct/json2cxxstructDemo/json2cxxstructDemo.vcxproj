@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)/test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
+    <IncludePath>.\GeneratedFiles;$(ProjectDir)/test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
     <ExecutablePath>$(SolutionDir)$(Platform)\$(Configuration);$(ExecutablePath)</ExecutablePath>
     <LibraryPath>$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -86,8 +86,8 @@
   <ItemGroup>
     <None Include="ReadMe.txt" />
     <CustomBuild Include="test\json2cxxstruct1.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelperd.exe "%(FullPath)" ".\GeneratedFiles\$(Configuration)\json_%(Filename).h"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(Configuration)\json_%(Filename).h</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelperd.exe "%(FullPath)" ".\GeneratedFiles\json_%(Filename).h"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\json_%(Filename).h</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelperd.exe%27ing %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">json2cxxstructHelper.exe "%(FullPath)" ".\GeneratedFiles\$(Configuration)\json_%(Filename).cpp"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">json2cxxstructHelper.exe%27ing %(Identity)...</Message>
@@ -99,12 +99,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GeneratedFiles\Debug\json_json2cxxstruct1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\json_json2cxxstruct1.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="json2cxxstructDemo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

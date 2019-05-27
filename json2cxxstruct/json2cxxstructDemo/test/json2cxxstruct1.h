@@ -29,8 +29,8 @@ JSTRUCT(date)
 
 JSTRUCT(student)
 {
-	REQUIRED BASIC			int			id;
-	REQUIRED BASIC			wchar_t		name[32];
-	REQUIRED CUSTOM			date		birthday;
-	REQUIRED CUSTOM_ARRAY	date		birthday1[2];
+	REQUIRED BASIC ALIAS(identifier) int			id;
+	REQUIRED BASIC					 wchar_t		name[32]; 
+	REQUIRED CUSTOM					 date			birthday;
+	REQUIRED CUSTOM_ARRAY			 date			birthday_array[2];
 };

@@ -6,7 +6,8 @@
 #include <cassert>
 #include <codecvt>
 #include <typeinfo>
-#include "json2cxxstruct1.h"
+//#include "json2cxxstruct1.h"
+#include "json_json2cxxstruct1.h"
 //#include <vld.h>
 
 
@@ -29,7 +30,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	student stu;
 
-	assert(stu.from_json(cnv.to_bytes(L"{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}}")));
+	assert(stu.from_json(cnv.to_bytes(L"{\"identifier\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}")));
 
 	return true;
 }

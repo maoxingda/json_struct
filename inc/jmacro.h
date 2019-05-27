@@ -5,6 +5,8 @@
 
 #define JSTRUCT(struct_name)														struct struct_name : public jstruct_base
 
+#define ALIAS(														   alias_name)
+
 #define JSTRUCT_REG_BASIC_FIELD(				qualifier, field_name)				register_field(&typeid(field_name), #qualifier, #field_name, "",			&field_name, 0)
 
 #define JSTRUCT_REG_BASIC_FIELD_ALIAS(			qualifier, field_name, alias_name)	register_field(&typeid(field_name), #qualifier, #field_name, #alias_name,	&field_name, 0)
