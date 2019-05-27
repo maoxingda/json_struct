@@ -41,7 +41,7 @@ struct field_info
 
 	field_info()
 	{
-		ZeroMemory(this, sizeof(*this));
+		//ZeroMemory(this, sizeof(*this));
 	}
 };
 
@@ -434,5 +434,5 @@ void jstruct_base::register_field(const type_info* field_type, std::string field
 
 jstruct_base::~jstruct_base()
 {
-	std::for_each(fields_info.begin(), fields_info.end(), [&](void* pointer) { field_info* p = (field_info*)pointer; delete pointer; });
+	std::for_each(fields_info.begin(), fields_info.end(), [&](void* pointer) { field_info* p = (field_info*)pointer; delete p; });
 }
