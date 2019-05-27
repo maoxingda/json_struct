@@ -356,15 +356,16 @@ static void parse(std::string in_file_name, std::string out_file_name)
 
 		read_fields(reg_infos);
 
-		std::string file_ext = path(out_file_name).extension().string();
+		path in_file_path(in_file_name);
+		path out_file_path(out_file_name);
 
-		if (".h" == file_ext)
+		if (".h" == out_file_path.extension().string())
 		{
 			write_decl_file(out_file_name, reg_infos, lines);
 		}
-		else if (".cpp" == file_ext)
+		else if (".cpp" == out_file_path.extension().string())
 		{
-			write_impl_file(out_file_name, base_file_name(in_file_name), reg_infos);
+			write_impl_file(out_file_name, in_file_path.filename().string(), reg_infos);
 		}
 	}
 }
