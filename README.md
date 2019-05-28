@@ -8,7 +8,7 @@
 * ***JSTRUCT_REG_BASIC_FIELD_ALIAS(		qualifier, field_name, alias_name)***
 * ***JSTRUCT_REG_CUSTOM_ARRAY_FIELD(		qualifier, field_name)***
 * ***JSTRUCT_REG_CUSTOM_ARRAY_FIELD_ALIAS(	qualifier, field_name, alias_name)***
-3 where qualifier is ***[REQUIRED|OPTIONAL]***
+3. where qualifier is ***[REQUIRED|OPTIONAL]***
 4. create struct object and call member function ***from_json(json_stream_utf8)***, so that's all
 
 ## automation
