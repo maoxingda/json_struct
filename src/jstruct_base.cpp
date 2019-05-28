@@ -59,8 +59,8 @@ struct data_type_info
 		data_type_regexs[enum_wchar_array]			 = "wchar_t \\[(\\d+)\\]";
 		data_type_regexs[enum_wchar_table]			 = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
 
-		data_type_regexs[enum_custom]				= "struct \\w+";
-		data_type_regexs[enum_custom_array]			= "struct \\w+ \\[(\\d+)\\]";
+		data_type_regexs[enum_custom]				 = "struct \\w+";
+		data_type_regexs[enum_custom_array]			 = "struct \\w+ \\[(\\d+)\\]";
 	}
 };
 
