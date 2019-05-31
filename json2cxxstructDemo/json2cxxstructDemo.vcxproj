@@ -93,7 +93,7 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <CustomBuild Include="test\json2cxxstruct1.json.h">
+    <CustomBuild Include="test\jstruct1.json.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelper.exe "%(FullPath)" ".\GeneratedFiles\json_%(Filename).h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelper.exe%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\json_%(Filename).h;%(Outputs)</Outputs>

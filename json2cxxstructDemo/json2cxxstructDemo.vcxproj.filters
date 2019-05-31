@@ -34,11 +34,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="test\json2cxxstruct1.json.h">
-      <Filter>test</Filter>
-    </CustomBuild>
+    <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
+    <CustomBuild Include="test\jstruct1.json.h">
+      <Filter>test</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>
