@@ -84,7 +84,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="ReadMe.txt" />
+    <Xsd Include="ReadMe.txt">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">123</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">456</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">789</Outputs>
+    </Xsd>
     <CustomBuild Include="test\json2cxxstruct1.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelperd.exe "%(FullPath)" ".\GeneratedFiles\json_%(Filename).h"</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\json_%(Filename).h</Outputs>
