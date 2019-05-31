@@ -39,15 +39,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>.\GeneratedFiles;$(ProjectDir)/test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
-    <ExecutablePath>$(SolutionDir)$(Configuration);$(ExecutablePath)</ExecutablePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
+    <IncludePath>.\GeneratedFiles;.\test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <LibraryPath>$(SolutionDir)bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <ExecutablePath>$(SolutionDir)$(Platform)\$(Configuration);$(ExecutablePath)</ExecutablePath>
-    <IncludePath>$(ProjectDir)/test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Configuration);$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <IncludePath>.\GeneratedFiles;.\test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
