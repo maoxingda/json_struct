@@ -324,21 +324,21 @@ bool jstruct_base::from_json_(void* object)
 		{
 		case enum_bool:
 			{
-				if (cJSON_False != item->type && cJSON_True != item->type) return false;
+				if (!cJSON_IsBool(item)) return false;
 
 				*(bool*)field_address = 1 == item->valueint ? true : false;
 			}
 			break;
 		case enum_number:
 			{
-				if (cJSON_Number != item->type) return false;
+				if (!cJSON_IsNumber(item)) return false;
 
 				from_number(field_information->field_type_, field_address, item, 0);
 			}
 			break;
 		case enum_number_array:
 			{
-				if (cJSON_Array != item->type) return false;
+				if (!cJSON_IsArray(item)) return false;
 
 				int arrSize1 = cJSON_GetArraySize(item);
 				int arrSize2 = array_size(field_information->field_type_);
@@ -347,7 +347,7 @@ bool jstruct_base::from_json_(void* object)
 				{
 					cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-					if (cJSON_Number != arrItem->type) return false;
+					if (!cJSON_IsNumber(item)) return false;
 
 					from_number(field_information->field_type_, field_address, item, i);
 				}
@@ -355,9 +355,9 @@ bool jstruct_base::from_json_(void* object)
 			break;
 		case enum_wchar_array:
 			{
-				if (cJSON_String != item->type) return false;
+				if (!cJSON_IsString(item)) return false;
 
-				std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > ().from_bytes(item->valuestring);
+				std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t >().from_bytes(item->valuestring);
 
 				WCHAR* dst = (WCHAR*)field_address;
 
@@ -368,7 +368,7 @@ bool jstruct_base::from_json_(void* object)
 			break;
 		case enum_wchar_table:
 			{
-				if (cJSON_Array != item->type) return false;
+				if (!cJSON_IsArray(item)) return false;
 
 				int arrSize = cJSON_GetArraySize(item);
 
@@ -376,7 +376,7 @@ bool jstruct_base::from_json_(void* object)
 				{
 					cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-					if (cJSON_String != arrItem->type) return false;
+					if (!cJSON_IsString(item)) return false;
 
 					std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > ().from_bytes(arrItem->valuestring);
 
