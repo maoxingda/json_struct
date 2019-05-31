@@ -3216,7 +3216,16 @@ g_HandleSystemReboot();
 <Event>
 <Name>On Post Install</Name>
 <Args/>
-<Script/>
+<Script>AppFolder = SessionVar.Expand("%AppFolder%");
+
+Path = Registry.GetValue(HKEY_CURRENT_USER, "Environment", "Path", false);
+
+Path = Path..";"..AppFolder;
+
+-- Dialog.Message("Path", Path);
+
+Registry.SetValue(HKEY_CURRENT_USER, "Environment", "Path", Path)
+</Script>
 <BookMarks count="0">
 </BookMarks>
 </Event>
