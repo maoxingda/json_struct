@@ -222,11 +222,11 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 		}
 		else if ((double)INT64_MIN >= item->valuedouble)
 		{
-			*((double*)field_address + offset) = (double)INT64_MIN;
+			*((__int64*)field_address + offset) = (__int64)INT64_MIN;
 		}
 		else
 		{
-			*((__int64*)field_address + offset) = (double)item->valuedouble;
+			*((__int64*)field_address + offset) = (__int64)item->valuedouble;
 		}
 	}
 	else if (typeid(long) == *field_type)
@@ -267,7 +267,7 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 		}
 		else if ((double)0 >= item->valuedouble)
 		{
-			*((unsigned long*)field_address + offset) = (double)0;
+			*((unsigned long*)field_address + offset) = (unsigned long)0;
 		}
 		else
 		{
@@ -276,7 +276,7 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 	}
 	else if (typeid(float) == *field_type)
 	{
-		*((float*)field_address + offset) = item->valuedouble;
+		*((float*)field_address + offset) = (float)item->valuedouble;
 	}
 	else if (typeid(double) == *field_type)
 	{

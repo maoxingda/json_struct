@@ -84,23 +84,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Xsd Include="ReadMe.txt">
+    <None Include="ReadMe.txt">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">123</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">456</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">789</Outputs>
-    </Xsd>
-    <CustomBuild Include="test\json2cxxstruct1.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelperd.exe "%(FullPath)" ".\GeneratedFiles\json_%(Filename).h"</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\json_%(Filename).h</Outputs>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelperd.exe%27ing %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">json2cxxstructHelper.exe "%(FullPath)" ".\GeneratedFiles\$(Configuration)\json_%(Filename).cpp"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">json2cxxstructHelper.exe%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(Configuration)\json_%(Filename).cpp</Outputs>
-    </CustomBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <CustomBuild Include="test\json2cxxstruct1.json.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelper.exe "%(FullPath)" ".\GeneratedFiles\json_%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">json2cxxstructHelper.exe%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\json_%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">json2cxxstructHelper.exe "%(FullPath)" ".\GeneratedFiles\json_%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">json2cxxstructHelper.exe%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\json_%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="json2cxxstructDemo.cpp" />
