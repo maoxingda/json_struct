@@ -26,6 +26,7 @@
 * support serialize c++ struct to json stream
 * output custom warning message when qualifier is not ***[REQUIRED|OPTIONAL]***
 * support #include
+* array size
 
 ## example
 ```
