@@ -88,7 +88,7 @@ private:
 	bool from_json_(void*);
 
 protected:
-	void register_field(const type_info*, std::string, std::string, std::string, void*, int);
+	void register_field(const type_info*, std::string, std::string, std::string, void*, void*, int);
 
 private:
 	std::list<void*> fields_info;

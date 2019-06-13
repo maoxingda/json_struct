@@ -34,15 +34,11 @@ struct field_info
 	std::string			name_;
 	std::string			alias_;
 	void*				address_;
+	void*				address_size_;
 	int					offset_;
 	int					table_row_;
 	int					table_col_;
 	const type_info*	field_type_;
-
-	field_info()
-	{
-		//ZeroMemory(this, sizeof(*this));
-	}
 };
 
 struct data_type_info
@@ -193,13 +189,104 @@ static type data_type(const type_info * ptype_info, field_info * pfield_info = n
 	return enum_none;
 }
 
-static void from_number(const type_info * field_type, void *field_address, cJSON * item, int offset)
+static void from_number(const type_info * field_type, void *field_address, cJSON * item)
 {
 	if (typeid(int) == *field_type)
 	{
-		*((int*)field_address + offset) = item->valueint;
+		*((int*)field_address) = item->valueint;
 	}
 	else if (typeid(unsigned int) == *field_type)
+	{
+		if (UINT_MAX <= item->valuedouble)
+		{
+			*((unsigned int*)field_address) = UINT_MAX;
+		}
+		else if ((double)0 >= item->valuedouble)
+		{
+			*((unsigned int*)field_address) = (unsigned int)0;
+		}
+		else
+		{
+			*((unsigned int*)field_address) = (unsigned int)item->valuedouble;
+		}
+	}
+	else if (typeid(__int64) == *field_type)
+	{
+		if (INT64_MAX <= item->valuedouble)
+		{
+			*((__int64*)field_address) = INT64_MAX;
+		}
+		else if ((double)INT64_MIN >= item->valuedouble)
+		{
+			*((__int64*)field_address) = (__int64)INT64_MIN;
+		}
+		else
+		{
+			*((__int64*)field_address) = (__int64)item->valuedouble;
+		}
+	}
+	else if (typeid(long) == *field_type)
+	{
+		if (LONG_MAX <= item->valuedouble)
+		{
+			*((long*)field_address) = LONG_MAX;
+		}
+		else if ((double)LONG_MIN >= item->valuedouble)
+		{
+			*((long*)field_address) = LONG_MIN;
+		}
+		else
+		{
+			*((long*)field_address) = (long)item->valuedouble;
+		}
+	}
+	else if (typeid(unsigned short) == *field_type)
+	{
+		if (0xffff <= item->valuedouble)
+		{
+			*((unsigned short*)field_address) = (unsigned short)0xffff;
+		}
+		else if ((double)0 >= item->valuedouble)
+		{
+			*((unsigned short*)field_address) = (unsigned short)0;
+		}
+		else
+		{
+			*((unsigned short*)field_address) = (unsigned short)item->valuedouble;
+		}
+	}
+	else if (typeid(unsigned long) == *field_type)
+	{
+		if (ULONG_MAX <= item->valuedouble)
+		{
+			*((unsigned long*)field_address) = ULONG_MAX;
+		}
+		else if ((double)0 >= item->valuedouble)
+		{
+			*((unsigned long*)field_address) = (unsigned long)0;
+		}
+		else
+		{
+			*((unsigned long*)field_address) = (unsigned long)item->valuedouble;
+		}
+	}
+	else if (typeid(float) == *field_type)
+	{
+		*((float*)field_address) = (float)item->valuedouble;
+	}
+	else if (typeid(double) == *field_type)
+	{
+		*((double*)field_address) = item->valuedouble;
+	}
+}
+
+static void from_number_array(const type_info * field_type, void *field_address, cJSON * item, int offset)
+{
+	if (std::string::npos != std::string(field_type->name()).find("int"))
+	{
+		*((int*)field_address + offset) = item->valueint;
+	}
+	else if (std::string::npos != std::string(field_type->name()).find("unsigned int"))
 	{
 		if (UINT_MAX <= item->valuedouble)
 		{
@@ -214,7 +301,7 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 			*((unsigned int*)field_address + offset) = (unsigned int)item->valuedouble;
 		}
 	}
-	else if (typeid(__int64) == *field_type)
+	else if (std::string::npos != std::string(field_type->name()).find("__int64"))
 	{
 		if (INT64_MAX <= item->valuedouble)
 		{
@@ -229,7 +316,7 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 			*((__int64*)field_address + offset) = (__int64)item->valuedouble;
 		}
 	}
-	else if (typeid(long) == *field_type)
+	else if (std::string::npos != std::string(field_type->name()).find("long"))
 	{
 		if (LONG_MAX <= item->valuedouble)
 		{
@@ -244,7 +331,7 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 			*((long*)field_address + offset) = (long)item->valuedouble;
 		}
 	}
-	else if (typeid(unsigned short) == *field_type)
+	else if (std::string::npos != std::string(field_type->name()).find("unsigned short"))
 	{
 		if (0xffff <= item->valuedouble)
 		{
@@ -259,7 +346,7 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 			*((unsigned short*)field_address + offset) = (unsigned short)item->valuedouble;
 		}
 	}
-	else if (typeid(unsigned long) == *field_type)
+	else if (std::string::npos != std::string(field_type->name()).find("unsigned long"))
 	{
 		if (ULONG_MAX <= item->valuedouble)
 		{
@@ -274,11 +361,11 @@ static void from_number(const type_info * field_type, void *field_address, cJSON
 			*((unsigned long*)field_address + offset) = (unsigned long)item->valuedouble;
 		}
 	}
-	else if (typeid(float) == *field_type)
+	else if (std::string::npos != std::string(field_type->name()).find("float"))
 	{
 		*((float*)field_address + offset) = (float)item->valuedouble;
 	}
-	else if (typeid(double) == *field_type)
+	else if (std::string::npos != std::string(field_type->name()).find("double"))
 	{
 		*((double*)field_address + offset) = item->valuedouble;
 	}
@@ -299,8 +386,8 @@ bool jstruct_base::from_json(std::string json)
 
 bool jstruct_base::from_json_(void* object)
 {
-	if (nullptr == object) return false;
-	if (0 == fields_info.size()) return false;
+	if (nullptr == object)				return false;
+	if (0		== fields_info.size())	return false;
 
 	for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
 	{
@@ -314,8 +401,6 @@ bool jstruct_base::from_json_(void* object)
 
 		if (nullptr == item)
 		{
-			//if (ESTR(Y)			== field_information->qualifier) return false;
-			//if (ESTR(N)			== field_information->qualifier) return false;
 			if (ESTR(OPTIONAL)	== field_information->qualifier_) continue;
 			if (ESTR(REQUIRED)	== field_information->qualifier_) return false;
 		}
@@ -333,7 +418,7 @@ bool jstruct_base::from_json_(void* object)
 			{
 				if (!cJSON_IsNumber(item)) return false;
 
-				from_number(field_information->field_type_, field_address, item, 0);
+				from_number(field_information->field_type_, field_address, item);
 			}
 			break;
 		case enum_number_array:
@@ -347,10 +432,12 @@ bool jstruct_base::from_json_(void* object)
 				{
 					cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-					if (!cJSON_IsNumber(item)) return false;
+					if (!cJSON_IsNumber(arrItem)) return false;
 
-					from_number(field_information->field_type_, field_address, item, i);
+					from_number_array(field_information->field_type_, field_address, arrItem, i);
 				}
+
+				*((int*)field_information->address_size_) = min(arrSize1, arrSize2);
 			}
 			break;
 		case enum_wchar_array:
@@ -376,7 +463,7 @@ bool jstruct_base::from_json_(void* object)
 				{
 					cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-					if (!cJSON_IsString(item)) return false;
+					if (!cJSON_IsString(arrItem)) return false;
 
 					std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > ().from_bytes(arrItem->valuestring);
 
@@ -386,6 +473,8 @@ bool jstruct_base::from_json_(void* object)
 
 					*(dst + ucs2.size()) = '\0';
 				}
+
+				*((int*)field_information->address_size_) = min(arrSize, field_information->table_row_);
 			}
 			break;
 		case enum_custom:
@@ -406,6 +495,8 @@ bool jstruct_base::from_json_(void* object)
 
 					if (!success) return false;
 				}
+
+				*((int*)field_information->address_size_) = min(arrSizeReal, arrSizeExpected);
 			}
 			break;
 		case enum_none:
@@ -417,7 +508,7 @@ bool jstruct_base::from_json_(void* object)
 	return true;
 }
 
-void jstruct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, std::string field_name_alias, void* field_address, int offset)
+void jstruct_base::register_field(const type_info* field_type, std::string field_qualifier, std::string field_name, std::string field_name_alias, void* field_address, void* array_size_field_address, int offset)
 {
 	field_info* finfo		= new field_info;
 
@@ -426,6 +517,7 @@ void jstruct_base::register_field(const type_info* field_type, std::string field
 	finfo->name_			= field_name;
 	finfo->alias_			= field_name_alias;
 	finfo->address_			= field_address;
+	finfo->address_size_	= array_size_field_address;
 	finfo->offset_			= offset;
 	finfo->field_type_		= field_type;
 

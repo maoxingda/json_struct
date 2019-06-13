@@ -18,7 +18,8 @@ struct field_info
 	std::vector<std::string>	qualifier_;
 };
 
-std::list<field_info>						fields;
+static std::list<field_info>				fields;
+static std::list<std::string>				lines;
 
 struct register_info
 {
@@ -33,9 +34,9 @@ static void field_qualifier(std::string declaration, std::vector<std::string>& q
 	smatch qualifier;
 	smatch qualifier_alias;
 
-	boost::format fmt("^\\s*(%1%|%2%)\\s+(%3%|%4%|%5%)\\s+");
+	boost::format fmt("^\\s*(%1%|%2%)\\s+(%3%|%4%|%5%|%6%)\\s+");
 
-	fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY);
+	fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY);
 
 	static sregex field_qualifier_regex			= sregex::compile(fmt.str());
 	static sregex field_qualifier_alias_regex	= sregex::compile("ALIAS\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)\\s+");
@@ -51,7 +52,7 @@ static std::string field_name(std::string declaration)
 {
 	smatch name;
 
-	static sregex struct_field_regex = sregex::compile("([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\])?\\s*;");
+	static sregex struct_field_regex = sregex::compile("([a-zA-Z_$][a-zA-Z0-9_$]*)(?:\\[\\d+\\]){0,2}\\s*;");
 
 	if (regex_search(declaration, name, struct_field_regex))
 	{
@@ -214,6 +215,11 @@ static void read_fields(std::list<register_info> &reg_infos)
 			field_qualifier(*iter2, f_info.qualifier_);
 
 			if (!f_info.name_.empty()) iter1->fields_.push_back(f_info);
+
+			if (2 <= f_info.qualifier_.size())
+			{
+				if (ESTR(BASIC_ARRAY) == f_info.qualifier_[1] || ESTR(CUSTOM_ARRAY) == f_info.qualifier_[1]) lines.insert(iter1->iter_struct_end_, (boost::format("\tint %1%_size;") % f_info.name_).str());
+			}
 		}
 	}
 }
@@ -231,7 +237,7 @@ static std::string base_file_name(std::string in_file_name)
 	return "";
 }
 
-static void write_decl_file(std::string out_file_name, std::list<register_info> &reg_infos, std::list<std::string>& lines)
+static void write_decl_file(std::string out_file_name, std::list<register_info> &reg_infos)
 {
 	std::fstream out(out_file_name, std::ios_base::out);
 
@@ -247,7 +253,7 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
 				if (iter2->name_.empty())			continue;
 				if (2 > iter2->qualifier_.size())	continue;
 
-				if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(CUSTOM) == iter2->qualifier_[1])
+				if (ESTR(BASIC) == iter2->qualifier_[1])
 				{
 					if (3 == iter2->qualifier_.size())
 					{
@@ -256,6 +262,28 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
 					else
 					{
 						lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_BASIC_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+					}
+				}
+				else if (ESTR(CUSTOM) == iter2->qualifier_[1])
+				{
+					if (3 == iter2->qualifier_.size())
+					{
+						lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_CUSTOM_FIELD_ALIAS(%1%, %2%, %3%);") % iter2->qualifier_[0] % iter2->name_ % iter2->qualifier_[2]).str());
+					}
+					else
+					{
+						lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_CUSTOM_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+					}
+				}
+				else if (ESTR(BASIC_ARRAY) == iter2->qualifier_[1])
+				{
+					if (3 == iter2->qualifier_.size())
+					{
+						lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_BASIC_ARRAY_FIELD_ALIAS(%1%, %2%, %3%);") % iter2->qualifier_[0] % iter2->name_ % iter2->qualifier_[2]).str());
+					}
+					else
+					{
+						lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_REG_BASIC_ARRAY_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
 					}
 				}
 				else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[1])
@@ -277,9 +305,9 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
 				if (iter2->name_.empty())			continue;
 				if (2 > iter2->qualifier_.size())	continue;
 
-				if (ESTR(BASIC) == iter2->qualifier_[1])
+				if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(BASIC_ARRAY) == iter2->qualifier_[1])
 				{
-					lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_INIT_BASIC_FIELD_ZERO(%1%, %2%);") % iter1->sname_ % iter2->name_).str());
+					lines.insert(iter1->iter_struct_end_, (boost::format("\t\tJSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % iter1->sname_ % iter2->name_).str());
 				}
 			}
 
@@ -332,7 +360,7 @@ static void write_impl_file(std::string out_file_name, std::string bfile_name, s
 
 				if (ESTR(BASIC) == iter2->qualifier_[1])
 				{
-					out << boost::format("\tJSTRUCT_INIT_BASIC_FIELD_ZERO(%1%, %2%);\n") % iter1->sname_ % iter2->name_;
+					out << boost::format("\tJSTRUCT_INIT_FIELD_ZERO(%1%, %2%);\n") % iter1->sname_ % iter2->name_;
 				}
 			}
 
@@ -344,8 +372,6 @@ static void write_impl_file(std::string out_file_name, std::string bfile_name, s
 
 static void parse(std::string in_file_name, std::string out_file_name)
 {
-	std::list<std::string> lines;
-
 	read_file(in_file_name, lines);
 
 	if (!lines.empty())
@@ -361,7 +387,7 @@ static void parse(std::string in_file_name, std::string out_file_name)
 
 		if (".h" == out_file_path.extension().string())
 		{
-			write_decl_file(out_file_name, reg_infos, lines);
+			write_decl_file(out_file_name, reg_infos);
 		}
 		else if (".cpp" == out_file_path.extension().string())
 		{

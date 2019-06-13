@@ -157,7 +157,7 @@
 <InstallOrder>1000</InstallOrder>
 <SCStartRoot>0</SCStartRoot>
 <SCStartProgs>0</SCStartProgs>
-<SCAppFld>1</SCAppFld>
+<SCAppFld>0</SCAppFld>
 <SCStartup>0</SCStartup>
 <SCDesk>0</SCDesk>
 <SCQLaunch>0</SCQLaunch>
