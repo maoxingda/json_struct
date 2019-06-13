@@ -11,8 +11,8 @@
 //#include <vld.h>
 
 
-template <typename JSTRUCT_TYPE>
-void jstruct_test(JSTRUCT_TYPE jstruct, std::string file_name)
+template <typename jstruct_type>
+void jstruct_test(jstruct_type jstruct, std::string file_name)
 {
 	std::fstream json(file_name);
 
@@ -22,7 +22,7 @@ void jstruct_test(JSTRUCT_TYPE jstruct, std::string file_name)
 
 		std::string json_str(beg, end);
 
-		JSTRUCT_TYPE obj;
+		jstruct_type obj;
 
 		assert(obj.from_json(json_str));
 	}
