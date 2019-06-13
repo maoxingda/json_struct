@@ -1,0 +1,9 @@
+{
+	"field_int64": 4611686018427387904,
+	"field_long": 4611686018427387904,
+	"field_ushort": 456,
+	"field_uint": 2147483648,
+	"field_ulong": 2147483648,
+	"field_double": 3.1415926,
+	"field_float": 3.1415926
+}
