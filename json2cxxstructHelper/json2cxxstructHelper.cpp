@@ -314,8 +314,16 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
 			lines.insert(iter1->iter_struct_end_, "\t}");
 		}
 		//////////////////////////////////////////////////////////////////////////
+		smatch sm;
+
+		static sregex qualifier_regex = sregex::compile("((?:REQUIRED|OPTIONAL)\\s+(?:BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)\\s+(?:ALIAS\\(\\w+\\)\\s+)?)");
+
 		for (auto iter = lines.begin(); iter != lines.end(); ++iter)
 		{
+			if (regex_search(*iter, sm, qualifier_regex))
+			{
+				iter->replace(sm[1].first, sm[1].second, "");
+			}
 			out << *iter << "\n";
 		}
 		out.close();
