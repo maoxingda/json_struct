@@ -30,13 +30,10 @@ void jstruct_test(jstruct_type jstruct, std::string file_name)
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	struct_test_bool stb_true;
+	struct_test_bool stb_bool;
 
-	assert(stb_true.from_json("{\"field_bool\":true}"));
-
-	struct_test_bool stb_false;
-
-	assert(stb_false.from_json("{\"field_bool\":false}"));
+	assert(stb_bool.from_json("{\"field_bool\":true}"));
+	assert(stb_bool.from_json("{\"field_bool\":false}"));
 	//////////////////////////////////////////////////////////////////////////
 	jstruct_test(struct_test_number(),	"test/number.json");
 	jstruct_test(student(),				"test/student.json");

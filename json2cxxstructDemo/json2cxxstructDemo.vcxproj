@@ -41,7 +41,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>.\GeneratedFiles;.\test;$(SolutionDir)../inc;$(IncludePath)</IncludePath>
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <LibraryPath>$(SolutionDir)bin;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
