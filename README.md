@@ -1,20 +1,9 @@
 # deserialize c++ struct from json stream
 ---
 ## usage
-
-1. declare struct by ***JSTRUCT(struct_name)***
-2. register struct fields in constructor function by follows
-* ***JSTRUCT_REG_BASIC_FIELD(			qualifier, field_name)***
-* ***JSTRUCT_REG_BASIC_FIELD_ALIAS(		qualifier, field_name, alias_name)***
-* ***JSTRUCT_REG_CUSTOM_ARRAY_FIELD(		qualifier, field_name)***
-* ***JSTRUCT_REG_CUSTOM_ARRAY_FIELD_ALIAS(	qualifier, field_name, alias_name)***
-3. where qualifier is ***[REQUIRED|OPTIONAL]***
-4. create struct object and call member function ***from_json(json_stream_utf8)***, so that's all
-
-## automation
-1. inorder to use **json2cxxstructHelper.exe** tool, you must follow the rules below
-2. add field qualifier - ***REQUIRED|OPTIONAL BASIC|CUSTOM|CUSTOM_ARRAY field_type field_name***
-3. declare struct default constructor
+### you must follow the rules below:
+1. declare fields in form of
+***REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;***
 
 ## note
 1. not support - bool var_name([array_size])+
