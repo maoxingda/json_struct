@@ -3,10 +3,8 @@
 #include "jqualifier.h"
 #include "jstruct_base.h"
 
-#ifndef export_jstruct_lib
 #ifdef _DEBUG
-#pragma comment(lib, "json2cxxstructd.lib")
+#pragma comment(lib, "jstructd.lib")
 #else
-#pragma comment(lib, "json2cxxstruct.lib")
+#pragma comment(lib, "jstruct.lib")
 #endif // _DEBUG
-#endif

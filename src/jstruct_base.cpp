@@ -1,5 +1,7 @@
 #include "cJSON.h"
-#include "jstruct.h"
+#include "jmacro.h"
+#include "jqualifier.h"
+#include "jstruct_base.h"
 
 #include <map>
 #include <codecvt>
