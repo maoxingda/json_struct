@@ -43,6 +43,6 @@ int main(int argc, char** argv)
 {
 	student stu1;
 
-	assert(stu1.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"))
+	assert(stu1.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"));
 }
 ```
