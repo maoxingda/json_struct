@@ -2,7 +2,7 @@
 ---
 ## usage
 ### you must follow the rules below:
-1. declare fields in form of
+1. declare fields in form of  
 ***REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;***
 
 ## note
