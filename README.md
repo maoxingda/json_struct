@@ -14,6 +14,8 @@ struct struct_name
 };
 ```
 
+4. create struct object and call member function from_json, so that's all
+
 ## example
 ```
 struct date
