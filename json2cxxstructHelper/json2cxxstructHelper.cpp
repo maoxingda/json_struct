@@ -242,6 +242,9 @@ static std::string base_file_name(std::string in_file_name)
 
 static void write_decl_file(std::string out_file_name, std::list<register_info> &reg_infos)
 {
+    int index = out_file_name.find(".json");
+    if (std::string::npos != index) out_file_name.replace(index, 5, "");
+
 	std::fstream out(out_file_name, std::ios_base::out);
 
 	if (out)

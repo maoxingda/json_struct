@@ -35,9 +35,9 @@ namespace jstructtool
 
                 if (null != cbt)
                 {
-                    cbt.CommandLine = "json2cxxstructHelper.exe \"%(FullPath)\" \".\\GeneratedFiles\\json_%(Filename).h\"";
+                    cbt.CommandLine = "json2cxxstructHelper.exe \"%(FullPath)\" \".\\GeneratedFiles\\%(Filename).h\"";
                     cbt.Description = "json2cxxstructHelper.exe%27ing %(Identity)...";
-                    cbt.Outputs     = ".\\GeneratedFiles\\json_%(Filename).h";
+                    cbt.Outputs     = ".\\GeneratedFiles\\%(Filename).h";
                 }
             }
         }
