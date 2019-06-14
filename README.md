@@ -1,8 +1,9 @@
 # deserialize c++ struct from json stream
 ---
 ## usage
-### you must follow the rules below:
-1. declare struct in form of  
+1. install jstructtool.exe
+
+2. you must declare struct in form of  
 ```
 struct struct_name
 {
