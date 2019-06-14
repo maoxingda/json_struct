@@ -2836,7 +2836,7 @@ g_HandleSystemReboot();
 <SUF7SessionVars>
 <SessionVar>
 <Name>%ProductName%</Name>
-<Value>jstructtool</Value>
+<Value>jstructcompiler</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
