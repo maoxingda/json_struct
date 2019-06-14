@@ -19,9 +19,8 @@ struct struct_name
 
 ###### TODO
 * support serialize c++ struct to json stream
-* output custom warning message when qualifier is not ***[REQUIRED|OPTIONAL]***
+* output custom warning message when qualifier is not REQUIRED|OPTIONAL
 * support #include
-* array size
 
 ## example
 ```
