@@ -3,7 +3,7 @@
 ## usage
 ### you must follow the rules below:
 1. declare fields in form of  
-***REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;***
+***REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY ALIAS(alias_name) field_type field_name;***
 
 ## note
 1. not support - bool var_name([array_size])+
