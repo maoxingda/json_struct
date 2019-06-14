@@ -3,7 +3,9 @@
 ## usage
 1. install jstructcompiler.exe
 
-2. you must declare struct in form of
+2. #include <jstruct.h>
+
+3. you must declare struct in form of
 ```
 struct struct_name
 {
