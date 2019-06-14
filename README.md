@@ -1,9 +1,11 @@
 # deserialize c++ struct from json stream
 ---
 ## usage
-1. install jstructtool.exe
+1. install jstructcompiler.exe
 
-2. you must declare struct in form of  
+2. #include <jstruct.h>
+
+3. you must declare struct in form of
 ```
 struct struct_name
 {
@@ -12,16 +14,7 @@ struct struct_name
 };
 ```
 
-## note
-1. not support - bool var_name([array_size])+
-2. not support - basic_data_type var_name([array_size]){2,} **other than** wchar_t[row][col]
-3. not support - custom_type var_name([array_size]){2,}
-4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
-
-###### TODO
-* support serialize c++ struct to json stream
-* output custom warning message when qualifier is not REQUIRED|OPTIONAL
-* support #include
+4. create struct object and call member function ***from_json***, so that's all
 
 ## example
 ```
@@ -47,3 +40,14 @@ int main(int argc, char** argv)
 	assert(stu1.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"));
 }
 ```
+
+## note
+1. not support - bool var_name([array_size])+
+2. not support - basic_data_type var_name([array_size]){2,} **other than** wchar_t[row][col]
+3. not support - custom_type var_name([array_size]){2,}
+4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
+
+###### TODO
+* support serialize c++ struct to json stream
+* output custom warning message when qualifier is not REQUIRED|OPTIONAL
+* support #include
