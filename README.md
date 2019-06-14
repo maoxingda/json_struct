@@ -2,9 +2,13 @@
 ---
 ## usage
 ### you must follow the rules below:
-1. declare fields in form of  
+1. declare struct in form of  
 ```
-REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY ALIAS(alias_name) field_type field_name;
+struct struct_name
+{
+    REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY [ALIAS(alias_name)] field_type field_name;
+    ....
+};
 ```
 
 ## note
