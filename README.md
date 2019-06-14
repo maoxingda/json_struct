@@ -24,34 +24,19 @@ struct struct_name
 
 ## example
 ```
-JSTRUCT(date)
+struct date
 {
 	REQUIRED BASIC wchar_t year[6];
 	REQUIRED BASIC wchar_t month[4];
 	REQUIRED BASIC wchar_t day[4];
-
-	date()
-	{
-		JSTRUCT_REG_BASIC_FIELD(REQUIRED, year);
-		JSTRUCT_REG_BASIC_FIELD(REQUIRED, month);
-		JSTRUCT_REG_BASIC_FIELD(REQUIRED, day);
-	}
 };
 
-JSTRUCT(student)
+struct student
 {
 	REQUIRED BASIC		int	id;
 	REQUIRED BASIC		wchar_t	name[32];
 	REQUIRED CUSTOM		date	birthday;
 	REQUIRED CUSTOM_ARRAY	date	birthday_array[2];
-
-	student()
-	{
-		JSTRUCT_REG_BASIC_FIELD(REQUIRED, id);
-		JSTRUCT_REG_BASIC_FIELD(REQUIRED, name);
-		JSTRUCT_REG_BASIC_FIELD(REQUIRED, birthday);
-		JSTRUCT_REG_CUSTOM_ARRAY_FIELD(REQUIRED, birthday_array);
-	}
 };
 
 int main(int argc, char** argv)
