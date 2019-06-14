@@ -1,7 +1,7 @@
 # deserialize c++ struct from json stream
 ---
 ## usage
-1. install jstructcompiler.exe
+1. install jstructtool.exe
 
 2. #include <jstruct.h>
 
