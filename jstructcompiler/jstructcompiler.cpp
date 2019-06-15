@@ -37,9 +37,9 @@ static std::string field_qualifier(std::string declaration)
     smatch      qualifier_type;
     smatch      qualifier_alias;
 
-    static sregex field_qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
-    static sregex field_qualifier_type_regex     = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
-    static sregex field_qualifier_alias_regex    = sregex::compile("(ALIAS)\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)\\s+");
+    static sregex field_qualifier_required_regex = sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str());
+    static sregex field_qualifier_type_regex     = sregex::compile((boost::format("(%1%|%2%|%3%|%4%)") % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY)).str());
+    static sregex field_qualifier_alias_regex    = sregex::compile((boost::format("(%1%)\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)\\s+") % ESTR(ALIAS)).str());
 
     if (regex_search(declaration, qualifier_required, field_qualifier_required_regex))
     {
@@ -61,7 +61,7 @@ static std::string qualifier_required(std::string qualifier)
 {
     static smatch req;
 
-    static sregex qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
+    static sregex qualifier_required_regex = sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str());
 
     if (regex_search(qualifier, req, qualifier_required_regex))
     {
@@ -75,7 +75,7 @@ static std::string qualifier_type(std::string qualifier)
 {
     static smatch type;
 
-    static sregex qualifier_type_regex = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
+    static sregex qualifier_type_regex = sregex::compile((boost::format("(%1%|%2%|%3%|%4%)") % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY)).str());
 
     if (regex_search(qualifier, type, qualifier_type_regex))
     {
@@ -89,7 +89,7 @@ static std::string qualifier_alias(std::string qualifier)
 {
     static smatch alias;
 
-    static sregex qualifier_alias_regex = sregex::compile("ALIAS\\(([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
+    static sregex qualifier_alias_regex = sregex::compile((boost::format("(%1%)\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)\\s+") % ESTR(ALIAS)).str());
 
     if (regex_search(qualifier, alias, qualifier_alias_regex))
     {
@@ -339,7 +339,11 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
         //////////////////////////////////////////////////////////////////////////
         smatch sm;
 
-        static sregex qualifier_regex = sregex::compile("(((REQUIRED|OPTIONAL|BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY|ALIAS\\(\\s*\\w+\\s*\\))\\s+){2,3})");
+        boost::format qualifier_regex_str("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
+
+        qualifier_regex_str % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
+
+        static sregex qualifier_regex = sregex::compile(qualifier_regex_str.str());
 
         lines.insert(lines.begin(), "#pragma once");
 
