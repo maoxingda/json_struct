@@ -16,7 +16,7 @@ struct field_info
 {
     std::string					name_;
     std::string					alias_;
-    std::vector<std::string>	qualifier_;
+    std::string	                qualifier_;
 };
 
 static std::list<field_info>				fields;
@@ -30,23 +30,31 @@ struct register_info
     std::list<std::string>::iterator		iter_struct_end_;
 };
 
-static void field_qualifier(std::string declaration, std::vector<std::string>& qualifiers)
+static void field_qualifier(std::string declaration)
 {
-    smatch qualifier;
+    std::string qualifier;
+    smatch qualifier_required;
+    smatch qualifier_type;
     smatch qualifier_alias;
 
-    boost::format fmt("^\\s*(%1%|%2%)\\s+(%3%|%4%|%5%|%6%)\\s+");
-
-    fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY);
-
-    static sregex field_qualifier_regex			= sregex::compile(fmt.str());
+    static sregex field_qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
+    static sregex field_qualifier_type_regex     = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
     static sregex field_qualifier_alias_regex	= sregex::compile("ALIAS\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)\\s+");
 
-    regex_search(declaration, qualifier, field_qualifier_regex);
-    regex_search(declaration, qualifier_alias, field_qualifier_alias_regex);
-
-    3 == qualifier.size() ? qualifiers.push_back(qualifier[1]), qualifiers.push_back(qualifier[2]) : 0;
-    2 == qualifier_alias.size() ? qualifiers.push_back(qualifier_alias[1]) : 0;
+    if (regex_search(declaration, qualifier_required, field_qualifier_required_regex))
+    {
+        qualifier += smatch_qualifier_required[1];
+    }
+    if (regex_search(declaration, qualifier_type, field_qualifier_type_regex)
+    {
+        qualifier += smatch_qualifier_type[1];
+    }
+    if (regex_search(declaration, qualifier_alias, field_qualifier_alias_regex)
+    {
+        qualifier += smatch_qualifier_alias[1];
+    }
+    
+    return qualifier;
 }
 
 static std::string field_name(std::string declaration)
@@ -214,15 +222,15 @@ static void read_fields(std::list<register_info> &reg_infos)
 
             field_info f_info;
 
-            f_info.name_ = field_name(*iter2);
-
-            field_qualifier(*iter2, f_info.qualifier_);
+            f_info.name_      = field_name(*iter2);
+            f_info.qualifier_ = field_qualifier(*iter2);
 
             if (!f_info.name_.empty()) iter1->fields_.push_back(f_info);
 
-            if (2 <= f_info.qualifier_.size())
+            if (std::string::npos != f_info.qualifier_.find(ESTR(BASIC_ARRAY))
+                || std::string::npos != f_info.qualifier_.find(ESTR(CUSTOM_ARRAY)))
             {
-                if (ESTR(BASIC_ARRAY) == f_info.qualifier_[1] || ESTR(CUSTOM_ARRAY) == f_info.qualifier_[1]) lines.insert(iter1->iter_struct_end_, (boost::format("    int %1%_size;") % f_info.name_).str());
+                lines.insert(iter1->iter_struct_end_, (boost::format("    int %1%_size;") % f_info.name_).str());
             }
         }
     }
@@ -238,6 +246,48 @@ static std::string base_file_name(std::string in_file_name)
         return base_file_name_sm[1];
     }
 
+    return "";
+}
+
+static std::string qualifier_required(std::string qualifier)
+{
+    static smatch;
+    
+    static sregex qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
+    
+    if (regex_search(qualifier, smatch, qualifier_required_regex))
+    {
+        return smatch[1];
+    }
+    
+    return "";
+}
+
+static std::string qualifier_type(std::string qualifier)
+{
+    static smatch;
+    
+    static sregex qualifier_type_regex = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
+    
+    if (regex_search(qualifier, smatch, qualifier_type_regex))
+    {
+        return smatch[1];
+    }
+    
+    return "";
+}
+
+static std::string qualifier_alias(std::string qualifier)
+{
+    static smatch;
+    
+    static sregex qualifier_alias_regex = sregex::compile("ALIAS\\(([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
+    
+    if (regex_search(qualifier, smatch, qualifier_alias_regex))
+    {
+        return smatch[1];
+    }
+    
     return "";
 }
 
@@ -259,6 +309,18 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
             {
                 if (iter2->name_.empty())			continue;
                 if (2 > iter2->qualifier_.size())	continue;
+                
+                if (std::npos != iter2->qualifier_.find(ESTR(BASIC)))
+                {
+                    if (std::npos != iter2->qualifier_.find("ALIAS"))
+                    {
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_FIELD_ALIAS(%1%, %2%, %3%);") % qualifier_required(iter2->qualifier_) % iter2->name_ % qualifier_alias(iter2->qualifier_)).str());
+                    }
+                    else
+                    {
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_FIELD(%1%, %2%);") % qualifier_required(iter2->qualifier_) % iter2->name_).str());
+                    }
+                }
 
                 if (ESTR(BASIC) == iter2->qualifier_[1])
                 {
@@ -323,7 +385,7 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
         //////////////////////////////////////////////////////////////////////////
         smatch sm;
 
-        static sregex qualifier_regex = sregex::compile("((?:REQUIRED|OPTIONAL)\\s+(?:BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)\\s+(?:ALIAS\\(\\w+\\)\\s+)?)");
+        static sregex qualifier_regex = sregex::compile("((REQUIRED|OPTIONAL|BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY|ALIAS\\(\\w+\\)\\s+){2,3}");
 
         lines.insert(lines.begin(), "#pragma once");
 
