@@ -14,47 +14,89 @@ using namespace boost::filesystem;
 
 struct field_info
 {
-    std::string					name_;
-    std::string					alias_;
-    std::string	                qualifier_;
+    std::string name_;
+    std::string alias_;
+    std::string qualifier_;
 };
 
-static std::list<field_info>				fields;
-static std::list<std::string>				lines;
+static std::list<field_info>  fields;
+static std::list<std::string> lines;
 
 struct register_info
 {
-    std::string								sname_;
-    std::list<field_info>					fields_;
-    std::list<std::string>::iterator		iter_struct_beg_;
-    std::list<std::string>::iterator		iter_struct_end_;
+    std::string                      sname_;
+    std::list<field_info>            fields_;
+    std::list<std::string>::iterator iter_struct_beg_;
+    std::list<std::string>::iterator iter_struct_end_;
 };
 
-static void field_qualifier(std::string declaration)
+static std::string field_qualifier(std::string declaration)
 {
     std::string qualifier;
-    smatch qualifier_required;
-    smatch qualifier_type;
-    smatch qualifier_alias;
+    smatch      qualifier_required;
+    smatch      qualifier_type;
+    smatch      qualifier_alias;
 
     static sregex field_qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
     static sregex field_qualifier_type_regex     = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
-    static sregex field_qualifier_alias_regex	= sregex::compile("ALIAS\\(\\s*([a-zA-Z_$][a-zA-Z0-9_$]*)\\s*\\)\\s+");
+    static sregex field_qualifier_alias_regex    = sregex::compile("(ALIAS)\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)\\s+");
 
     if (regex_search(declaration, qualifier_required, field_qualifier_required_regex))
     {
-        qualifier += smatch_qualifier_required[1];
+        qualifier += qualifier_required[1];
     }
-    if (regex_search(declaration, qualifier_type, field_qualifier_type_regex)
+    if (regex_search(declaration, qualifier_type, field_qualifier_type_regex))
     {
-        qualifier += smatch_qualifier_type[1];
+        qualifier += qualifier_type[1];
     }
-    if (regex_search(declaration, qualifier_alias, field_qualifier_alias_regex)
+    if (regex_search(declaration, qualifier_alias, field_qualifier_alias_regex))
     {
-        qualifier += smatch_qualifier_alias[1];
+        qualifier += qualifier_alias[1];
     }
-    
+
     return qualifier;
+}
+
+static std::string qualifier_required(std::string qualifier)
+{
+    static smatch req;
+
+    static sregex qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
+
+    if (regex_search(qualifier, req, qualifier_required_regex))
+    {
+        return req[1];
+    }
+
+    return "";
+}
+
+static std::string qualifier_type(std::string qualifier)
+{
+    static smatch type;
+
+    static sregex qualifier_type_regex = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
+
+    if (regex_search(qualifier, type, qualifier_type_regex))
+    {
+        return type[1];
+    }
+
+    return "";
+}
+
+static std::string qualifier_alias(std::string qualifier)
+{
+    static smatch alias;
+
+    static sregex qualifier_alias_regex = sregex::compile("ALIAS\\(([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
+
+    if (regex_search(qualifier, alias, qualifier_alias_regex))
+    {
+        return alias[1];
+    }
+
+    return "";
 }
 
 static std::string field_name(std::string declaration)
@@ -104,20 +146,6 @@ static bool is_multiline_comment_end(std::string line)
     return regex_search(line, multiline_comment_end_re);
 }
 
-static bool is_struct_default_ctor(std::string struct_name, std::string line)
-{
-    static std::string ctor_decl_re_str = (boost::format("%1%\\(\\s*\\)\\s*;") % struct_name).str();
-
-    static sregex ctor_decl_re			= sregex::compile(ctor_decl_re_str);
-
-    return regex_search(line, ctor_decl_re);
-}
-
-static bool is_field_alias(std::string line)
-{
-
-}
-
 static void read_file(std::string in_file_name, std::list<std::string>& lines)
 {    
     std::fstream in(in_file_name, std::ios_base::in);
@@ -137,9 +165,9 @@ static void read_file(std::string in_file_name, std::list<std::string>& lines)
 
 static void read_struct(std::list<register_info>& reg_infos)
 {
-    smatch sm;
-    register_info reg_info;
-    static std::string jstruct_base_str = " : public jstruct_base";
+    smatch              sm;
+    register_info       reg_info;
+    static std::string  jstruct_base_str = " : public jstruct_base";
 
     sregex struct_end_re = sregex::compile("^\\s*\\}\\s*;");
     sregex struct_beg_re = sregex::compile("struct\\s+([a-zA-Z_$][a-zA-Z0-9_$]*)");
@@ -148,8 +176,8 @@ static void read_struct(std::list<register_info>& reg_infos)
 
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
-        if (iter->empty())					continue;
-        if (is_single_line_comment(*iter))	continue;
+        if (iter->empty())                 continue;
+        if (is_single_line_comment(*iter)) continue;
 
         if (is_multiline_comment_beg(*iter))
         {
@@ -171,6 +199,7 @@ static void read_struct(std::list<register_info>& reg_infos)
         if (regex_search(*iter, sm, struct_beg_re))
         {
             reg_info.iter_struct_beg_ = iter;
+
             iter->insert(sm[1].second, jstruct_base_str.begin(), jstruct_base_str.end());
         }
         else if (regex_search(*iter, struct_end_re))
@@ -196,7 +225,7 @@ static void read_fields(std::list<register_info> &reg_infos)
 
         for (auto iter2 = iter1->iter_struct_beg_; iter2 != iter1->iter_struct_end_; ++iter2)
         {
-            if (iter2->empty())					continue;
+            if (iter2->empty())                 continue;
             if (is_single_line_comment(*iter2)) continue;
 
             if (is_multiline_comment_beg(*iter2))
@@ -215,80 +244,24 @@ static void read_fields(std::list<register_info> &reg_infos)
             {
                 continue;
             }
-            else if (is_struct_default_ctor(st_name, *iter2))
-            {
-                continue;
-            }
 
             field_info f_info;
 
             f_info.name_      = field_name(*iter2);
+            f_info.alias_     = qualifier_alias(*iter2);
             f_info.qualifier_ = field_qualifier(*iter2);
 
-            if (!f_info.name_.empty()) iter1->fields_.push_back(f_info);
-
-            if (std::string::npos != f_info.qualifier_.find(ESTR(BASIC_ARRAY))
-                || std::string::npos != f_info.qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            if (!f_info.name_.empty())
             {
-                lines.insert(iter1->iter_struct_end_, (boost::format("    int %1%_size;") % f_info.name_).str());
+                iter1->fields_.push_back(f_info);
+
+                if (std::string::npos != f_info.qualifier_.find(ESTR(BASIC_ARRAY)) || std::string::npos != f_info.qualifier_.find(ESTR(CUSTOM_ARRAY)))
+                {
+                    lines.insert(iter1->iter_struct_end_, (boost::format("    int %1%_size;") % f_info.name_).str());
+                }
             }
         }
     }
-}
-
-static std::string base_file_name(std::string in_file_name)
-{
-    smatch base_file_name_sm;
-    sregex base_file_name_regex = sregex::compile("(\\w+)\\.h");
-
-    if (regex_search(in_file_name, base_file_name_sm, base_file_name_regex))
-    {
-        return base_file_name_sm[1];
-    }
-
-    return "";
-}
-
-static std::string qualifier_required(std::string qualifier)
-{
-    static smatch;
-    
-    static sregex qualifier_required_regex = sregex::compile("(REQUIRED|OPTIONA)");
-    
-    if (regex_search(qualifier, smatch, qualifier_required_regex))
-    {
-        return smatch[1];
-    }
-    
-    return "";
-}
-
-static std::string qualifier_type(std::string qualifier)
-{
-    static smatch;
-    
-    static sregex qualifier_type_regex = sregex::compile("(BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY)");
-    
-    if (regex_search(qualifier, smatch, qualifier_type_regex))
-    {
-        return smatch[1];
-    }
-    
-    return "";
-}
-
-static std::string qualifier_alias(std::string qualifier)
-{
-    static smatch;
-    
-    static sregex qualifier_alias_regex = sregex::compile("ALIAS\\(([a-zA-Z_$][a-zA-Z0-9_$]*)\\)");
-    
-    if (regex_search(qualifier, smatch, qualifier_alias_regex))
-    {
-        return smatch[1];
-    }
-    
-    return "";
 }
 
 static void write_decl_file(std::string out_file_name, std::list<register_info> &reg_infos)
@@ -307,63 +280,44 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
             //////////////////////////////////////////////////////////////////////////
             for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
             {
-                if (iter2->name_.empty())			continue;
-                if (2 > iter2->qualifier_.size())	continue;
-                
-                if (std::npos != iter2->qualifier_.find(ESTR(BASIC)))
-                {
-                    if (std::npos != iter2->qualifier_.find("ALIAS"))
-                    {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_FIELD_ALIAS(%1%, %2%, %3%);") % qualifier_required(iter2->qualifier_) % iter2->name_ % qualifier_alias(iter2->qualifier_)).str());
-                    }
-                    else
-                    {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_FIELD(%1%, %2%);") % qualifier_required(iter2->qualifier_) % iter2->name_).str());
-                    }
-                }
+                if (iter2->name_.empty()) continue;
 
-                if (ESTR(BASIC) == iter2->qualifier_[1])
+                if (std::string::npos != iter2->qualifier_.find(ESTR(ALIAS)))
                 {
-                    if (3 == iter2->qualifier_.size())
+                    if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)))
                     {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_FIELD_ALIAS(%1%, %2%, %3%);") % iter2->qualifier_[0] % iter2->name_ % iter2->qualifier_[2]).str());
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
                     }
-                    else
+                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM)))
                     {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
+                    }
+                    else if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
+                    {
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
+                    }
+                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM_ARRAY)))
+                    {
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
                     }
                 }
-                else if (ESTR(CUSTOM) == iter2->qualifier_[1])
+                else
                 {
-                    if (3 == iter2->qualifier_.size())
+                    if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)))
                     {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_CUSTOM_FIELD_ALIAS(%1%, %2%, %3%);") % iter2->qualifier_[0] % iter2->name_ % iter2->qualifier_[2]).str());
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
                     }
-                    else
+                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM)))
                     {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_CUSTOM_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
                     }
-                }
-                else if (ESTR(BASIC_ARRAY) == iter2->qualifier_[1])
-                {
-                    if (3 == iter2->qualifier_.size())
+                    else if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
                     {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_ARRAY_FIELD_ALIAS(%1%, %2%, %3%);") % iter2->qualifier_[0] % iter2->name_ % iter2->qualifier_[2]).str());
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
                     }
-                    else
+                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM_ARRAY)))
                     {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_BASIC_ARRAY_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
-                    }
-                }
-                else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[1])
-                {
-                    if (3 == iter2->qualifier_.size())
-                    {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_CUSTOM_ARRAY_FIELD_ALIAS(%1%, %2%, %3%);") % iter2->qualifier_[0] % iter2->name_ % iter2->qualifier_[2]).str());
-                    }
-                    else
-                    {
-                        lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);") % iter2->qualifier_[0] % iter2->name_).str());
+                        lines.insert(iter1->iter_struct_end_, (boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
                     }
                 }
             }
@@ -371,10 +325,10 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
             //////////////////////////////////////////////////////////////////////////
             for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
             {
-                if (iter2->name_.empty())			continue;
-                if (2 > iter2->qualifier_.size())	continue;
+                if (iter2->name_.empty())         continue;
+                if (2 > iter2->qualifier_.size()) continue;
 
-                if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(BASIC_ARRAY) == iter2->qualifier_[1])
+                if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)) || std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
                 {
                     lines.insert(iter1->iter_struct_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % iter1->sname_ % iter2->name_).str());
                 }
@@ -385,7 +339,7 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
         //////////////////////////////////////////////////////////////////////////
         smatch sm;
 
-        static sregex qualifier_regex = sregex::compile("((REQUIRED|OPTIONAL|BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY|ALIAS\\(\\w+\\)\\s+){2,3}");
+        static sregex qualifier_regex = sregex::compile("(((REQUIRED|OPTIONAL|BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY|ALIAS\\(\\s*\\w+\\s*\\))\\s+){2,3})");
 
         lines.insert(lines.begin(), "#pragma once");
 
@@ -403,51 +357,54 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
 
 static void write_impl_file(std::string out_file_name, std::string bfile_name, std::list<register_info> &reg_infos)
 {
-    std::fstream out(out_file_name, std::ios_base::out);
 
-    if (out && !bfile_name.empty())
-    {
-        out << "#include \"stdafx.h\"\n";
-        out << boost::format("#include <%1%>\n\n\n") % bfile_name;
-
-        int count = 0;
-        for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1, ++count)
-        {
-            out << boost::format("%1%::%1%()\n") % iter1->sname_;
-            out << "{\n";
-            //////////////////////////////////////////////////////////////////////////
-            for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
-            {
-                if (iter2->name_.empty())			continue;
-                if (2 != iter2->qualifier_.size())	continue;
-
-                if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(CUSTOM) == iter2->qualifier_[1])
-                {
-                    out << boost::format("    JSTRUCT_REG_BASIC_FIELD(%1%, %2%);\n") % iter2->qualifier_[0] % iter2->name_;
-                }
-                else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[1])
-                {
-                    out << boost::format("    JSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);\n") % iter2->qualifier_[0] % iter2->name_;
-                }
-            }
-            out << "\n";
-            //////////////////////////////////////////////////////////////////////////
-            for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
-            {
-                if (iter2->name_.empty())			continue;
-                if (2 != iter2->qualifier_.size())	continue;
-
-                if (ESTR(BASIC) == iter2->qualifier_[1])
-                {
-                    out << boost::format("    JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);\n") % iter1->sname_ % iter2->name_;
-                }
-            }
-
-            count + 1 == reg_infos.size() ? out << "}\n" : out << "}\n\n";
-        }
-        out.close();
-    }
 }
+//{
+//    std::fstream out(out_file_name, std::ios_base::out);
+//
+//    if (out && !bfile_name.empty())
+//    {
+//        out << "#include \"stdafx.h\"\n";
+//        out << boost::format("#include <%1%>\n\n\n") % bfile_name;
+//
+//        int count = 0;
+//        for (auto iter1 = reg_infos.begin(); iter1 != reg_infos.end(); ++iter1, ++count)
+//        {
+//            out << boost::format("%1%::%1%()\n") % iter1->sname_;
+//            out << "{\n";
+//            //////////////////////////////////////////////////////////////////////////
+//            for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+//            {
+//                if (iter2->name_.empty())            continue;
+//                if (2 != iter2->qualifier_.size())    continue;
+//
+//                if (ESTR(BASIC) == iter2->qualifier_[1] || ESTR(CUSTOM) == iter2->qualifier_[1])
+//                {
+//                    out << boost::format("    JSTRUCT_REG_BASIC_FIELD(%1%, %2%);\n") % iter2->qualifier_[0] % iter2->name_;
+//                }
+//                else if (ESTR(CUSTOM_ARRAY) == iter2->qualifier_[1])
+//                {
+//                    out << boost::format("    JSTRUCT_REG_CUSTOM_ARRAY_FIELD(%1%, %2%);\n") % iter2->qualifier_[0] % iter2->name_;
+//                }
+//            }
+//            out << "\n";
+//            //////////////////////////////////////////////////////////////////////////
+//            for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+//            {
+//                if (iter2->name_.empty())            continue;
+//                if (2 != iter2->qualifier_.size())    continue;
+//
+//                if (ESTR(BASIC) == iter2->qualifier_[1])
+//                {
+//                    out << boost::format("    JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);\n") % iter1->sname_ % iter2->name_;
+//                }
+//            }
+//
+//            count + 1 == reg_infos.size() ? out << "}\n" : out << "}\n\n";
+//        }
+//        out.close();
+//    }
+//}
 
 static void parse(std::string in_file_name, std::string out_file_name)
 {
