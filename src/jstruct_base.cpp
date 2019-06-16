@@ -481,6 +481,8 @@ bool jstruct_base::from_json_(void* object)
 			break;
 		case enum_custom:
 			{
+                if (!cJSON_IsObject(item)) return false;
+
 				bool success = ((jstruct_base *) field_address)->from_json_(item);
 
 				if (!success) return false;
@@ -488,12 +490,18 @@ bool jstruct_base::from_json_(void* object)
 			break;
 		case enum_custom_array:
 			{
-				int arrSizeReal		= cJSON_GetArraySize(item);
+                if (!cJSON_IsArray(item)) return false;
+
+                int arrSizeReal		= cJSON_GetArraySize(item);
 				int arrSizeExpected = array_size(field_information->field_type_);
 
 				for (int i = 0; i < arrSizeExpected && i < arrSizeReal; ++i)
 				{
-					bool success = ((jstruct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json_(cJSON_GetArrayItem(item, i));
+                    cJSON* arrItem = cJSON_GetArrayItem(item, i);
+
+                    if (!cJSON_IsObject(arrItem)) return false;
+
+					bool success = ((jstruct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json_(arrItem);
 
 					if (!success) return false;
 				}
