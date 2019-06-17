@@ -45,3 +45,4 @@ int main(int argc, char** argv)
 * output custom warning message when qualifier is not REQUIRED|OPTIONAL
 * support #include
 * support user field
+* judge if the optional field has a value
