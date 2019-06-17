@@ -308,6 +308,53 @@ static void read_fields(std::list<register_info> &reg_infos)
     }
 }
 
+static void generate_reg_fields_code(std::list<register_info>::iterator iter1, std::list<std::string> &reg_fields)
+{
+    for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
+    {
+        if (iter2->name_.empty()) continue;
+
+        if (std::string::npos != iter2->qualifier_.find(ESTR(ALIAS)))
+        {
+            if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
+            {
+                reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
+            }
+            else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            {
+                reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
+            }
+            else if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)))
+            {
+                reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
+            }
+            else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM)))
+            {
+                reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
+            }
+        }
+        else
+        {
+            if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
+            {
+                reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
+            }
+            else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            {
+                reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
+            }
+            else if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)))
+            {
+                reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
+            }
+            else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM)))
+            {
+                reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
+            }
+        }
+    }
+}
+
 static void write_decl_file(std::string out_file_name, std::list<register_info> &reg_infos)
 {
     int index = out_file_name.find(".json");
@@ -321,51 +368,11 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
         {
             lines.insert(iter1->iter_struct_end_, (boost::format("\n    %1%()") % iter1->sname_).str());
             lines.insert(iter1->iter_struct_end_, "    {");
-            //////////////////////////////////////////////////////////////////////////
-            std::list<std::string> reg_fields;
-            for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
-            {
-                if (iter2->name_.empty()) continue;
 
-                if (std::string::npos != iter2->qualifier_.find(ESTR(ALIAS)))
-                {
-                    if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
-                    }
-                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM_ARRAY)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
-                    }
-                    else if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
-                    }
-                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % ESTR(ALIAS) % qualifier_required(iter2->qualifier_) % iter2->name_ % iter2->alias_).str());
-                    }
-                }
-                else
-                {
-                    if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
-                    }
-                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM_ARRAY)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
-                    }
-                    else if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
-                    }
-                    else if (std::string::npos != iter2->qualifier_.find(ESTR(CUSTOM)))
-                    {
-                        reg_fields.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % qualifier_required(iter2->qualifier_) % iter2->name_).str());
-                    }
-                }
-            }
+            std::list<std::string> reg_fields;
+            generate_reg_fields_code(iter1, reg_fields);
+
+            // align
             smatch sm;
             int max_qualifier_index = 0;
             std::list<std::string>::iterator max_qualifier_index_iter;
@@ -394,7 +401,8 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
                 lines.insert(iter1->iter_struct_end_, *iter2);
             }
             lines.insert(iter1->iter_struct_end_, "");
-            //////////////////////////////////////////////////////////////////////////
+
+            // initialization
             for (auto iter2 = iter1->fields_.begin(); iter2 != iter1->fields_.end(); ++iter2)
             {
                 if (iter2->name_.empty())         continue;
@@ -412,26 +420,10 @@ static void write_decl_file(std::string out_file_name, std::list<register_info> 
 
             lines.insert(iter1->iter_struct_end_, "    }");
         }
-        //////////////////////////////////////////////////////////////////////////
-        //smatch sm;
 
-        //boost::format qualifier_regex_str("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
-
-        //qualifier_regex_str % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
-
-        //static sregex qualifier_regex = sregex::compile(qualifier_regex_str.str());
-
-        lines.insert(lines.begin(), "#pragma once");
-
+        // save
         for (auto iter = lines.begin(); iter != lines.end(); ++iter)
         {
-            //if (!is_in_comment(*iter)                                                   // skip comment
-            //    && !qualifier_required(*iter).empty() && !qualifier_type(*iter).empty() // skip missing qualifier
-            //    && regex_search(*iter, sm, qualifier_regex))
-            //{
-            //    // remove field qualifiers
-            //    iter->replace(sm[1].first, sm[1].second, "");
-            //}
             out << *iter << "\n";
         }
         out.close();
