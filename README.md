@@ -20,24 +20,26 @@ struct struct_name
 ```
 struct date
 {
-	REQUIRED BASIC wchar_t year[6];
-	REQUIRED BASIC wchar_t month[4];
-	REQUIRED BASIC wchar_t day[4];
+    REQUIRED BASIC wchar_t year[6];
+    REQUIRED BASIC wchar_t month[4];
+    REQUIRED BASIC wchar_t day[4];
 };
 
 struct student
 {
-	REQUIRED BASIC		int	id;
-	REQUIRED BASIC		wchar_t	name[32];
-	REQUIRED CUSTOM		date	birthday;
-	REQUIRED CUSTOM_ARRAY	date	birthday_array[2];
+    REQUIRED BASIC ALIAS(id) int     identifier;
+    REQUIRED BASIC           wchar_t name[32];
+    REQUIRED BASIC_ARRAY     int     qq[2];
+    REQUIRED BASIC_ARRAY     wchar_t email[3][32];
+    REQUIRED CUSTOM          date    birthday;
+    REQUIRED CUSTOM_ARRAY    date    birthday_array[2];
 };
 
 int main(int argc, char** argv)
 {
 	student stu1;
 
-	assert(stu1.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"));
+	assert(stu1.from_json("{\"identifier\":1001,\"name\":\"毛兴达\",\"qq\":[954192476],\"email\":[\"954192476@qq.com\",\"15068510522@qq.com\"],\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"));
 }
 ```
 
