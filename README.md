@@ -3,16 +3,9 @@
 ## usage
 1. install jstructtool.exe
 
-2. #include <jstruct.h>
+2. add new item to project, item name is ****.json.h***
 
-3. you must declare struct in form of
-```
-struct struct_name
-{
-    REQUIRED|OPTIONAL BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY [ALIAS(alias_name)] field_type field_name;
-    ....
-};
-```
+3. declare struct
 
 4. create struct object and call member function ***from_json***, so that's all
 
