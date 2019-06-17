@@ -5,9 +5,7 @@
 
 2. add new item to project, item name is ****.json.h***
 
-3. declare struct
-
-4. create struct object and call member function ***from_json***, so that's all
+3. declare struct, create struct object and call member function ***from_json***, so that's all
 
 ## example
 ```
