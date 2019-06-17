@@ -79,9 +79,18 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="student.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
+    <CustomBuild Include="student.json.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler "%(FullPath)" ".\GeneratedFiles\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler "%(FullPath)" ".\GeneratedFiles\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

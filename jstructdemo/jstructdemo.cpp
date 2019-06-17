@@ -2,17 +2,113 @@
 //
 
 #include "stdafx.h"
+#include <fstream>
 #include <gtest/gtest.h>
+#include "GeneratedFiles/student.h"
 
+
+TEST(jstructdemo, int)
+{
+    std::fstream in("student.json");
+
+    if (in)
+    {
+        std::istreambuf_iterator<char> beg(in), end;
+
+        std::string student_json(beg, end);
+
+        student s;
+
+        EXPECT_EQ(true, s.from_json(student_json));
+
+        EXPECT_EQ(1001, s.identifier);
+        //EXPECT_EQ(1001, s.identifier);
+    }
+}
+
+TEST(jstructdemo, wchar_array)
+{
+    std::fstream in("student.json");
+
+    if (in)
+    {
+        std::istreambuf_iterator<char> beg(in), end;
+
+        std::string student_json(beg, end);
+
+        student s;
+
+        EXPECT_EQ(true, s.from_json(student_json));
+
+        EXPECT_EQ(0, wcscmp(L"Ã«ÐË´ï", s.name));
+    }
+}
+
+TEST(jstructdemo, int_array)
+{
+    std::fstream in("student.json");
+
+    if (in)
+    {
+        std::istreambuf_iterator<char> beg(in), end;
+
+        std::string student_json(beg, end);
+
+        student s;
+
+        EXPECT_EQ(true, s.from_json(student_json));
+
+        EXPECT_EQ(2,            s.qq_size);
+        EXPECT_EQ(954192476,    s.qq[0]);
+        EXPECT_EQ(1506851052,   s.qq[1]);
+    }
+}
+
+TEST(jstructdemo, wchar_table)
+{
+    std::fstream in("student.json");
+
+    if (in)
+    {
+        std::istreambuf_iterator<char> beg(in), end;
+
+        std::string student_json(beg, end);
+
+        student s;
+
+        EXPECT_EQ(true, s.from_json(student_json));
+
+        EXPECT_EQ(2,            s.email_size);
+        EXPECT_EQ(0, wcscmp(L"954192476@qq.com", s.email[0]));
+        EXPECT_EQ(0, wcscmp(L"1506851052@qq.com", s.email[1]));
+    }
+}
+
+TEST(jstructdemo, custom)
+{
+    std::fstream in("student.json");
+
+    if (in)
+    {
+        std::istreambuf_iterator<char> beg(in), end;
+
+        std::string student_json(beg, end);
+
+        student s;
+
+        EXPECT_EQ(true, s.from_json(student_json));
+
+        EXPECT_EQ(0, wcscmp(L"1990",    s.birthday.year));
+        EXPECT_EQ(0, wcscmp(L"02",      s.birthday.month));
+        EXPECT_EQ(0, wcscmp(L"16",      s.birthday.day));
+    }
+}
 
 int _tmain(int argc, _TCHAR* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
 
-    int result = RUN_ALL_TESTS();
+    RUN_ALL_TESTS();
 
-    std::system("pause");
-
-	return result;
+	return std::system("pause");
 }
-
