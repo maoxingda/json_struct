@@ -1,4 +1,4 @@
-// jstructdemo.cpp : Defines the entry point for the console application.
+﻿// jstructdemo.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
@@ -40,7 +40,7 @@ TEST(jstructdemo, wchar_array)
 
         EXPECT_EQ(true, s.from_json(student_json));
 
-        EXPECT_EQ(0, wcscmp(L"ë�˴�", s.name));
+        EXPECT_EQ(0, wcscmp(L"毛兴达", s.name));
     }
 }
 
@@ -78,9 +78,9 @@ TEST(jstructdemo, wchar_table)
 
         EXPECT_EQ(true, s.from_json(student_json));
 
-        EXPECT_EQ(2,            s.email_size);
-        EXPECT_EQ(0, wcscmp(L"954192476@qq.com", s.email[0]));
-        EXPECT_EQ(0, wcscmp(L"1506851052@qq.com", s.email[1]));
+        EXPECT_EQ(2,                                s.email_size);
+        EXPECT_EQ(0, wcscmp(L"954192476@qq.com",    s.email[0]));
+        EXPECT_EQ(0, wcscmp(L"1506851052@qq.com",   s.email[1]));
     }
 }
 
@@ -108,7 +108,9 @@ int _tmain(int argc, _TCHAR* argv[])
 {
     testing::InitGoogleTest(&argc, argv);
 
-    RUN_ALL_TESTS();
+    int result = RUN_ALL_TESTS();
 
-	return std::system("pause");
+    std::system("pause");
+
+	return result;
 }
