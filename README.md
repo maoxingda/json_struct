@@ -23,14 +23,13 @@ struct student
     REQUIRED BASIC_ARRAY     int     qq[2];
     REQUIRED BASIC_ARRAY     wchar_t email[3][32];
     REQUIRED CUSTOM          date    birthday;
-    REQUIRED CUSTOM_ARRAY    date    birthday_array[2];
 };
 
 int main(int argc, char** argv)
 {
 	student stu1;
 
-	assert(stu1.from_json("{\"identifier\":1001,\"name\":\"毛兴达\",\"qq\":[954192476],\"email\":[\"954192476@qq.com\",\"15068510522@qq.com\"],\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},\"birthday_array\":[{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"},{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16\"}]}"));
+	assert(stu1.from_json("{\"identifier\":1001,\"name\":\"毛兴达\",\"qq\":[954192476],\"email\":[\"954192476@qq.com\",\"15068510522@qq.com\"],\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16}"));
 }
 ```
 
@@ -46,3 +45,4 @@ int main(int argc, char** argv)
 * support #include
 * support user field
 * judge if the optional field has a value
+* support null value
