@@ -45,3 +45,4 @@ int main(int argc, char** argv)
 * support #include
 * support user field
 * judge if the optional field has a value
+* support null value
