@@ -6,9 +6,9 @@
 <ArchiveFiles>
 <FileData>
 <FldRef>0</FldRef>
-<FullName>.\jstructtool.AddIn</FullName>
+<FullName>..\jstructtool\jstructtool\jstructtool.AddIn</FullName>
 <FileName>jstructtool.AddIn</FileName>
-<Source>.</Source>
+<Source>..\jstructtool\jstructtool</Source>
 <Ext>addin</Ext>
 <RTSource>Archive</RTSource>
 <Desc/>
