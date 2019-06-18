@@ -1,6 +1,8 @@
 #pragma once
 
 
+#define USER
+
 #define OPTIONAL
 #define REQUIRED
 

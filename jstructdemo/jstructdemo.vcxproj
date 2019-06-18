@@ -41,11 +41,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)..\googletest-release-1.8.1\googletest\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\googletest-release-1.8.1\googletest\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(SolutionDir)..\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)..\googletest-release-1.8.1\googletest\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)..\googletest-release-1.8.1\googletest\lib;$(LibraryPath)</LibraryPath>
+    <ExecutablePath>$(SolutionDir)..\bin;$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
