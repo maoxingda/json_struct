@@ -30,8 +30,8 @@ struct struct_info
     std::list<std::string>::iterator iter_struct_end_;
 };
 
-static std::list<std::string>   lines;
-static std::list<struct_info>   structs;
+static std::list<std::string> lines;
+static std::list<struct_info> structs;
 
 static bool is_user_field(std::string& line)
 {
@@ -157,6 +157,22 @@ static std::string struct_name(const std::string& declaration)
     return "";
 }
 
+static void remove_qualifiers(std::string& line)
+{
+    smatch sm;
+
+    boost::format fmt("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
+
+    fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
+
+    static sregex re = sregex::compile(fmt.str());
+
+    if (regex_search(line, sm, re))
+    {
+        line.replace(sm[1].first, sm[1].second, "");
+    }
+}
+
 static bool is_single_line_comment(std::string line)
 {
     static sregex single_line_comment_re = sregex::compile("^\\s*//");
@@ -260,23 +276,6 @@ static void read_struct()
 
             structs.push_back(st_info);
         }
-    }
-}
-
-
-static void remove_qualifiers(std::string& line)
-{
-    smatch sm;
-
-    boost::format fmt("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
-
-    fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
-
-    static sregex re = sregex::compile(fmt.str());
-
-    if (regex_search(line, sm, re))
-    {
-        line.replace(sm[1].first, sm[1].second, "");
     }
 }
 

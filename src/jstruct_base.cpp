@@ -13,6 +13,9 @@
 
 using namespace boost::xpressive;
 
+
+static std::map<int, const char*>* pfield_type_re_str_ = nullptr;
+
 enum type
 {
     enum_none,
@@ -43,35 +46,11 @@ struct field_info
     int                 col_;
 };
 
-struct data_type_info
-{
-    std::map<type, const char*> data_type_regexs;
-
-    data_type_info()
-    {
-        data_type_regexs[enum_bool]         = "bool";
-
-        data_type_regexs[enum_number]       = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
-        data_type_regexs[enum_number_array] = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
-
-        data_type_regexs[enum_wchar_array]  = "wchar_t \\[(\\d+)\\]";
-        data_type_regexs[enum_wchar_table]  = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
-
-        data_type_regexs[enum_custom]       = "struct \\w+";
-        data_type_regexs[enum_custom_array] = "struct \\w+ \\[(\\d+)\\]";
-    }
-};
-
-/************************************************************************/
-/*               data type regular expressions                          */
-/************************************************************************/
-static data_type_info data_type_infos;
-
 static int array_size(const std::string& field_type)
 {
-    static sregex re1 = sregex::compile(data_type_infos.data_type_regexs[enum_number_array]);
-    static sregex re2 = sregex::compile(data_type_infos.data_type_regexs[enum_wchar_array]);
-    static sregex re3 = sregex::compile(data_type_infos.data_type_regexs[enum_custom_array]);
+    static sregex re1 = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
+    static sregex re2 = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
+    static sregex re3 = sregex::compile((*pfield_type_re_str_)[enum_custom_array]);
 
     smatch sm;
 
@@ -91,9 +70,9 @@ static int array_size(const std::string& field_type)
     return 0;
 }
 
-void table_size(const std::string& field_type, int& row, int& col)
+static void table_size(const std::string& field_type, int& row, int& col)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_wchar_table]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_table]);
 
     smatch sm;
 
@@ -106,49 +85,49 @@ void table_size(const std::string& field_type, int& row, int& col)
 
 static bool is_bool(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_bool]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_bool]);
 
     return regex_match(field_type, re);
 }
 
 static bool is_number(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_number]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_number]);
 
     return regex_match(field_type, re);
 }
 
 static bool is_number_array(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_number_array]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
 
     return regex_match(field_type, re);
 }
 
 static bool is_wchar_array(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_wchar_array]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
 
     return regex_match(field_type, re);
 }
 
 static bool is_wchar_table(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_wchar_table]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_table]);
 
     return regex_match(field_type, re);
 }
 
 static bool is_custom(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_custom]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_custom]);
 
     return regex_match(field_type, re);
 }
 
 static bool is_custom_array(const std::string& field_type)
 {
-    static sregex re = sregex::compile(data_type_infos.data_type_regexs[enum_custom_array]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_custom_array]);
 
     return regex_match(field_type, re);
 }
@@ -393,9 +372,9 @@ bool jstruct_base::from_json(std::string json)
 bool jstruct_base::from_json_(void* object)
 {
     if (nullptr == object)             return false;
-    if (0       == fields_info.size()) return false;
+    if (0       == fields_info_.size()) return false;
 
-    for (auto iter = fields_info.begin(); iter != fields_info.end(); ++iter)
+    for (auto iter = fields_info_.begin(); iter != fields_info_.end(); ++iter)
     {
         field_info*         field_information   = (field_info*)*iter;
         void*               field_address       = field_information->address_;
@@ -531,10 +510,35 @@ void jstruct_base::register_field(std::string field_type, std::string field_qual
     finfo->address_size_ = array_size_field_address;
     finfo->offset_       = offset;
 
-    fields_info.push_back(finfo);
+    fields_info_.push_back(finfo);
+}
+
+jstruct_base::jstruct_base()
+{
+    static bool init = false;
+
+    if (!init)
+    {
+        init = true;
+
+        static std::map<int, const char*> field_type_re_str_; // field type regular expression string map
+
+        pfield_type_re_str_                   = &field_type_re_str_;
+
+        field_type_re_str_[enum_bool]         = "bool";
+
+        field_type_re_str_[enum_number]       = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
+        field_type_re_str_[enum_number_array] = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
+
+        field_type_re_str_[enum_wchar_array]  = "wchar_t \\[(\\d+)\\]";
+        field_type_re_str_[enum_wchar_table]  = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
+
+        field_type_re_str_[enum_custom]       = "struct \\w+";
+        field_type_re_str_[enum_custom_array] = "struct \\w+ \\[(\\d+)\\]";
+    }
 }
 
 jstruct_base::~jstruct_base()
 {
-    std::for_each(fields_info.begin(), fields_info.end(), [](void* pointer) { field_info* p = (field_info*)pointer; delete p; });
+    std::for_each(fields_info_.begin(), fields_info_.end(), [](void* pointer) { field_info* p = (field_info*)pointer; delete p; });
 }

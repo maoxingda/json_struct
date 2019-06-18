@@ -4,21 +4,22 @@
 
 
 /************************************************************************/
-/*			the base struct where save struct fields information        */
+/*          the base struct where save struct fields information        */
 /************************************************************************/
 struct jstruct_base
 {
 public:
-	~jstruct_base();
+    jstruct_base();
+    ~jstruct_base();
 
-	bool from_json(std::string);
+    bool from_json(std::string);
 
 private:
-	bool from_json_(void*);
+    bool from_json_(void*);
 
 protected:
-	void register_field(std::string, std::string, std::string, std::string, void*, void*, int);
+    void register_field(std::string, std::string, std::string, std::string, void*, void*, int);
 
 private:
-	std::list<void*> fields_info;
+    std::list<void*> fields_info_;
 };
