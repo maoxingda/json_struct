@@ -411,106 +411,106 @@ bool jstruct_base::from_json_(void* object)
 		{
 		case enum_bool:
 			{
-				if (!cJSON_IsBool(item)) return false;
-
-				*(bool*)field_address = 1 == item->valueint ? true : false;
+				if (cJSON_IsBool(item)) *(bool*)field_address = 1 == item->valueint ? true : false;
 			}
 			break;
 		case enum_number:
 			{
-				if (!cJSON_IsNumber(item)) return false;
-
-				from_number(field_information->field_type_, field_address, item);
+				if (cJSON_IsNumber(item)) from_number(field_information->field_type_, field_address, item);
 			}
 			break;
 		case enum_number_array:
 			{
-				if (!cJSON_IsArray(item)) return false;
+				if (cJSON_IsArray(item))
+                {
+                    int arrSize1 = cJSON_GetArraySize(item);
+                    int arrSize2 = array_size(field_information->field_type_);
 
-				int arrSize1 = cJSON_GetArraySize(item);
-				int arrSize2 = array_size(field_information->field_type_);
+                    for (int i = 0; i < arrSize1 && i < arrSize2; ++i)
+                    {
+                        cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-				for (int i = 0; i < arrSize1 && i < arrSize2; ++i)
-				{
-					cJSON* arrItem = cJSON_GetArrayItem(item, i);
+                        if (cJSON_IsNumber(arrItem)) from_number_array(field_information->field_type_, field_address, arrItem, i);
+                    }
 
-					if (!cJSON_IsNumber(arrItem)) return false;
-
-					from_number_array(field_information->field_type_, field_address, arrItem, i);
-				}
-
-				*((int*)field_information->address_size_) = min(arrSize1, arrSize2);
+                    *((int*)field_information->address_size_) = min(arrSize1, arrSize2);
+                }
 			}
 			break;
 		case enum_wchar_array:
 			{
-				if (!cJSON_IsString(item)) return false;
+				if (cJSON_IsString(item))
+                {
+                    std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(item->valuestring);
 
-				std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t >().from_bytes(item->valuestring);
+                    WCHAR* dst = (WCHAR*)field_address;
 
-				WCHAR* dst = (WCHAR*)field_address;
+                    wcsncpy_s(dst, array_size(field_information->field_type_) - 1, ucs2.c_str(), ucs2.size());
 
-				wcsncpy_s(dst, array_size(field_information->field_type_) - 1, ucs2.c_str(), ucs2.size());
-
-				*(dst + ucs2.size()) = '\0';
+                    *(dst + ucs2.size()) = '\0';
+                }
 			}
 			break;
 		case enum_wchar_table:
 			{
-				if (!cJSON_IsArray(item)) return false;
+				if (cJSON_IsArray(item))
+                {
+                    int arrSize = cJSON_GetArraySize(item);
 
-				int arrSize = cJSON_GetArraySize(item);
+                    for (auto i = 0; i < field_information->table_row_ && i < arrSize; ++i)
+                    {
+                        cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-				for (auto i = 0; i < field_information->table_row_ && i < arrSize; ++i)
-				{
-					cJSON* arrItem = cJSON_GetArrayItem(item, i);
+                        if (cJSON_IsString(arrItem))
+                        {
+                            std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
 
-					if (!cJSON_IsString(arrItem)) return false;
+                            WCHAR *dst = (WCHAR *) field_address + i * field_information->table_col_;
 
-					std::wstring ucs2 = std::wstring_convert < std::codecvt_utf8 < wchar_t >, wchar_t > ().from_bytes(arrItem->valuestring);
+                            wcsncpy_s(dst, field_information->table_col_ - 1, ucs2.c_str(), ucs2.size());
 
-					WCHAR *dst = (WCHAR *) field_address + i * field_information->table_col_;
+                            *(dst + ucs2.size()) = '\0';
+                        }
+                    }
 
-					wcsncpy_s(dst, field_information->table_col_ - 1, ucs2.c_str(), ucs2.size());
-
-					*(dst + ucs2.size()) = '\0';
-				}
-
-				*((int*)field_information->address_size_) = min(arrSize, field_information->table_row_);
+                    *((int*)field_information->address_size_) = min(arrSize, field_information->table_row_);
+                }
 			}
 			break;
 		case enum_custom:
 			{
-                if (!cJSON_IsObject(item)) return false;
+                if (cJSON_IsObject(item))
+                {
+                    bool success = ((jstruct_base *)field_address)->from_json_(item);
 
-				bool success = ((jstruct_base *) field_address)->from_json_(item);
-
-				if (!success) return false;
+                    if (!success) return false;
+                }
 			}
 			break;
 		case enum_custom_array:
 			{
-                if (!cJSON_IsArray(item)) return false;
+                if (cJSON_IsArray(item))
+                {
+                    int arrSizeReal		= cJSON_GetArraySize(item);
+                    int arrSizeExpected = array_size(field_information->field_type_);
 
-                int arrSizeReal		= cJSON_GetArraySize(item);
-				int arrSizeExpected = array_size(field_information->field_type_);
+                    for (int i = 0; i < arrSizeExpected && i < arrSizeReal; ++i)
+                    {
+                        cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-				for (int i = 0; i < arrSizeExpected && i < arrSizeReal; ++i)
-				{
-                    cJSON* arrItem = cJSON_GetArrayItem(item, i);
+                        if (cJSON_IsObject(arrItem))
+                        {
+                            bool success = ((jstruct_base*)((byte*)field_address + i * field_information->offset_))->from_json_(arrItem);
 
-                    if (!cJSON_IsObject(arrItem)) return false;
+                            if (!success) return false;
+                        }
+                    }
 
-					bool success = ((jstruct_base*)((BYTE*)field_address + i * field_information->offset_))->from_json_(arrItem);
-
-					if (!success) return false;
-				}
-
-				*((int*)field_information->address_size_) = min(arrSizeReal, arrSizeExpected);
+                    *((int*)field_information->address_size_) = min(arrSizeReal, arrSizeExpected);
+                }
 			}
 			break;
 		case enum_none:
-			return false;
 			break;
 		}
 	}
