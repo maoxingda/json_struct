@@ -220,17 +220,22 @@ static bool is_in_comment(const std::string& line)
     return false;
 }
 
-static void align(std::string& line1, std::string& line2, const std::string& re_str)
+static void align(std::string& line1, std::string& line2, const sregex& re)
 {
     smatch sm1;
     smatch sm2;
-    sregex re = sregex::compile(re_str);
 
-    if (regex_search(line1, sm1, re) && regex_search(line2, sm2, re) && sm1[1].first - line1.begin() != sm2[1].first - line2.begin())
+    if (regex_search(line1, sm1, re) && regex_search(line2, sm2, re))
     {
-        line1.insert(sm1[1].first - line1.begin(), " ");
+        auto offset1 = sm1[1].first - line1.begin();
+        auto offset2 = sm2[1].first - line2.begin();
 
-        align(line1, line2, re_str);
+        if (offset1 != offset2)
+        {
+            line1.insert(sm1[1].first - line1.begin(), " ");
+
+            align(line1, line2, re);
+        }
     }
 }
 
@@ -323,7 +328,7 @@ static void read_fields()
 
                 iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
-                align(*iter3, line, (boost::format("(%1%)") % f_info.name_).str());
+                align(*iter3, line, sregex::compile((boost::format("\\s+(%1%)") % f_info.name_).str()));
             }
         }
     }
@@ -407,7 +412,7 @@ static void align_reg_fields_code(std::list<std::string>& reg_fields_code)
     {
         if (iter2 != max_qualifier_iter)
         {
-            align(*iter2, *max_qualifier_iter, (boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str());
+            align(*iter2, *max_qualifier_iter, sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str()));
         }
     }
 }
