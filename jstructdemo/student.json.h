@@ -24,6 +24,7 @@ struct date
 
 struct student
 {
+    USER                     int        sex;
     //REQUIRED BASIC ALIAS(id) int        identifier;
     REQUIRED BASIC           int        identifier;
     OPTIONAL BASIC           wchar_t    name[32];

@@ -41,11 +41,11 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)..\inc;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\</OutDir>
-    <TargetName>$(ProjectName)d</TargetName>
+    <TargetName>$(ProjectName)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\incC:\Qt\4.8.3\trunk\include\Qt;C:\Qt\4.8.3\trunk\include\QtGui;C:\Qt\4.8.3\trunk\include\QtCore;C:\Qt\4.8.3\trunk\include;D:\open_sources\boost_1_68_0;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\inc;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
