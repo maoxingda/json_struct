@@ -4,6 +4,7 @@
 #include "jstruct_base.h"
 
 #include <map>
+#include <list>
 #include <codecvt>
 #include <typeinfo>
 #include <Windows.h>
@@ -543,6 +544,6 @@ jstruct_base::jstruct_base()
 
 jstruct_base::~jstruct_base()
 {
-    delete d;
+    delete ((std::list<field_info>*)d);
     d = nullptr;
 }

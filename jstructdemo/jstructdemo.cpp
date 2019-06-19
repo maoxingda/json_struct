@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+//#include <vld.h>
 #include <fstream>
 #include <gtest/gtest.h>
 #include "GeneratedFiles/student.h"
