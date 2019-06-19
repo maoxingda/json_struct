@@ -48,3 +48,4 @@ int main(int argc, char** argv)
 * support null value
 * support derive
 * support constructor function argument
+* gtest has memory leak
