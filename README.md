@@ -47,3 +47,4 @@ int main(int argc, char** argv)
 * judge if the optional field has a value
 * support null value
 * support derive
+* support constructor function argument
