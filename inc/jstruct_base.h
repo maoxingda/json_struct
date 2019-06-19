@@ -21,5 +21,5 @@ protected:
     void register_field(std::string, std::string, std::string, std::string, void*, void*, int);
 
 private:
-    std::list<void*> fields_info_;
+    void* d;
 };

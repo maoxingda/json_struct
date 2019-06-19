@@ -19,8 +19,11 @@ TEST(jstructdemo, int)
 
         student s;
 
+        s.sex = 1;
+
         EXPECT_EQ(true, s.from_json(student_json));
 
+        EXPECT_EQ(1,    s.sex);
         EXPECT_EQ(1001, s.identifier);
         //EXPECT_EQ(1001, s.identifier);
     }
@@ -38,8 +41,11 @@ TEST(jstructdemo, wchar_array)
 
         student s;
 
+        s.sex = 2;
+
         EXPECT_EQ(true, s.from_json(student_json));
 
+        EXPECT_EQ(2,                  s.sex);
         EXPECT_EQ(0, wcscmp(L"毛兴达", s.name));
     }
 }

@@ -34,16 +34,16 @@ enum type
 
 struct field_info
 {
-    type                type_;
-    std::string         type_name_;
-    std::string         qualifier_;
-    std::string         name_;
-    std::string         alias_;
-    void*               address_;
-    void*               address_size_;
-    int                 offset_;
-    int                 row_;
-    int                 col_;
+    int         type_;
+    std::string type_name_;
+    std::string qualifier_;
+    std::string name_;
+    std::string alias_;
+    void*       address_;
+    void*       address_size_;
+    int         offset_;
+    int         row_;
+    int         col_;
 };
 
 static int array_size(const std::string& field_type)
@@ -132,7 +132,7 @@ static bool is_custom_array(const std::string& field_type)
     return regex_match(field_type, re);
 }
 
-static type data_type(const std::string& field_type, field_info* pfield_info)
+static type data_type(const std::string& field_type, field_info& field_info)
 {
     if (is_bool(field_type))
     {
@@ -144,19 +144,19 @@ static type data_type(const std::string& field_type, field_info* pfield_info)
     }
     else if (is_number_array(field_type))
     {
-        pfield_info->col_ = array_size(field_type);
+        field_info.col_ = array_size(field_type);
 
         return enum_number_array;
     }
     else if (is_wchar_array(field_type))
     {
-        pfield_info->col_ = array_size(field_type);
+        field_info.col_ = array_size(field_type);
 
         return enum_wchar_array;
     }
     else if (is_wchar_table(field_type))
     {
-        table_size(field_type, pfield_info->row_, pfield_info->col_);
+        table_size(field_type, field_info.row_, field_info.col_);
 
         return enum_wchar_table;
     }
@@ -166,7 +166,7 @@ static type data_type(const std::string& field_type, field_info* pfield_info)
     }
     else if (is_custom_array(field_type))
     {
-        pfield_info->col_ = array_size(field_type);
+        field_info.col_ = array_size(field_type);
 
         return enum_custom_array;
     }
@@ -371,26 +371,28 @@ bool jstruct_base::from_json(std::string json)
 
 bool jstruct_base::from_json_(void* object)
 {
-    if (nullptr == object)             return false;
-    if (0       == fields_info_.size()) return false;
+    auto data = (std::list<field_info>*)d;
 
-    for (auto iter = fields_info_.begin(); iter != fields_info_.end(); ++iter)
+    if (nullptr == object)       return false;
+    if (0       == data->size()) return false;
+
+    for (auto iter = data->begin(); iter != data->end(); ++iter)
     {
-        field_info*         field_information   = (field_info*)*iter;
-        void*               field_address       = field_information->address_;
-        std::string         alias               = field_information->alias_;
+        auto&               field_information   = *iter;
+        void*               field_address       = field_information.address_;
+        std::string         alias               = field_information.alias_;
 
         cJSON*              item                = nullptr;
         if (!alias.empty()) item                = cJSON_GetObjectItem((cJSON*)object, alias.c_str());
-        if (!item)          item                = cJSON_GetObjectItem((cJSON*)object, field_information->name_.c_str());
+        if (!item)          item                = cJSON_GetObjectItem((cJSON*)object, field_information.name_.c_str());
 
         if (nullptr == item)
         {
-            if (ESTR(OPTIONAL) == field_information->qualifier_) continue;
-            if (ESTR(REQUIRED) == field_information->qualifier_) return false;
+            if (ESTR(OPTIONAL) == field_information.qualifier_) continue;
+            if (ESTR(REQUIRED) == field_information.qualifier_) return false;
         }
 
-        switch (field_information->type_)
+        switch (field_information.type_)
         {
         case enum_bool:
             {
@@ -399,7 +401,7 @@ bool jstruct_base::from_json_(void* object)
             break;
         case enum_number:
             {
-                if (cJSON_IsNumber(item)) from_number(field_information->type_name_, field_address, item);
+                if (cJSON_IsNumber(item)) from_number(field_information.type_name_, field_address, item);
             }
             break;
         case enum_number_array:
@@ -408,14 +410,14 @@ bool jstruct_base::from_json_(void* object)
                 {
                     int size = cJSON_GetArraySize(item);
 
-                    for (int i = 0; i < size && i < field_information->col_; ++i)
+                    for (int i = 0; i < size && i < field_information.col_; ++i)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-                        if (cJSON_IsNumber(arrItem)) from_number_array(field_information->type_name_, field_address, arrItem, i);
+                        if (cJSON_IsNumber(arrItem)) from_number_array(field_information.type_name_, field_address, arrItem, i);
                     }
 
-                    *((int*)field_information->address_size_) = min(size, field_information->col_);
+                    *((int*)field_information.address_size_) = min(size, field_information.col_);
                 }
             }
             break;
@@ -427,7 +429,7 @@ bool jstruct_base::from_json_(void* object)
 
                     WCHAR* dst = (WCHAR*)field_address;
 
-                    wcsncpy_s(dst, field_information->col_ - 1, ucs2.c_str(), ucs2.size());
+                    wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
 
                     *(dst + ucs2.size()) = '\0';
                 }
@@ -439,7 +441,7 @@ bool jstruct_base::from_json_(void* object)
                 {
                     int size = cJSON_GetArraySize(item);
 
-                    for (auto i = 0; i < field_information->row_ && i < size; ++i)
+                    for (auto i = 0; i < field_information.row_ && i < size; ++i)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
@@ -447,15 +449,15 @@ bool jstruct_base::from_json_(void* object)
                         {
                             std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
 
-                            WCHAR *dst = (WCHAR *) field_address + i * field_information->col_;
+                            WCHAR *dst = (WCHAR *) field_address + i * field_information.col_;
 
-                            wcsncpy_s(dst, field_information->col_ - 1, ucs2.c_str(), ucs2.size());
+                            wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
 
                             *(dst + ucs2.size()) = '\0';
                         }
                     }
 
-                    *((int*)field_information->address_size_) = min(size, field_information->row_);
+                    *((int*)field_information.address_size_) = min(size, field_information.row_);
                 }
             }
             break;
@@ -475,19 +477,19 @@ bool jstruct_base::from_json_(void* object)
                 {
                     int size = cJSON_GetArraySize(item);
 
-                    for (int i = 0; i < field_information->col_ && i < size; ++i)
+                    for (int i = 0; i < field_information.col_ && i < size; ++i)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
                         if (cJSON_IsObject(arrItem))
                         {
-                            bool success = ((jstruct_base*)((byte*)field_address + i * field_information->offset_))->from_json_(arrItem);
+                            bool success = ((jstruct_base*)((byte*)field_address + i * field_information.offset_))->from_json_(arrItem);
 
                             if (!success) return false;
                         }
                     }
 
-                    *((int*)field_information->address_size_) = min(size, field_information->col_);
+                    *((int*)field_information.address_size_) = min(size, field_information.col_);
                 }
             }
             break;
@@ -499,21 +501,22 @@ bool jstruct_base::from_json_(void* object)
 
 void jstruct_base::register_field(std::string field_type, std::string field_qualifier, std::string field_name, std::string field_name_alias, void* field_address, void* array_size_field_address, int offset)
 {
-    field_info* finfo    = new field_info;
+    field_info f_info;
 
-    finfo->type_         = data_type(field_type, finfo);
-    finfo->type_name_    = field_type;
-    finfo->qualifier_    = field_qualifier;
-    finfo->name_         = field_name;
-    finfo->alias_        = field_name_alias;
-    finfo->address_      = field_address;
-    finfo->address_size_ = array_size_field_address;
-    finfo->offset_       = offset;
+    f_info.type_         = data_type(field_type, f_info);
+    f_info.type_name_    = field_type;
+    f_info.qualifier_    = field_qualifier;
+    f_info.name_         = field_name;
+    f_info.alias_        = field_name_alias;
+    f_info.address_      = field_address;
+    f_info.address_size_ = array_size_field_address;
+    f_info.offset_       = offset;
 
-    fields_info_.push_back(finfo);
+    ((std::list<field_info>*)d)->push_back(f_info);
 }
 
 jstruct_base::jstruct_base()
+    : d(new std::list<field_info>())
 {
     static bool init = false;
 
@@ -540,5 +543,6 @@ jstruct_base::jstruct_base()
 
 jstruct_base::~jstruct_base()
 {
-    std::for_each(fields_info_.begin(), fields_info_.end(), [](void* pointer) { field_info* p = (field_info*)pointer; delete p; });
+    delete d;
+    d = nullptr;
 }

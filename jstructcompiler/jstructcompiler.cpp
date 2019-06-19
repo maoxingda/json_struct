@@ -3,14 +3,20 @@
 
 #include "stdafx.h"
 #include "jmacro.h"
+#include "jsterror.h"
 #include "jqualifier.h"
+#include <iostream>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/xpressive/xpressive.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/program_options/options_description.hpp>
 
 using namespace boost::xpressive;
 using namespace boost::filesystem;
+namespace po = boost::program_options;
 
 
 struct field_info
@@ -30,8 +36,23 @@ struct struct_info
     std::list<std::string>::iterator iter_struct_end_;
 };
 
-static std::list<std::string> lines;
-static std::list<struct_info> structs;
+static std::list<std::string>       lines;
+static std::list<struct_info>       structs;
+static std::map<int, const char*>*  perror_msg = nullptr;
+
+static std::string error_msg(std::string msg_id)
+{
+    int index = msg_id.find('_');
+
+    while (std::string::npos != index)
+    {
+        msg_id.replace(index, 1, " ");
+
+        index = msg_id.find('_');
+    }
+
+    return msg_id;
+}
 
 static bool is_user_field(std::string& line)
 {
@@ -46,6 +67,17 @@ static bool is_user_field(std::string& line)
     }
 
     return false;
+}
+
+static bool is_field(std::string& line)
+{
+    boost::format fmt("^\\s*(?:(?:(?:%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\))\\s+){2,3})(?:[a-zA-Z_$][a-zA-Z0-9_$]*\\s+){1,2}[a-zA-Z_$][a-zA-Z0-9_$]*(?:\\[\\w+\\]){0,2}\\s*;");
+
+    fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
+
+    static sregex re = sregex::compile(fmt.str());
+
+    return regex_search(line, re);
 }
 
 static std::string field_qualifier(const std::string& line)
@@ -239,8 +271,8 @@ static void align(std::string& line1, std::string& line2, const sregex& re)
     }
 }
 
-static void read_file(const std::string& file_name)
-{    
+static int read_file(const std::string& file_name)
+{
     std::ifstream in(file_name);
 
     if (in)
@@ -254,9 +286,15 @@ static void read_file(const std::string& file_name)
 
         in.close();
     }
+    else
+    {
+        return open_json_struct_input_file_failed;
+    }
+
+    return success;
 }
 
-static void read_struct()
+static int read_struct()
 {
     smatch              sm;
     struct_info         st_info;
@@ -282,9 +320,11 @@ static void read_struct()
             structs.push_back(st_info);
         }
     }
+
+    return structs.size() ? success : no_struct_information_in_json_struct_input_file;
 }
 
-static void read_fields()
+static int read_fields()
 {
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
     {
@@ -294,9 +334,10 @@ static void read_fields()
         {
             auto& line = *iter2;
 
-            if (line.empty())         continue;   // skip empty line
-            if (is_in_comment(line))  continue;   // skip comment
-            if (is_user_field(line))  continue;   // skip user field
+            if (line.empty())           continue;   // skip empty line
+            if (is_in_comment(line))    continue;   // skip comment
+            if (is_user_field(line))    continue;   // skip user field
+            if (!is_field(line))        continue;   // skip not field line
 
             field_info f_info;
 
@@ -311,7 +352,7 @@ static void read_fields()
             {
                 f_info.qualifier_error_ = true;
 
-                iter2->insert(0, "#error \"missing or repeated field qualifier\";");
+                iter2->insert(0, error_msg(ESTR(missing_or_repeated_field_qualifier)));
 
                 continue;
             }
@@ -332,6 +373,8 @@ static void read_fields()
             }
         }
     }
+
+    return success;
 }
 
 static void gen_reg_fields_code(const struct_info& st_info, std::list<std::string>& reg_fields_code)
@@ -436,14 +479,18 @@ static void gen_init_fields_code(const struct_info& st_info)
     }
 }
 
-static void write_decl_file(std::string out_file_name)
+static int write_decl_file(std::string out_file_name)
 {
+    decl_ret;
+
     int index = out_file_name.find(".json");
     if (std::string::npos != index) out_file_name.replace(index, 5, "");
 
     std::ofstream out(out_file_name);
 
-    if (!out) return;
+    ret = !out;
+
+    if_err_out_msg_and_ret(open_json_struct_output_file_failed);
 
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
     {
@@ -452,8 +499,11 @@ static void write_decl_file(std::string out_file_name)
 
         // generate register struct fields code in construct function
         lines.insert(position, (boost::format("\n    %1%()") % st_info.stname_).str());
+        //lines.insert(position, (boost::format("\n    %1%(bool register)") % st_info.stname_).str());
         lines.insert(position, "    {");
         {
+            //lines.insert(position, "        if (!register) continue; // only save data");
+
             std::list<std::string> reg_fields_code;
 
             gen_reg_fields_code(st_info, reg_fields_code);
@@ -477,11 +527,15 @@ static void write_decl_file(std::string out_file_name)
         out << *iter << "\n";
     }
     out.close();
+
+    return success;
 }
 
-static void write_impl_file(std::string out_file_name, std::string bfile_name, std::list<struct_info> &structs)
+static int write_impl_file(std::string out_file_name, std::string bfile_name, std::list<struct_info> &structs)
 {
     throw std::logic_error("not implemented!");
+
+    return exception;
 }
 
 static std::string file_extension(const std::string& file_name)
@@ -494,30 +548,73 @@ static std::string file_base_name(const std::string& file_name)
     return path(file_name).filename().string();
 }
 
-static void parse(std::string in_file_name, std::string out_file_name)
+static int parse(std::string in_file_name, std::string out_file_name)
 {
-    read_file(in_file_name);
+    decl_ret;
 
-    if (lines.empty()) return;
+    ret = read_file(in_file_name);
 
-    read_struct();
-    read_fields();
+    if_err_out_msg_and_ret(open_json_struct_input_file_failed);
+
+    ret = read_struct();
+
+    if_err_out_msg_and_ret(no_struct_information_in_json_struct_input_file);
+
+    ret = read_fields();
 
     if (".h" == file_extension(out_file_name))
     {
-        write_decl_file(out_file_name);
+        ret = write_decl_file(out_file_name);
     }
     else if (".cpp" == file_extension(out_file_name))
     {
-        write_impl_file(out_file_name, file_base_name(in_file_name), structs);
+        ret = write_impl_file(out_file_name, file_base_name(in_file_name), structs);
     }
+
+    return ret;
 }
 
 int main(int argc, char *argv[])
 {
-    if (3 > argc) return -1;
+    try
+    {
+        decl_ret;
 
-    parse(argv[1], argv[2]);
+        po::options_description desc("usage");
 
-    return 0;
+        desc.add_options()
+            ("help,h",                           "display this help messages")
+            ("ijsh,i", po::value<std::string>(), "set input json struct header file name")
+            ("ojsh,o", po::value<std::string>(), "set output json struct header file name")
+            ;
+
+        po::variables_map vm;
+
+        store(parse_command_line(argc, argv, desc), vm);
+
+        notify(vm);
+
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+
+            return success;
+        }
+
+        ret = !vm.count("ijsh");
+
+        if_err_out_msg_and_ret(no_json_struct_input_file);
+
+        ret = !vm.count("ojsh");
+
+        if_err_out_msg_and_ret(no_json_struct_output_file);
+
+        return parse(vm["ijsh"].as<std::string>(), vm["ojsh"].as<std::string>());
+    }
+    catch (const std::exception& e)
+    {
+        std::cout << e.what() << "\n" << std::endl;
+    }
+
+    return exception;
 }

@@ -2593,7 +2593,22 @@ Please click Finish to exit.
 <Event>
 <Name>On Post Uninstall</Name>
 <Args/>
-<Script/>
+<Script>vs2010_install_path = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+
+if "" == vs2010_install_path then
+	Dialog.Message("Get vs2010 install path", "Get vs2010 install path failed!", MB_OK, MB_ICONINFORMATION);
+end
+
+File.Delete(vs2010_install_path.."\\VC\\lib\\jstruct.lib");
+File.Delete(vs2010_install_path.."\\VC\\lib\\jstructd.lib");
+
+File.Delete(vs2010_install_path.."\\VC\\include\\jmacro.h");
+File.Delete(vs2010_install_path.."\\VC\\include\\jstruct.h");
+File.Delete(vs2010_install_path.."\\VC\\include\\jqualifier.h");
+File.Delete(vs2010_install_path.."\\VC\\include\\jstruct_base.h");
+
+File.Delete(vs2010_install_path.."\\VC\\bin\\"..SessionVar.Expand("%compiler%"));
+</Script>
 <BookMarks count="0">
 </BookMarks>
 </Event>
@@ -2789,9 +2804,14 @@ if "" == vs2010_install_path then
 	Dialog.Message("Get vs2010 install path", "Get vs2010 install path failed!", MB_OK, MB_ICONINFORMATION);
 end
 
-File.Copy(SessionVar.Expand("%AppFolder%").."\\*.h", vs2010_install_path.."VC");
-File.Copy(SessionVar.Expand("%AppFolder%").."\\*.lib", vs2010_install_path.."VC");
-File.Copy(SessionVar.Expand("%AppFolder%").."\\*.exe", vs2010_install_path.."VC\\bin");
+File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.lib", vs2010_install_path.."\\VC\\lib\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.h", vs2010_install_path.."\\VC\\include\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\"..SessionVar.Expand("%compiler%"), vs2010_install_path.."\\VC\\bin\\");
+
+File.Delete(SessionVar.Expand("%AppFolder%").."\\lib");
+File.Delete(SessionVar.Expand("%AppFolder%").."\\include");
+
+File.OpenURL(SessionVar.Expand("%github_address%"), SW_MAXIMIZE);
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -2878,6 +2898,16 @@ g_HandleSystemReboot();
 <Name>%AppShortcutFolderName%</Name>
 <Value>%ProductName%</Value>
 <Type>2</Type>
+</SessionVar>
+<SessionVar>
+<Name>%github_address%</Name>
+<Value>https://github.com/maoxingda/json_struct</Value>
+<Type>10</Type>
+</SessionVar>
+<SessionVar>
+<Name>%compiler%</Name>
+<Value>jstructcompiler.exe</Value>
+<Type>10</Type>
 </SessionVar>
 </SUF7SessionVars>
 <BuildConfigurations>
