@@ -35,9 +35,9 @@ namespace jstructtool
 
                 if (null != cbt)
                 {
-                    cbt.CommandLine = "jstructcompiler --ijsh \"%(FullPath)\" --ojsh \".\\GeneratedFiles\\%(Filename).h\"";
+                    cbt.CommandLine = "jstructcompiler --ijsh \"%(FullPath)\" --ojsh \"$(ProjectDir)GeneratedFiles\\%(Filename).h\"";
                     cbt.Description = "jstructcompiler%27ing %(Identity)...";
-                    cbt.Outputs     = ".\\GeneratedFiles\\%(Filename).h";
+                    cbt.Outputs     = "$(ProjectDir)GeneratedFiles\\%(Filename).h";
                 }
             }
 

@@ -8,6 +8,7 @@
 #include <iostream>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
+#include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive.hpp>
@@ -23,6 +24,7 @@ using namespace boost::xpressive;
 using namespace boost::filesystem;
 using namespace boost::posix_time;
 namespace po = boost::program_options;
+using namespace po::command_line_style;
 
 
 struct field_info
@@ -504,9 +506,6 @@ static int write_decl_file(std::string out_file_name)
 {
     decl_ret;
 
-    int index = out_file_name.find(".json");
-    if (std::string::npos != index) out_file_name.replace(index, 5, "");
-
     std::ofstream out(out_file_name);
 
     ret = !out;
@@ -560,9 +559,39 @@ static int write_impl_file(std::string out_file_name, std::string bfile_name, st
     return exception;
 }
 
+static bool is_output_up_to_date(const std::string& in_file_name, const std::string& out_file_name)
+{
+    try
+    {
+        path pif(in_file_name), pof(out_file_name);
+
+        std::time_t it = last_write_time(pif);
+        std::time_t ot = last_write_time(pof);
+
+        if (it <= ot) return true;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 static int parse(std::string in_file_name, std::string out_file_name)
 {
     decl_ret;
+
+    replace_last(out_file_name, ".json.h", ".h");
+
+    if (is_output_up_to_date(in_file_name, out_file_name))
+    {
+        std::cout << "output is up to date" << "\n" << std::endl;
+
+        return success;
+    }
+    else
+    {
+        std::cout << "output is out of date" << "\n" << std::endl;
+    }
 
     ret = read_file(in_file_name);
 
@@ -592,12 +621,15 @@ int main(int argc, char *argv[])
     {
         decl_ret;
 
+        boost::optional<std::string> ifname;
+        boost::optional<std::string> ofname;
+
         po::options_description desc("usage");
 
         desc.add_options()
-            ("help,h",                           "display this help messages")
-            ("ijsh,i", po::value<std::string>(), "set input json struct header file name")
-            ("ojsh,o", po::value<std::string>(), "set output json struct header file name")
+            ("help,h",                     "display this help messages")
+            ("ijsh,i", po::value(&ifname), "set input json struct header file name")
+            ("ojsh,o", po::value(&ofname), "set output json struct header file name")
             ;
 
         po::variables_map vm;
@@ -613,15 +645,15 @@ int main(int argc, char *argv[])
             return success;
         }
 
-        ret = !vm.count("ijsh");
+        if (!ifname) ret = no_json_struct_input_file;
 
         if_err_out_msg_and_ret(no_json_struct_input_file);
 
-        ret = !vm.count("ojsh");
+        if (!ofname) ret = no_json_struct_output_file;
 
         if_err_out_msg_and_ret(no_json_struct_output_file);
 
-        return parse(vm["ijsh"].as<std::string>(), vm["ojsh"].as<std::string>());
+        return parse(*ifname, *ofname);
     }
     catch (const std::exception& e)
     {

@@ -15,6 +15,8 @@ public:
 
 private:
     bool from_json_(void*);
+    jstruct_base(const jstruct_base&);
+    jstruct_base& operator=(const jstruct_base&);
 
 protected:
     void register_field(std::string, std::string, std::string, std::string, void*, void*, int);
