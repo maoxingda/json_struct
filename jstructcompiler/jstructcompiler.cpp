@@ -9,6 +9,7 @@
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -17,6 +18,7 @@
 
 #define compiler_version "V1.0.0"
 
+using namespace boost::algorithm;
 using namespace boost::xpressive;
 using namespace boost::filesystem;
 using namespace boost::posix_time;
@@ -46,14 +48,7 @@ static std::map<int, const char*>*  perror_msg = nullptr;
 
 static std::string error_msg(std::string msg_id)
 {
-    int index = msg_id.find('_');
-
-    while (std::string::npos != index)
-    {
-        msg_id.replace(index, 1, " ");
-
-        index = msg_id.find('_');
-    }
+    find_format_all(msg_id, token_finder([](const char& c){return '_' == c;}), const_formatter(" "));
 
     return msg_id;
 }
