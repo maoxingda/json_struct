@@ -38,14 +38,15 @@ int main(int argc, char** argv)
 2. not support - basic_data_type var_name([array_size]){2,} **other than** wchar_t[row][col]
 3. not support - custom_type var_name([array_size]){2,}
 4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
+5. gtest has memory leak
 
 ###### TODO
 * support serialize c++ struct to json stream
 * output custom warning message when qualifier is not REQUIRED|OPTIONAL
 * support #include
 * support user field
-* judge if the optional field has a value
+* support judge if the optional field has a value
 * support null value
 * support derive
 * support constructor function argument
-* gtest has memory leak
+* support copy constructor
