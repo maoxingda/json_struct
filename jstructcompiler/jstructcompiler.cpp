@@ -13,9 +13,13 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/options_description.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+#define compiler_version "V1.0.0"
 
 using namespace boost::xpressive;
 using namespace boost::filesystem;
+using namespace boost::posix_time;
 namespace po = boost::program_options;
 
 
@@ -271,6 +275,16 @@ static void align(std::string& line1, std::string& line2, const sregex& re)
     }
 }
 
+static std::string file_extension(const std::string& file_name)
+{
+    return path(file_name).extension().string();
+}
+
+static std::string file_base_name(const std::string& file_name)
+{
+    return path(file_name).stem().string();
+}
+
 static int read_file(const std::string& file_name)
 {
     std::ifstream in(file_name);
@@ -375,6 +389,18 @@ static int read_fields()
     }
 
     return success;
+}
+
+static void gen_warning_code(std::ofstream& out, const std::string& out_file_name)
+{
+    out << "/****************************************************************************" << "\n";
+    out << "** register struct field code from reading C++ file '" << file_base_name(out_file_name) << ".json.h'" << "\n";
+    out << "**" << "\n";
+    out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
+    out << "**      by: the json struct compiler version " << compiler_version << "\n";
+    out << "**" << "\n";
+    out << "** warning! all changes made in this file will be lost!" << "\n";
+    out << "*****************************************************************************/" << "\n";
 }
 
 static void gen_reg_fields_code(const struct_info& st_info, std::list<std::string>& reg_fields_code)
@@ -522,6 +548,7 @@ static int write_decl_file(std::string out_file_name)
     }
 
     // save
+    gen_warning_code(out, out_file_name);
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
         out << *iter << "\n";
@@ -536,16 +563,6 @@ static int write_impl_file(std::string out_file_name, std::string bfile_name, st
     throw std::logic_error("not implemented!");
 
     return exception;
-}
-
-static std::string file_extension(const std::string& file_name)
-{
-    return path(file_name).extension().string();
-}
-
-static std::string file_base_name(const std::string& file_name)
-{
-    return path(file_name).filename().string();
 }
 
 static int parse(std::string in_file_name, std::string out_file_name)
