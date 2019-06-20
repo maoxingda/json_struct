@@ -6,6 +6,7 @@
 #include "jsterror.h"
 #include "jqualifier.h"
 #include <iostream>
+#include <Initguid.h>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/optional.hpp>
@@ -18,6 +19,10 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #define compiler_version "V1.0.0"
+
+// {F960C1BA-33DE-485A-A6F7-5BBB3FB5C4DC}
+DEFINE_GUID(VSIX_ID,
+    0xf960c1ba, 0x33de, 0x485a, 0xa6, 0xf7, 0x5b, 0xbb, 0x3f, 0xb5, 0xc4, 0xdc);
 
 using namespace boost::algorithm;
 using namespace boost::xpressive;
@@ -572,8 +577,8 @@ static bool is_output_up_to_date(const std::string& in_file_name, const std::str
     }
     catch (...)
     {
-        return false;
     }
+    return false;
 }
 
 static int parse(std::string in_file_name, std::string out_file_name)
