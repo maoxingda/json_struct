@@ -3,9 +3,9 @@
 ## usage
 1. install jstructtool.exe
 
-2. add new item to project, item name is ****.json.h***
+2. add new item to microsoft visual studio vc++ project, item name pattern is ****.json.h***
 
-3. declare struct, create struct object and call member function ***from_json***, so that's all
+3. declare struct, create struct object instance and call member function ***from_json***, so that's all
 
 ## example
 ```
@@ -41,13 +41,8 @@ int main(int argc, char** argv)
 5. gtest has memory leak
 
 ###### TODO
-* support serialize c++ struct to json stream
-* output custom warning message when qualifier is not REQUIRED|OPTIONAL
-* support #include
-* support user field
-* support judge if the optional field has a value
-* support null value
-* support derive
-* support constructor function argument
-* support copy constructor
-* support only use pod data type
+* serialize c++ struct to json stream
+* #include
+* if the optional field has a value
+* null value
+* derive
