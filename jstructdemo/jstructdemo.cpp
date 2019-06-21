@@ -5,10 +5,12 @@
 //#include <vld.h>
 #include <fstream>
 #include <gtest/gtest.h>
-#include "GeneratedFiles/student.h"
+#include "mjst/student.h"
 
 
-#if 1
+#define gut
+
+#ifdef gut
 TEST(jstructdemo, int)
 {
     std::fstream in("student.json");
@@ -111,15 +113,17 @@ TEST(jstructdemo, custom)
         EXPECT_EQ(0, wcscmp(L"16",      s.birthday.day));
     }
 }
-#endif // 0
+#endif // gut
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-#if 1
+    int result = 0;
+
+#ifdef gut
     testing::InitGoogleTest(&argc, argv);
 
-    int result = RUN_ALL_TESTS();
-#endif // 0
+    result = RUN_ALL_TESTS();
+#endif // gut
 
     std::system("pause");
 

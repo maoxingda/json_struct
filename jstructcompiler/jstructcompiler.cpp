@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "jmacro.h"
-#include "jsterror.h"
 #include "jqualifier.h"
 #include <iostream>
 #include <Initguid.h>
@@ -55,6 +54,8 @@ static std::map<int, const char*>*  perror_msg = nullptr;
 
 static std::string error_msg(std::string msg_id)
 {
+    //msg_id[0] -= 32;
+
     replace_all(msg_id, "_", " ");
 
     return msg_id;
@@ -277,17 +278,12 @@ static void align(std::string& line1, std::string& line2, const sregex& re)
     }
 }
 
-static std::string file_extension(const std::string& file_name)
-{
-    return path(file_name).extension().string();
-}
-
 static std::string file_base_name(const std::string& file_name)
 {
     return path(file_name).stem().string();
 }
 
-static int read_file(const std::string& file_name)
+static void read_file(const std::string& file_name)
 {
     std::ifstream in(file_name);
 
@@ -304,13 +300,11 @@ static int read_file(const std::string& file_name)
     }
     else
     {
-        return open_json_struct_input_file_failed;
+        throw std::logic_error("open '" + file_name + "' failed");
     }
-
-    return success;
 }
 
-static int read_struct()
+static void read_struct(const std::string& file_name)
 {
     smatch              sm;
     struct_info         st_info;
@@ -337,10 +331,10 @@ static int read_struct()
         }
     }
 
-    return structs.size() ? success : no_struct_information_in_json_struct_input_file;
+    if (!structs.size()) throw std::logic_error("not find struct in '" + file_name + "'");
 }
 
-static int read_fields()
+static void read_fields()
 {
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
     {
@@ -389,14 +383,12 @@ static int read_fields()
             }
         }
     }
-
-    return success;
 }
 
-static void gen_warning_code(std::ofstream& out, const std::string& out_file_name)
+static void gen_warning_code(std::ofstream& out, const std::string& o_file_name)
 {
     out << "/****************************************************************************" << "\n";
-    out << "** register struct field code from reading C++ file '" << file_base_name(out_file_name) << ".json.h'" << "\n";
+    out << "** register struct field code from reading C++ file '" << file_base_name(o_file_name) << ".json.h'" << "\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
     out << "**      by: the json struct compiler version " << compiler_version << "\n";
@@ -507,28 +499,21 @@ static void gen_init_fields_code(const struct_info& st_info)
     }
 }
 
-static int write_decl_file(std::string out_file_name)
+static void write_decl_file(const std::string& o_file_name)
 {
-    decl_ret;
+    std::ofstream out(o_file_name);
 
-    std::ofstream out(out_file_name);
-
-    ret = !out;
-
-    if_err_out_msg_and_ret(open_json_struct_output_file_failed);
+    if (!out) throw std::logic_error("open '" + o_file_name + "' failed");
 
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
     {
         auto st_info    = *iter1;
         auto position   = iter1->iter_struct_end_;
 
-        // generate register struct fields code in construct function
+        // generate register field code in construct function
         lines.insert(position, (boost::format("\n    %1%()") % st_info.stname_).str());
-        //lines.insert(position, (boost::format("\n    %1%(bool register)") % st_info.stname_).str());
         lines.insert(position, "    {");
         {
-            //lines.insert(position, "        if (!register) continue; // only save data");
-
             std::list<std::string> reg_fields_code;
 
             gen_reg_fields_code(st_info, reg_fields_code);
@@ -540,132 +525,131 @@ static int write_decl_file(std::string out_file_name)
             // insert empty line
             lines.insert(position, "");
 
-            // fields initialization
+            // field initialization
             gen_init_fields_code(st_info);
         }
         lines.insert(position, "    }");
     }
 
     // save
-    gen_warning_code(out, out_file_name);
+    gen_warning_code(out, o_file_name);
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
         out << *iter << "\n";
     }
     out.close();
-
-    return success;
 }
 
-static int write_impl_file(std::string out_file_name, std::string bfile_name, std::list<struct_info> &structs)
+static int write_impl_file(const std::string& o_file_name)
 {
     throw std::logic_error("not implemented!");
-
-    return exception;
 }
 
-static bool is_output_up_to_date(const std::string& in_file_name, const std::string& out_file_name)
+static bool is_out_of_date(const std::string& i_file_name, const std::string& o_file_name)
 {
+    path pif(i_file_name), pof(o_file_name);
+
     try
     {
-        path pif(in_file_name), pof(out_file_name);
-
-        std::time_t it = last_write_time(pif);
-        std::time_t ot = last_write_time(pof);
-
-        if (it <= ot) return true;
+        return last_write_time(pif) > last_write_time(pof);
     }
-    catch (...)
+    catch(...)
     {
+        return true;
     }
-    return false;
 }
 
-static int parse(std::string in_file_name, std::string out_file_name, bool always)
+static void parse(std::string i_file_name, std::string out_path, std::string file_ext, bool always)
 {
-    decl_ret;
+    if (!ends_with(out_path, "/") && !ends_with(out_path, "\\")) out_path += "\\";
 
-    replace_last(out_file_name, ".json.h", ".h");
+    std::string o_file_name = out_path + file_base_name(i_file_name);
 
-    if (!always && is_output_up_to_date(in_file_name, out_file_name))
+    replace_last(o_file_name, ".json", file_ext);
+
+    if (!always && !is_out_of_date(i_file_name, o_file_name))
     {
-        std::cout << "output is up to date" << "\n" << std::endl;
+        std::cout << "output is up-to-date" << "\n" << std::endl;
 
-        return success;
+        return;
     }
     else
     {
-        std::cout << "output is out of date" << "\n" << std::endl;
+        std::cout << "output is out-of-date" << "\n" << std::endl;
     }
 
-    ret = read_file(in_file_name);
+    read_file(i_file_name);
+    read_struct(i_file_name);
+    read_fields();
 
-    if_err_out_msg_and_ret(open_json_struct_input_file_failed);
-
-    ret = read_struct();
-
-    if_err_out_msg_and_ret(no_struct_information_in_json_struct_input_file);
-
-    ret = read_fields();
-
-    if (".h" == file_extension(out_file_name))
+    if (".h" == file_ext)
     {
-        ret = write_decl_file(out_file_name);
+        write_decl_file(o_file_name);
     }
-    else if (".cpp" == file_extension(out_file_name))
+    else if (".cpp" == file_ext)
     {
-        ret = write_impl_file(out_file_name, file_base_name(in_file_name), structs);
+        write_impl_file(o_file_name);
     }
-
-    return ret;
 }
 
 int main(int argc, char *argv[])
 {
     try
     {
-        decl_ret;
-
         boost::optional<bool>        always(false);
-        boost::optional<std::string> ifname;
-        boost::optional<std::string> ofname;
+        boost::optional<std::string> input_file;
+        boost::optional<std::string> output_path;
 
         po::options_description desc("usage");
 
         desc.add_options()
-            ("help,h",                          "display this help messages")
-            ("always,a",    po::value(&always), "set always output json struct file")
-            ("ijsh,i",      po::value(&ifname), "set input json struct header file name")
-            ("ojsh,o",      po::value(&ofname), "set output json struct header file name")
+            ("help,h",                                      "show this text and exit")
+            ("input-file,i",    po::value(&input_file),     "the input file that will be build")
+            ("output-path,o",   po::value(&output_path),    "set save c++ header or source file path")
+            ("always,a",        po::value(&always),         "is it always build the input file, 1 or 0")
+            ("h-out",                                       "generate c++ header file")
+            ("cpp-out",                                     "generate c++ source file")
             ;
 
-        po::variables_map vm;
+        po::variables_map options;
 
-        store(parse_command_line(argc, argv, desc), vm);
+        store(parse_command_line(argc, argv, desc), options);
 
-        notify(vm);
+        notify(options);
 
-        if (vm.count("help"))
+        if (options.count("help"))
         {
             std::cout << desc << std::endl;
 
-            return success;
+            return 0;
         }
 
-        if (!ifname) ret = no_json_struct_input_file;
+        if (!input_file)   throw std::logic_error("the required option '--input-file' is missing");
+        if (!output_path)  throw std::logic_error("the required option '--output-path' is missing");
 
-        if_err_out_msg_and_ret(no_json_struct_input_file);
+        if (!options.count("h-out") && !options.count("cpp-out"))
+        {
+            throw std::logic_error("the option '--h-out and --cpp-out' must be given at least one");
+        }
 
-        if (!ofname) ret = no_json_struct_output_file;
+        if (options.count("h-out") && options.count("cpp-out"))
+        {
+            throw std::logic_error("the option '--h-out and --cpp-out' must be given only one");
+        }
 
-        if_err_out_msg_and_ret(no_json_struct_output_file);
-
-        return parse(*ifname, *ofname, *always);
+        if (options.count("h-out"))
+        {
+            parse(*input_file, *output_path, ".h", *always);
+        }
+        else if (options.count("cpp-out"))
+        {
+            parse(*input_file, *output_path, ".cpp", *always);
+        }
     }
     catch (const std::exception& e)
     {
         std::cout << e.what() << "\n" << std::endl;
-    }
 
-    return exception;
+        return -1;
+    }
 }

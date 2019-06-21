@@ -1,10 +1,11 @@
 #pragma once
 #include <string>
+using namespace std;
 
 
-/************************************************************************/
-/*          the base struct where save struct fields information        */
-/************************************************************************/
+/****************************************************************************
+** save derived struct fields information
+*****************************************************************************/
 struct jstruct_base
 {
 public:
@@ -13,13 +14,13 @@ public:
     const jstruct_base& operator=(const jstruct_base& other);
     ~jstruct_base();
 
-    bool from_json(std::string);
+    bool from_json(string);
 
 private:
     bool from_json_(void*);
 
 protected:
-    void register_field(std::string, std::string, std::string, std::string, void*, void*, int);
+    void register_field(string, string, string, string, void*, void*, int);
 
 private:
     void* d;

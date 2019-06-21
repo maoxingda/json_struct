@@ -15,7 +15,7 @@
 using namespace boost::xpressive;
 
 
-static std::map<int, const char*>* pfield_type_re_str_ = nullptr;
+static map<int, const char*>* pfield_type_re_str_ = nullptr;
 
 enum type
 {
@@ -35,19 +35,21 @@ enum type
 
 struct field_info
 {
-    int         type_;
-    std::string type_name_;
-    std::string qualifier_;
-    std::string name_;
-    std::string alias_;
-    void*       address_;
-    void*       address_size_;
-    int         offset_;
-    int         row_;
-    int         col_;
+    size_t      type_   : 4;    // 15
+    size_t      offset_ : 8;    // 255
+    size_t      row_    : 8;    // 255
+    size_t      col_    : 10;   // 1024
+
+    void*       address_;       // save derived struct field address
+    void*       address_size_;  // save derived struct array size field address
+
+    string      type_name_;     // int float double etc.
+    string      qualifier_;     // REQUIRED and OPTIONAL
+    string      name_;          // c++ identifier
+    string      alias_;         // use when name_ is not similar to json key name
 };
 
-static int array_size(const std::string& field_type)
+static int array_size(const string& field_type)
 {
     static sregex re1 = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
     static sregex re2 = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
@@ -71,7 +73,7 @@ static int array_size(const std::string& field_type)
     return 0;
 }
 
-static void table_size(const std::string& field_type, int& row, int& col)
+static void table_size(const string& field_type, size_t& row, size_t& col)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_table]);
 
@@ -84,56 +86,56 @@ static void table_size(const std::string& field_type, int& row, int& col)
     }
 }
 
-static bool is_bool(const std::string& field_type)
+static bool is_bool(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_bool]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_number(const std::string& field_type)
+static bool is_number(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_number]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_number_array(const std::string& field_type)
+static bool is_number_array(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_wchar_array(const std::string& field_type)
+static bool is_wchar_array(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_wchar_table(const std::string& field_type)
+static bool is_wchar_table(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_table]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_custom(const std::string& field_type)
+static bool is_custom(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_custom]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_custom_array(const std::string& field_type)
+static bool is_custom_array(const string& field_type)
 {
     static sregex re = sregex::compile((*pfield_type_re_str_)[enum_custom_array]);
 
     return regex_match(field_type, re);
 }
 
-static type data_type(const std::string& field_type, field_info& field_info)
+static type data_type(const string& field_type, size_t& row, size_t& col)
 {
     if (is_bool(field_type))
     {
@@ -145,19 +147,19 @@ static type data_type(const std::string& field_type, field_info& field_info)
     }
     else if (is_number_array(field_type))
     {
-        field_info.col_ = array_size(field_type);
+        col = array_size(field_type);
 
         return enum_number_array;
     }
     else if (is_wchar_array(field_type))
     {
-        field_info.col_ = array_size(field_type);
+        col = array_size(field_type);
 
         return enum_wchar_array;
     }
     else if (is_wchar_table(field_type))
     {
-        table_size(field_type, field_info.row_, field_info.col_);
+        table_size(field_type, row, col);
 
         return enum_wchar_table;
     }
@@ -167,7 +169,7 @@ static type data_type(const std::string& field_type, field_info& field_info)
     }
     else if (is_custom_array(field_type))
     {
-        field_info.col_ = array_size(field_type);
+        col = array_size(field_type);
 
         return enum_custom_array;
     }
@@ -175,7 +177,7 @@ static type data_type(const std::string& field_type, field_info& field_info)
     return enum_none;
 }
 
-static void from_number(const std::string& field_type, void* field_address, cJSON* item)
+static void from_number(const string& field_type, void* field_address, cJSON* item)
 {
     if (typeid(int).name() == field_type)
     {
@@ -266,13 +268,13 @@ static void from_number(const std::string& field_type, void* field_address, cJSO
     }
 }
 
-static void from_number_array(const std::string& field_type, void* field_address, cJSON* item, int offset)
+static void from_number_array(const string& field_type, void* field_address, cJSON* item, int offset)
 {
-    if (std::string::npos != std::string(field_type).find("int"))
+    if (string::npos != string(field_type).find("int"))
     {
         *((int*)field_address + offset) = item->valueint;
     }
-    else if (std::string::npos != std::string(field_type).find("unsigned int"))
+    else if (string::npos != string(field_type).find("unsigned int"))
     {
         if (UINT_MAX <= item->valuedouble)
         {
@@ -287,7 +289,7 @@ static void from_number_array(const std::string& field_type, void* field_address
             *((unsigned int*)field_address + offset) = (unsigned int)item->valuedouble;
         }
     }
-    else if (std::string::npos != std::string(field_type).find("__int64"))
+    else if (string::npos != string(field_type).find("__int64"))
     {
         if (INT64_MAX <= item->valuedouble)
         {
@@ -302,7 +304,7 @@ static void from_number_array(const std::string& field_type, void* field_address
             *((__int64*)field_address + offset) = (__int64)item->valuedouble;
         }
     }
-    else if (std::string::npos != std::string(field_type).find("long"))
+    else if (string::npos != string(field_type).find("long"))
     {
         if (LONG_MAX <= item->valuedouble)
         {
@@ -317,7 +319,7 @@ static void from_number_array(const std::string& field_type, void* field_address
             *((long*)field_address + offset) = (long)item->valuedouble;
         }
     }
-    else if (std::string::npos != std::string(field_type).find("unsigned short"))
+    else if (string::npos != string(field_type).find("unsigned short"))
     {
         if (0xffff <= item->valuedouble)
         {
@@ -332,7 +334,7 @@ static void from_number_array(const std::string& field_type, void* field_address
             *((unsigned short*)field_address + offset) = (unsigned short)item->valuedouble;
         }
     }
-    else if (std::string::npos != std::string(field_type).find("unsigned long"))
+    else if (string::npos != string(field_type).find("unsigned long"))
     {
         if (ULONG_MAX <= item->valuedouble)
         {
@@ -347,17 +349,17 @@ static void from_number_array(const std::string& field_type, void* field_address
             *((unsigned long*)field_address + offset) = (unsigned long)item->valuedouble;
         }
     }
-    else if (std::string::npos != std::string(field_type).find("float"))
+    else if (string::npos != string(field_type).find("float"))
     {
         *((float*)field_address + offset) = (float)item->valuedouble;
     }
-    else if (std::string::npos != std::string(field_type).find("double"))
+    else if (string::npos != string(field_type).find("double"))
     {
         *((double*)field_address + offset) = item->valuedouble;
     }
 }
 
-bool jstruct_base::from_json(std::string json)
+bool jstruct_base::from_json(string json)
 {
     if (json.empty()) return false;
 
@@ -372,7 +374,7 @@ bool jstruct_base::from_json(std::string json)
 
 bool jstruct_base::from_json_(void* object)
 {
-    auto data = (std::list<field_info>*)d;
+    auto data = (list<field_info>*)d;
 
     if (nullptr == data)         return false;
     if (nullptr == object)       return false;
@@ -382,7 +384,7 @@ bool jstruct_base::from_json_(void* object)
     {
         auto&               field_information   = *iter;
         void*               field_address       = field_information.address_;
-        std::string         alias               = field_information.alias_;
+        string              alias               = field_information.alias_;
 
         cJSON*              item                = nullptr;
         if (!alias.empty()) item                = cJSON_GetObjectItem((cJSON*)object, alias.c_str());
@@ -410,9 +412,9 @@ bool jstruct_base::from_json_(void* object)
             {
                 if (cJSON_IsArray(item))
                 {
-                    int size = cJSON_GetArraySize(item);
+                    size_t size = cJSON_GetArraySize(item);
 
-                    for (int i = 0; i < size && i < field_information.col_; ++i)
+                    for (auto i = 0u; i < size && i < field_information.col_; ++i)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
@@ -427,7 +429,7 @@ bool jstruct_base::from_json_(void* object)
             {
                 if (cJSON_IsString(item))
                 {
-                    std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(item->valuestring);
+                    wstring ucs2 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(item->valuestring);
 
                     WCHAR* dst = (WCHAR*)field_address;
 
@@ -441,15 +443,15 @@ bool jstruct_base::from_json_(void* object)
             {
                 if (cJSON_IsArray(item))
                 {
-                    int size = cJSON_GetArraySize(item);
+                    size_t size = cJSON_GetArraySize(item);
 
-                    for (auto i = 0; i < field_information.row_ && i < size; ++i)
+                    for (auto i = 0u; i < field_information.row_ && i < size; ++i)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
                         if (cJSON_IsString(arrItem))
                         {
-                            std::wstring ucs2 = std::wstring_convert<std::codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
+                            wstring ucs2 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
 
                             WCHAR *dst = (WCHAR *) field_address + i * field_information.col_;
 
@@ -477,9 +479,9 @@ bool jstruct_base::from_json_(void* object)
             {
                 if (cJSON_IsArray(item))
                 {
-                    int size = cJSON_GetArraySize(item);
+                    size_t size = cJSON_GetArraySize(item);
 
-                    for (int i = 0; i < field_information.col_ && i < size; ++i)
+                    for (auto i = 0u; i < field_information.col_ && i < size; ++i)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
@@ -501,24 +503,27 @@ bool jstruct_base::from_json_(void* object)
     return true;
 }
 
-void jstruct_base::register_field(std::string field_type, std::string field_qualifier, std::string field_name, std::string field_name_alias, void* field_address, void* array_size_field_address, int offset)
+void jstruct_base::register_field(string field_type, string field_qualifier, string field_name, string field_name_alias, void* field_address, void* array_size_field_address, int offset)
 {
     field_info f_info;
+    size_t row = 0, col = 0;
 
-    f_info.type_         = data_type(field_type, f_info);
     f_info.type_name_    = field_type;
     f_info.qualifier_    = field_qualifier;
     f_info.name_         = field_name;
     f_info.alias_        = field_name_alias;
     f_info.address_      = field_address;
     f_info.address_size_ = array_size_field_address;
+    f_info.type_         = data_type(field_type, row, col);
     f_info.offset_       = offset;
+    f_info.row_          = row;
+    f_info.col_          = col;
 
-    ((std::list<field_info>*)d)->push_back(f_info);
+    ((list<field_info>*)d)->push_back(f_info);
 }
 
 jstruct_base::jstruct_base()
-    : d(new std::list<field_info>())
+    : d(new list<field_info>())
 {
     static bool init = false;
 
@@ -526,7 +531,7 @@ jstruct_base::jstruct_base()
     {
         init = true;
 
-        static std::map<int, const char*> field_type_re_str_; // field type regular expression string map
+        static map<int, const char*> field_type_re_str_; // field type regular expression string map
 
         pfield_type_re_str_                   = &field_type_re_str_;
 
@@ -543,11 +548,19 @@ jstruct_base::jstruct_base()
     }
 }
 
+/****************************************************************************
+** initialize d to nullptr to avoid free bad pointer in the destructor function
+** empty implementation is prevent resource transform from other to this
+*****************************************************************************/
 jstruct_base::jstruct_base(const jstruct_base& other)
     : d(nullptr)
 {
 }
 
+/****************************************************************************
+** empty implementation is avoid resource leak in this object
+** empty implementation is prevent resource transform from other to this
+*****************************************************************************/
 const jstruct_base& jstruct_base::operator=(const jstruct_base& other)
 {
     return *this;
@@ -555,6 +568,6 @@ const jstruct_base& jstruct_base::operator=(const jstruct_base& other)
 
 jstruct_base::~jstruct_base()
 {
-    delete ((std::list<field_info>*)d);
+    delete ((list<field_info>*)d);
     d = nullptr;
 }

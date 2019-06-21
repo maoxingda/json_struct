@@ -86,12 +86,12 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <CustomBuild Include="student.json.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --ijsh "%(FullPath)" --ojsh ".\GeneratedFiles\%(Filename).h"</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --h-out --output-path $(ProjectDir)mjst\ --input-file %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\%(Filename).h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --ijsh "%(FullPath)" --ojsh ".\GeneratedFiles\%(Filename).h"</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename);%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --h-out --output-path $(ProjectDir)mjst\ --input-file %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\%(Filename).h;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
     <ClInclude Include="targetver.h" />
   </ItemGroup>
