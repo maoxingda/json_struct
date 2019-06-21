@@ -50,3 +50,4 @@ int main(int argc, char** argv)
 * support derive
 * support constructor function argument
 * support copy constructor
+* support only use pod data type
