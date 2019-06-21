@@ -55,7 +55,7 @@ static std::map<int, const char*>*  perror_msg = nullptr;
 
 static std::string error_msg(std::string msg_id)
 {
-    find_format_all(msg_id, token_finder([](const char& c){return '_' == c;}), const_formatter(" "));
+    replace_all(msg_id, "_", " ");
 
     return msg_id;
 }
@@ -67,7 +67,7 @@ static bool is_user_field(std::string& line)
 
     if (regex_search(line, sm, re))
     {
-        line.replace(sm[1].first, sm[1].second, "");
+        replace_first(line, sm[1], "");
 
         return true;
     }
@@ -581,13 +581,13 @@ static bool is_output_up_to_date(const std::string& in_file_name, const std::str
     return false;
 }
 
-static int parse(std::string in_file_name, std::string out_file_name)
+static int parse(std::string in_file_name, std::string out_file_name, bool always)
 {
     decl_ret;
 
     replace_last(out_file_name, ".json.h", ".h");
 
-    if (is_output_up_to_date(in_file_name, out_file_name))
+    if (!always && is_output_up_to_date(in_file_name, out_file_name))
     {
         std::cout << "output is up to date" << "\n" << std::endl;
 
@@ -626,15 +626,17 @@ int main(int argc, char *argv[])
     {
         decl_ret;
 
+        boost::optional<bool>        always(false);
         boost::optional<std::string> ifname;
         boost::optional<std::string> ofname;
 
         po::options_description desc("usage");
 
         desc.add_options()
-            ("help,h",                     "display this help messages")
-            ("ijsh,i", po::value(&ifname), "set input json struct header file name")
-            ("ojsh,o", po::value(&ofname), "set output json struct header file name")
+            ("help,h",                          "display this help messages")
+            ("always,a",    po::value(&always), "set always output json struct file")
+            ("ijsh,i",      po::value(&ifname), "set input json struct header file name")
+            ("ojsh,o",      po::value(&ofname), "set output json struct header file name")
             ;
 
         po::variables_map vm;
@@ -658,7 +660,7 @@ int main(int argc, char *argv[])
 
         if_err_out_msg_and_ret(no_json_struct_output_file);
 
-        return parse(*ifname, *ofname);
+        return parse(*ifname, *ofname, *always);
     }
     catch (const std::exception& e)
     {
