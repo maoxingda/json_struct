@@ -8,6 +8,7 @@
 #include "GeneratedFiles/student.h"
 
 
+#if 1
 TEST(jstructdemo, int)
 {
     std::fstream in("student.json");
@@ -110,12 +111,15 @@ TEST(jstructdemo, custom)
         EXPECT_EQ(0, wcscmp(L"16",      s.birthday.day));
     }
 }
+#endif // 0
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+#if 1
     testing::InitGoogleTest(&argc, argv);
 
     int result = RUN_ALL_TESTS();
+#endif // 0
 
     std::system("pause");
 

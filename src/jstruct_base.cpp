@@ -374,6 +374,7 @@ bool jstruct_base::from_json_(void* object)
 {
     auto data = (std::list<field_info>*)d;
 
+    if (nullptr == data)         return false;
     if (nullptr == object)       return false;
     if (0       == data->size()) return false;
 
@@ -540,6 +541,16 @@ jstruct_base::jstruct_base()
         field_type_re_str_[enum_custom]       = "struct \\w+";
         field_type_re_str_[enum_custom_array] = "struct \\w+ \\[(\\d+)\\]";
     }
+}
+
+jstruct_base::jstruct_base(const jstruct_base& other)
+    : d(nullptr)
+{
+}
+
+const jstruct_base& jstruct_base::operator=(const jstruct_base& other)
+{
+    return *this;
 }
 
 jstruct_base::~jstruct_base()
