@@ -42,7 +42,6 @@ int main(int argc, char** argv)
 
 ###### TODO
 * serialize c++ struct to json stream
-* #include
 * if the optional field has a value
 * null value
 * derive
