@@ -86,10 +86,10 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <CustomBuild Include="student.json.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --h-out --output-path $(ProjectDir)mjst\ --input-file %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build off --h_out --output_path $(ProjectDir)mjst\ --input_files %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename);%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --h-out --output-path $(ProjectDir)mjst\ --input-file %(FullPath)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build off --h_out --output_path $(ProjectDir)mjst\ --input_files %(FullPath)</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename);%(Outputs)</Outputs>
     </CustomBuild>
