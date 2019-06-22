@@ -292,6 +292,7 @@ static std::string file_base_name(const std::string& file_name)
 
 static void read_file(const std::string& file_name)
 {
+    lines.clear();
     std::ifstream in(file_name);
 
     if (in)
@@ -556,19 +557,16 @@ static bool is_out_of_date(const std::string& i_file_name, const std::string& o_
 {
     path pif(i_file_name), pof(o_file_name);
 
-    try
-    {
-        return last_write_time(pif) > last_write_time(pof);
-    }
-    catch(...)
-    {
-        return true;
-    }
+    return !exists(pof) || last_write_time(pif) > last_write_time(pof);
 }
 
 static void parse(std::string i_file_name, std::string out_path, std::string file_ext, bool always)
 {
+    if ("." == out_path || "./" == out_path || ".\\" == out_path) out_path = path(i_file_name).parent_path().string();
+
     if (!ends_with(out_path, "/") && !ends_with(out_path, "\\")) out_path += "\\";
+
+    if (!exists(path(out_path))) create_directories(path(out_path));
 
     std::string o_file_name = out_path + file_base_name(i_file_name);
 
