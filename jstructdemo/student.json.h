@@ -2,33 +2,44 @@
 #include <jstruct.h>
 
 
-/*bracket indicate optional
-struct struct_name
-{
-    REQUIRED|OPTIONAL                     BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY [ALIAS(alias_name)]                   field_type field_name;
-    REQUIRED|OPTIONAL                     [ALIAS(alias_name)]                   BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;
-    BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY REQUIRED|OPTIONAL                     [ALIAS(alias_name)]                   field_type field_name;
-    BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY [ALIAS(alias_name)]                   REQUIRED|OPTIONAL                     field_type field_name;
-    [ALIAS(alias_name)]                   REQUIRED|OPTIONAL                     BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;
-    [ALIAS(alias_name)]                   BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY REQUIRED|OPTIONAL                     field_type field_name;
-    ...
-};
-*/
+/*
+#pragma once
 
+
+// mandatory qualifier, specify one of them
+#define OPTIONAL
+#define REQUIRED
+
+// mandatory qualifier, specify one of them
+#define USER_T
+#define BOOL_T
+
+#define NUMBER_T
+#define NUMBER_ARRAY_T
+
+#define WCHAR_ARRAY_T
+#define WCHAR_TABLE_T
+
+#define STRUCT_T
+#define STRUCT_ARRAY_T
+
+// optional qualifier
+#define ALIAS(name)
+*/
 struct date
 {
-    REQUIRED BASIC wchar_t year[6];
-    REQUIRED BASIC wchar_t month[4];
-    REQUIRED BASIC wchar_t day[4];
+    REQUIRED WCHAR_ARRAY_T wchar_t year[6];
+    REQUIRED WCHAR_ARRAY_T wchar_t month[4];
+    REQUIRED WCHAR_ARRAY_T wchar_t day[4];
 };
 
 struct student
 {
-    USER                     int        sex;
-    //REQUIRED BASIC ALIAS(id) int        identifier;
-    REQUIRED BASIC           int        identifier;
-    OPTIONAL BASIC           wchar_t    name[32];
-    OPTIONAL BASIC_ARRAY     int        qq[5];
-    OPTIONAL BASIC_ARRAY     wchar_t    email[5][32];
-    REQUIRED CUSTOM          date       birthday;
+    USER_T                   int        sex;
+    //REQUIRED NUMBER_T ALIAS(id) int        identifier;
+    REQUIRED NUMBER_T        int        identifier;
+    OPTIONAL WCHAR_ARRAY_T   wchar_t    name[32];
+    OPTIONAL NUMBER_ARRAY_T  int        qq[5];
+    OPTIONAL WCHAR_TABLE_T   wchar_t    email[5][32];//[
+    REQUIRED STRUCT_T        date       birthday;
 };

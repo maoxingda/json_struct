@@ -29,8 +29,8 @@ enum type
     enum_wchar_array,
     enum_wchar_table,
 
-    enum_custom,
-    enum_custom_array,
+    enum_struct,
+    enum_struct_array,
 };
 
 struct field_info
@@ -53,7 +53,7 @@ static int array_size(const string& field_type)
 {
     static sregex re1 = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
     static sregex re2 = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
-    static sregex re3 = sregex::compile((*pfield_type_re_str_)[enum_custom_array]);
+    static sregex re3 = sregex::compile((*pfield_type_re_str_)[enum_struct_array]);
 
     smatch sm;
 
@@ -121,16 +121,16 @@ static bool is_wchar_table(const string& field_type)
     return regex_match(field_type, re);
 }
 
-static bool is_custom(const string& field_type)
+static bool is_struct(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_custom]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_struct]);
 
     return regex_match(field_type, re);
 }
 
-static bool is_custom_array(const string& field_type)
+static bool is_struct_array(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_custom_array]);
+    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_struct_array]);
 
     return regex_match(field_type, re);
 }
@@ -163,15 +163,15 @@ static type data_type(const string& field_type, size_t& row, size_t& col)
 
         return enum_wchar_table;
     }
-    else if (is_custom(field_type))
+    else if (is_struct(field_type))
     {
-        return enum_custom;
+        return enum_struct;
     }
-    else if (is_custom_array(field_type))
+    else if (is_struct_array(field_type))
     {
         col = array_size(field_type);
 
-        return enum_custom_array;
+        return enum_struct_array;
     }
 
     return enum_none;
@@ -465,7 +465,7 @@ bool jstruct_base::from_json_(void* object)
                 }
             }
             break;
-        case enum_custom:
+        case enum_struct:
             {
                 if (cJSON_IsObject(item))
                 {
@@ -475,7 +475,7 @@ bool jstruct_base::from_json_(void* object)
                 }
             }
             break;
-        case enum_custom_array:
+        case enum_struct_array:
             {
                 if (cJSON_IsArray(item))
                 {
@@ -543,8 +543,8 @@ jstruct_base::jstruct_base()
         field_type_re_str_[enum_wchar_array]  = "wchar_t \\[(\\d+)\\]";
         field_type_re_str_[enum_wchar_table]  = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
 
-        field_type_re_str_[enum_custom]       = "struct \\w+";
-        field_type_re_str_[enum_custom_array] = "struct \\w+ \\[(\\d+)\\]";
+        field_type_re_str_[enum_struct]       = "struct \\w+";
+        field_type_re_str_[enum_struct_array] = "struct \\w+ \\[(\\d+)\\]";
     }
 }
 

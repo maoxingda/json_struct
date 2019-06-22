@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using Microsoft.Win32;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,61 +24,73 @@ namespace jstructtool
 
         public void ProjectItemsEvents_ItemAdded(ProjectItem projectItem)
         {
-            VCFile file = projectItem.Object as VCFile;
-
-            if (null == file) return;
-
-            if (!file.Name.EndsWith(".json.h")) return;
-
-            foreach (VCFileConfiguration fc in (IVCCollection)file.FileConfigurations)
+            try
             {
-                VCCustomBuildTool cbt = fc.Tool as VCCustomBuildTool;
+                VCFile file = projectItem.Object as VCFile;
 
-                if (null != cbt)
+                if (null == file) return;
+
+                if (!file.Name.EndsWith(".json.h")) return;
+
+                foreach (VCFileConfiguration fc in (IVCCollection)file.FileConfigurations)
                 {
-                    cbt.CommandLine = "jstructcompiler --multi_build off --h_out --output_path $(ProjectDir)mjst\\ --input_files %(FullPath)";
-                    cbt.Description = "jstructcompiler%27ing %(Identity)...";
-                    cbt.Outputs     = "$(ProjectDir)mjst\\%(Filename)";
+                    VCCustomBuildTool cbt = fc.Tool as VCCustomBuildTool;
+
+                    if (null != cbt)
+                    {
+                        cbt.CommandLine = "jstructcompiler --multi_build off --h_out --output_path $(ProjectDir)mjst\\ --input_files %(FullPath)";
+                        cbt.Description = "jstructcompiler%27ing %(Identity)...";
+                        cbt.Outputs = "$(ProjectDir)mjst\\%(Filename)";
+                    }
+                }
+
+                int length = 0;
+                using (StreamReader sr = new StreamReader(file.FullPath))
+                {
+                    length = sr.ReadToEnd().Length;
+
+                    sr.Close();
+                }
+
+                if (0 != length) return;
+
+                string qualifier_file_name = "";
+                string qualifier_file_text = "";
+
+                RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config");
+
+                if (null != vs2010)
+                {
+                    qualifier_file_name = vs2010.GetValue("ShellFolder").ToString() + "\\VC\\include\\jqualifier.h";
+
+                    using (StreamReader sr = new StreamReader(qualifier_file_name))
+                    {
+                        qualifier_file_text = sr.ReadToEnd();
+                    }
+
+                    vs2010.Close();
+                }
+
+                using (StreamWriter sw = new StreamWriter(file.FullPath))
+                {
+                    sw.WriteLine("#pragma once");
+                    sw.WriteLine("#include <jstruct.h>");
+
+                    sw.WriteLine();
+                    sw.WriteLine();
+
+                    if (0 != qualifier_file_text.Length)
+                    {
+                        sw.WriteLine("/*");
+                        sw.Write(qualifier_file_text);
+                        sw.WriteLine("*/");
+                    }
+
+                    sw.Close();
                 }
             }
-
-            int length = 0;
-            using (StreamReader sr = new StreamReader(file.FullPath))
+            catch (Exception e)
             {
-                length = sr.ReadToEnd().Length;
-
-                sr.Close();
-            }
-
-            if (0 != length) return;
-
-            using (StreamWriter sw = new StreamWriter(file.FullPath))
-            {
-                sw.WriteLine("#pragma once");
-                sw.WriteLine("#include <jstruct.h>");
-
-                sw.WriteLine();
-                sw.WriteLine();
-
-                sw.WriteLine("/*bracket indicate optional");
-                sw.WriteLine("struct struct_name");
-                sw.WriteLine("{");
-
-                sw.WriteLine("    REQUIRED|OPTIONAL                     BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY [ALIAS(alias_name)]                   field_type field_name;");
-                sw.WriteLine("    REQUIRED|OPTIONAL                     [ALIAS(alias_name)]                   BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;");
-
-                sw.WriteLine("    BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY REQUIRED|OPTIONAL                     [ALIAS(alias_name)]                   field_type field_name;");
-                sw.WriteLine("    BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY [ALIAS(alias_name)]                   REQUIRED|OPTIONAL                     field_type field_name;");
-
-                sw.WriteLine("    [ALIAS(alias_name)]                   REQUIRED|OPTIONAL                     BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY field_type field_name;");
-                sw.WriteLine("    [ALIAS(alias_name)]                   BASIC|BASIC_ARRAY|CUSTOM|CUSTOM_ARRAY REQUIRED|OPTIONAL                     field_type field_name;");
-
-                sw.WriteLine("    ...");
-
-                sw.WriteLine("};");
-                sw.WriteLine("*/");
-
-                sw.Close();
             }
         }
 

@@ -94,7 +94,7 @@ TEST(jstructdemo, wchar_table)
     }
 }
 
-TEST(jstructdemo, custom)
+TEST(jstructdemo, struct)
 {
     std::fstream in("student.json");
 

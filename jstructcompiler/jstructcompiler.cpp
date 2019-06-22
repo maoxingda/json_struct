@@ -85,9 +85,12 @@ static bool is_user_field(std::string& line)
 
 static bool is_field(std::string& line)
 {
-    boost::format fmt("^\\s*(?:(?:(?:%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\))\\s+){2,3})(?:[a-zA-Z_$][a-zA-Z0-9_$]*\\s+){1,2}[a-zA-Z_$][a-zA-Z0-9_$]*(?:\\[\\w+\\]){0,2}\\s*;");
+    boost::format fmt("^\\s*(?:(?:(?:%1%|%2%|%3%|%4%|%5%|%6%|%7%|%8%|%9%\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\))\\s+){2,3})(?:[a-zA-Z_$][a-zA-Z0-9_$]*\\s+){1,2}[a-zA-Z_$][a-zA-Z0-9_$]*(?:\\[\\w+\\]){0,2}\\s*;");
 
-    fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
+    fmt % ESTR(REQUIRED)      % ESTR(OPTIONAL);
+    fmt % ESTR(BOOL_T)        % ESTR(NUMBER_T) % ESTR(NUMBER_ARRAY_T);
+    fmt % ESTR(WCHAR_ARRAY_T) % ESTR(WCHAR_TABLE_T);
+    fmt % ESTR(STRUCT_T)      % ESTR(STRUCT_ARRAY_T);
 
     static sregex re = sregex::compile(fmt.str());
 
@@ -96,24 +99,24 @@ static bool is_field(std::string& line)
 
 static std::string field_qualifier(const std::string& line)
 {
-    smatch      sm1, sm2, sm3;
+    smatch      sm;
     std::string qualifier;
 
     static sregex re1   = sregex::compile((boost::format("(%1%|%2%)\\s+\\w+") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str());
-    static sregex re2   = sregex::compile((boost::format("(%1%|%2%|%3%|%4%)\\s+\\w+") % ESTR(BASIC_ARRAY) % ESTR(CUSTOM_ARRAY) % ESTR(BASIC) % ESTR(CUSTOM)).str());
+    static sregex re2   = sregex::compile((boost::format("(%1%|%2%|%3%|%4%|%5%|%6%|%7%)\\s+\\w+") % ESTR(BOOL_T) % ESTR(NUMBER_T) % ESTR(NUMBER_ARRAY_T) % ESTR(WCHAR_ARRAY_T) % ESTR(WCHAR_TABLE_T) % ESTR(STRUCT_T) % ESTR(STRUCT_ARRAY_T)).str());
     static sregex re3   = sregex::compile((boost::format("(%1%)\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\)\\s+\\w+") % ESTR(ALIAS)).str());
 
-    if (regex_search(line, sm1, re1))
+    if (regex_search(line, sm, re1))
     {
-        qualifier += sm1[1];
+        qualifier += sm[1];
     }
-    if (regex_search(line, sm2, re2))
+    if (regex_search(line, sm, re2))
     {
-        qualifier += sm2[1];
+        qualifier += sm[1];
     }
-    if (regex_search(line, sm3, re3))
+    if (regex_search(line, sm, re3))
     {
-        qualifier += sm3[1];
+        qualifier += sm[1];
     }
 
     return qualifier;
@@ -146,7 +149,7 @@ static std::string qualifier_type(const std::string& full_qualifier)
     std::string     ret;
     static smatch   sm;
 
-    static sregex re = sregex::compile((boost::format("(%1%|%2%|%3%|%4%)") % ESTR(BASIC_ARRAY) % ESTR(CUSTOM_ARRAY) % ESTR(BASIC) % ESTR(CUSTOM)).str());
+    static sregex re = sregex::compile((boost::format("(%1%|%2%|%3%|%4%|%5%|%6%|%7%)") % ESTR(BOOL_T) % ESTR(NUMBER_T) % ESTR(NUMBER_ARRAY_T) % ESTR(WCHAR_ARRAY_T) % ESTR(WCHAR_TABLE_T) % ESTR(STRUCT_T) % ESTR(STRUCT_ARRAY_T)).str());
 
     // if missing
     if (regex_search(full_qualifier, sm, re))
@@ -207,15 +210,18 @@ static void remove_qualifiers(std::string& line)
 {
     smatch sm;
 
-    boost::format fmt("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
+    boost::format fmt("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%|%8%|%9%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
 
-    fmt % ESTR(REQUIRED) % ESTR(OPTIONAL) % ESTR(BASIC) % ESTR(BASIC_ARRAY) % ESTR(CUSTOM) % ESTR(CUSTOM_ARRAY) % ESTR(ALIAS);
+    fmt % ESTR(REQUIRED)      % ESTR(OPTIONAL);
+    fmt % ESTR(BOOL_T)        % ESTR(NUMBER_T) % ESTR(NUMBER_ARRAY_T);
+    fmt % ESTR(WCHAR_ARRAY_T) % ESTR(WCHAR_TABLE_T);
+    fmt % ESTR(STRUCT_T)      % ESTR(STRUCT_ARRAY_T);
 
     static sregex re = sregex::compile(fmt.str());
 
     if (regex_search(line, sm, re))
     {
-        line.replace(sm[1].first, sm[1].second, "");
+        replace_first(line, sm[1], "");
     }
 }
 
@@ -266,8 +272,10 @@ static bool is_in_comment(const std::string& line)
     return false;
 }
 
-static void align(std::string& line1, std::string& line2, const sregex& re)
+static void align(std::string& line1, std::string& line2, const sregex& re, unsigned int call_depth)
 {
+    if (64 < call_depth) return; // avoid stack overflow
+
     smatch sm1;
     smatch sm2;
 
@@ -280,7 +288,7 @@ static void align(std::string& line1, std::string& line2, const sregex& re)
         {
             line1.insert(sm1[1].first - line1.begin(), " ");
 
-            align(line1, line2, re);
+            align(line1, line2, re, call_depth + 1);
         }
     }
 }
@@ -341,6 +349,25 @@ static void read_struct(const std::string& file_name)
     if (!structs.size()) throw std::logic_error("not find struct in '" + file_name + "'");
 }
 
+size_t single_line_comment_offset(const std::string& line)
+{
+    size_t idx1 = line.find("//");
+    size_t idx2 = line.find("/*");
+
+    if (std::string::npos != idx1 && std::string::npos != idx2)
+    {
+        return std::min(idx1, idx2);
+    }
+    else if (std::string::npos == idx1 && std::string::npos == idx2)
+    {
+        return 0;
+    }
+    else
+    {
+        return std::min(idx1, idx2);
+    }
+}
+
 static void read_fields()
 {
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
@@ -374,15 +401,48 @@ static void read_fields()
                 continue;
             }
 
-            if (std::string::npos != f_info.qualifier_.find(ESTR(BASIC_ARRAY))
-                || std::string::npos != f_info.qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            if (std::string::npos != f_info.qualifier_.find(ESTR(NUMBER_ARRAY_T))
+                || std::string::npos != f_info.qualifier_.find(ESTR(WCHAR_ARRAY_T))
+                || std::string::npos != f_info.qualifier_.find(ESTR(STRUCT_ARRAY_T))
+                )
             {
-                 if (std::string::npos == line.find("["))
-                 {
-                     lines.insert(iter2, "    #error expect array field");
+                if (0 == std::count_if(line.begin(), line.begin() + line.find(';'), [](char c) { return '[' == c; }))
+                {
+                    lines.insert(iter2, "    #error expect array field");
 
-                     continue;
-                 }
+                    continue;
+                }
+            }
+            else if (std::string::npos != f_info.qualifier_.find(ESTR(WCHAR_TABLE_T)))
+            {
+                if (2 != std::count_if(line.begin(), line.begin() + line.find(';'), [](char c) { return '[' == c; }))
+                {
+                    lines.insert(iter2, "    #error expect table field");
+
+                    continue;
+                }
+            }
+            else if (std::string::npos != f_info.qualifier_.find(ESTR(BOOL_T)))
+            {
+                static sregex re = sregex::compile("bool\\s+[a-zA-Z_$][a-zA-Z0-9_$]*\\s*;");
+
+                if (!regex_search(line, re))
+                {
+                    lines.insert(iter2, "    #error expect bool field");
+
+                    continue;
+                }
+            }
+            else if (std::string::npos != f_info.qualifier_.find(ESTR(NUMBER_T)))
+            {
+                static sregex re = sregex::compile("(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)\\s+[a-zA-Z_$][a-zA-Z0-9_$]*\\s*;");
+
+                if (!regex_search(line, re))
+                {
+                    lines.insert(iter2, "    #error expect number field");
+
+                    continue;
+                }
             }
 
             iter1->fields_.push_back(f_info);
@@ -390,14 +450,16 @@ static void read_fields()
             remove_qualifiers(line);
 
             // field align
-            if (std::string::npos != f_info.qualifier_.find(ESTR(BASIC_ARRAY))
-                || std::string::npos != f_info.qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            if (std::string::npos != f_info.qualifier_.find(ESTR(NUMBER_ARRAY_T))
+                || std::string::npos != f_info.qualifier_.find(ESTR(WCHAR_TABLE_T))
+                || std::string::npos != f_info.qualifier_.find(ESTR(STRUCT_ARRAY_T))
+                )
             {
                 auto iter3 = lines.insert(iter2, (boost::format("    int %1%_size;") % f_info.name_).str());
 
                 iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
-                align(*iter3, line, sregex::compile((boost::format("\\s+(%1%)") % f_info.name_).str()));
+                align(*iter3, line, sregex::compile((boost::format("\\s+(%1%)") % f_info.name_).str()), 1);
             }
         }
     }
@@ -423,40 +485,64 @@ static void gen_reg_fields_code(const struct_info& st_info, std::list<std::strin
 
         if (std::string::npos != iter->qualifier_.find(ESTR(ALIAS)))
         {
-            if (std::string::npos != iter->qualifier_.find(ESTR(BASIC_ARRAY)))
+            if (std::string::npos != iter->qualifier_.find(ESTR(NUMBER_ARRAY_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_NUMBER_ARRAY_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
             }
-            else if (std::string::npos != iter->qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            else if (std::string::npos != iter->qualifier_.find(ESTR(WCHAR_TABLE_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % ESTR(ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_WCHAR_TABLE_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
             }
-            else if (std::string::npos != iter->qualifier_.find(ESTR(BASIC)))
+            else if (std::string::npos != iter->qualifier_.find(ESTR(STRUCT_ARRAY_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % ESTR(ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_STRUCT_ARRAY_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
             }
-            else if (std::string::npos != iter->qualifier_.find(ESTR(CUSTOM)))
+            else if (std::string::npos != iter->qualifier_.find(ESTR(BOOL_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%_%2%(%3%, %4%, %5%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % ESTR(ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_BOOL_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+            }
+            else if (std::string::npos != iter->qualifier_.find(ESTR(NUMBER_T)))
+            {
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_NUMBER_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+            }
+            else if (std::string::npos != iter->qualifier_.find(ESTR(WCHAR_ARRAY_T)))
+            {
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_WCHAR_ARRAY_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
+            }
+            else if (std::string::npos != iter->qualifier_.find(ESTR(STRUCT_T)))
+            {
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%, %4%);") % ESTR(JSTRUCT_REG_STRUCT_FIELD_ALIAS) % qualifier_required(iter->qualifier_) % iter->name_ % iter->alias_).str());
             }
         }
         else
         {
-            if (std::string::npos != iter->qualifier_.find(ESTR(BASIC_ARRAY)))
+            if (std::string::npos != iter->qualifier_.find(ESTR(NUMBER_ARRAY_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_ARRAY_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_NUMBER_ARRAY_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
             }
-            else if (std::string::npos != iter->qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            else if (std::string::npos != iter->qualifier_.find(ESTR(WCHAR_TABLE_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_ARRAY_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_WCHAR_TABLE_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
             }
-            else if (std::string::npos != iter->qualifier_.find(ESTR(BASIC)))
+            else if (std::string::npos != iter->qualifier_.find(ESTR(STRUCT_ARRAY_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BASIC_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_STRUCT_ARRAY_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
             }
-            else if (std::string::npos != iter->qualifier_.find(ESTR(CUSTOM)))
+            else if (std::string::npos != iter->qualifier_.find(ESTR(BOOL_T)))
             {
-                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_CUSTOM_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_BOOL_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+            }
+            else if (std::string::npos != iter->qualifier_.find(ESTR(NUMBER_T)))
+            {
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_NUMBER_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+            }
+            else if (std::string::npos != iter->qualifier_.find(ESTR(WCHAR_ARRAY_T)))
+            {
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_WCHAR_ARRAY_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
+            }
+            else if (std::string::npos != iter->qualifier_.find(ESTR(STRUCT_T)))
+            {
+                reg_fields_code.push_back((boost::format("        %1%(%2%, %3%);") % ESTR(JSTRUCT_REG_STRUCT_FIELD) % qualifier_required(iter->qualifier_) % iter->name_).str());
             }
         }
     }
@@ -493,7 +579,7 @@ static void align_reg_fields_code(std::list<std::string>& reg_fields_code)
     {
         if (iter2 != max_qualifier_iter)
         {
-            align(*iter2, *max_qualifier_iter, sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str()));
+            align(*iter2, *max_qualifier_iter, sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str()), 1);
         }
     }
 }
@@ -505,7 +591,12 @@ static void gen_init_fields_code(const struct_info& st_info)
         if (iter2->name_.empty())         continue;
         if (2 > iter2->qualifier_.size()) continue;
 
-        if (std::string::npos != iter2->qualifier_.find(ESTR(BASIC)) || std::string::npos != iter2->qualifier_.find(ESTR(BASIC_ARRAY)))
+        if (std::string::npos != iter2->qualifier_.find(ESTR(BOOL_T))
+            || std::string::npos != iter2->qualifier_.find(ESTR(NUMBER_T))
+            || std::string::npos != iter2->qualifier_.find(ESTR(NUMBER_ARRAY_T))
+            || std::string::npos != iter2->qualifier_.find(ESTR(WCHAR_ARRAY_T))
+            || std::string::npos != iter2->qualifier_.find(ESTR(WCHAR_TABLE_T))
+            )
         {
             lines.insert(st_info.iter_struct_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % iter2->name_).str());
         }
