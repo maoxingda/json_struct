@@ -365,13 +365,24 @@ static void read_fields()
 
             if (f_info.name_.empty()) continue;
 
-            if (qualifier_required(line).empty() || qualifier_type(line).empty())
+            if (qualifier_required(f_info.qualifier_).empty() || qualifier_type(f_info.qualifier_).empty())
             {
                 f_info.qualifier_error_ = true;
 
-                iter2->insert(0, error_msg(ESTR(missing_or_repeated_field_qualifier)));
+                lines.insert(iter2, "    #error missing or repeated field qualifier");
 
                 continue;
+            }
+
+            if (std::string::npos != f_info.qualifier_.find(ESTR(BASIC_ARRAY))
+                || std::string::npos != f_info.qualifier_.find(ESTR(CUSTOM_ARRAY)))
+            {
+                 if (std::string::npos == line.find("["))
+                 {
+                     lines.insert(iter2, "    #error expect array field");
+
+                     continue;
+                 }
             }
 
             iter1->fields_.push_back(f_info);
