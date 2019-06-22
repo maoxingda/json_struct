@@ -51,6 +51,13 @@ struct struct_info
 static std::list<std::string>       lines;
 static std::list<struct_info>       structs;
 static std::map<int, const char*>*  perror_msg = nullptr;
+static po::variables_map            options;
+static boost::optional<bool>        multi_build(false);    // concurrent build, use multi-thread
+static boost::optional<bool>        always_build(false);   // ignore file last write time
+static std::vector< std::string >   input_files;
+static boost::optional<std::string> output_path;
+po::options_description             odesc("usage");
+po::positional_options_description  podesc;
 
 static std::string error_msg(std::string msg_id)
 {
@@ -542,7 +549,7 @@ static void write_decl_file(const std::string& o_file_name)
 
 static int write_impl_file(const std::string& o_file_name)
 {
-    throw std::logic_error("not implemented!");
+    throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
 }
 
 static bool is_out_of_date(const std::string& i_file_name, const std::string& o_file_name)
@@ -592,59 +599,101 @@ static void parse(std::string i_file_name, std::string out_path, std::string fil
     }
 }
 
+static void concurrent_parse(const std::vector<std::string>& files, std::string out_path, std::string file_ext, bool always)
+{
+    throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
+}
+
+static std::string cosn(const char* option_long_name, char character)
+{
+    std::string option_name(option_long_name);
+
+    option_name += ",";
+    option_name += character;
+
+    return option_name;
+}
+
+void read_command_line_argument(int argc, char* argv[])
+{
+    std::string onif = cosn(ESTR(input_files), 'i');
+    std::string onop = cosn(ESTR(output_path), 'o');
+    std::string onab = cosn(ESTR(always_build), 'a');
+    std::string onmb = cosn(ESTR(multi_build), 'm');
+
+    odesc.add_options()
+        ("help",                                 "show this text and exit")
+        ("h_out",                                "generate c++ header file")
+        ("cpp_out",                              "generate c++ source file")
+        (onif.c_str(), po::value(&input_files),  "the input files that will be build")
+        (onop.c_str(), po::value(&output_path),  "save generate c++ header or source files path")
+        (onab.c_str(), po::value(&always_build), "is it always build the input files, 1 or 0")
+        (onmb.c_str(), po::value(&multi_build),  "is it always build the input files, 1 or 0")
+        ;
+
+    podesc.add(ESTR(input_files), -1);
+
+    store(po::command_line_parser(argc, argv).options(odesc).positional(podesc).run(), options);
+
+    notify(options);
+}
+
 int main(int argc, char *argv[])
 {
     try
     {
-        boost::optional<bool>        always(false);
-        boost::optional<std::string> input_file;
-        boost::optional<std::string> output_path;
-
-        po::options_description desc("usage");
-
-        desc.add_options()
-            ("help,h",                                      "show this text and exit")
-            ("input-file,i",    po::value(&input_file),     "the input file that will be build")
-            ("output-path,o",   po::value(&output_path),    "set save c++ header or source file path")
-            ("always,a",        po::value(&always),         "is it always build the input file, 1 or 0")
-            ("h-out",                                       "generate c++ header file")
-            ("cpp-out",                                     "generate c++ source file")
-            ;
-
-        po::variables_map options;
-
-        store(parse_command_line(argc, argv, desc), options);
-
-        notify(options);
+        read_command_line_argument(argc, argv);
 
         if (options.count("help"))
         {
-            std::cout << desc << std::endl;
+            std::cout << odesc << std::endl;
 
             return 0;
         }
 
-        if (!input_file)   throw std::logic_error("the required option '--input-file' is missing");
-        if (!output_path)  throw std::logic_error("the required option '--output-path' is missing");
+        if (!input_files.size()) throw std::logic_error("the required option '--input_files' is missing");
+        if (!output_path)        throw std::logic_error("the required option '--output_path' is missing");
 
-        if (!options.count("h-out") && !options.count("cpp-out"))
+        if (!options.count("h_out") && !options.count("cpp_out"))
         {
-            throw std::logic_error("the option '--h-out and --cpp-out' must be given at least one");
-        }
-
-        if (options.count("h-out") && options.count("cpp-out"))
-        {
-            throw std::logic_error("the option '--h-out and --cpp-out' must be given only one");
+            throw std::logic_error("the option '--h_out and --cpp_out' must be given at least one");
         }
 
-        if (options.count("h-out"))
+        if (options.count("h_out") && options.count("cpp_out"))
         {
-            parse(*input_file, *output_path, ".h", *always);
+            throw std::logic_error("the option '--h_out and --cpp_out' must be given only one");
         }
-        else if (options.count("cpp-out"))
+
+        if (options.count("h_out"))
         {
-            parse(*input_file, *output_path, ".cpp", *always);
+            if (*multi_build)
+            {
+                concurrent_parse(input_files, *output_path, ".h", *always_build);
+            }
+            else
+            {
+                BOOST_FOREACH(auto file, input_files)
+                {
+                    parse(file, *output_path, ".h", *always_build);
+                }
+            }
         }
+        else if (options.count("cpp_out"))
+        {
+            if (*multi_build)
+            {
+                concurrent_parse(input_files, *output_path, ".cpp", *always_build);
+            }
+            else
+            {
+                BOOST_FOREACH(auto file, input_files)
+                {
+                    parse(file, *output_path, ".cpp", *always_build);
+                }
+            }
+        }
+
+        return 0;
     }
     catch (const std::exception& e)
     {

@@ -35,7 +35,7 @@ namespace jstructtool
 
                 if (null != cbt)
                 {
-                    cbt.CommandLine = "jstructcompiler --h-out --output-path $(ProjectDir)mjst\\ --input-file %(FullPath)";
+                    cbt.CommandLine = "jstructcompiler --multi_build off --h_out --output_path $(ProjectDir)mjst\\ --input_files %(FullPath)";
                     cbt.Description = "jstructcompiler%27ing %(Identity)...";
                     cbt.Outputs     = "$(ProjectDir)mjst\\%(Filename)";
                 }
