@@ -292,7 +292,6 @@ static std::string file_base_name(const std::string& file_name)
 
 static void read_file(const std::string& file_name)
 {
-    lines.clear();
     std::ifstream in(file_name);
 
     if (in)
@@ -546,11 +545,17 @@ static void write_decl_file(const std::string& o_file_name)
         out << *iter << "\n";
     }
     out.close();
+
+    lines.clear();
+    structs.clear();
 }
 
 static int write_impl_file(const std::string& o_file_name)
 {
     throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
+
+    lines.clear();
+    structs.clear();
 }
 
 static bool is_out_of_date(const std::string& i_file_name, const std::string& o_file_name)
