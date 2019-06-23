@@ -44,6 +44,9 @@
     <ClCompile Include="jstructdemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="test\field_qualifier_test.json.h">
@@ -54,6 +57,9 @@
     </CustomBuild>
     <CustomBuild Include="..\inc\template.json.h">
       <Filter>template</Filter>
+    </CustomBuild>
+    <CustomBuild Include="test\user_comsuption_list.json.h">
+      <Filter>test</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
