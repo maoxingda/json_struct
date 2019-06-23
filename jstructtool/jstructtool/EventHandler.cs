@@ -54,18 +54,18 @@ namespace jstructtool
 
                 if (0 != length) return;
 
-                string qualifier_file_name = "";
-                string qualifier_file_text = "";
+                string template_file_name = "";
+                string template_file_text = "";
 
                 RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config");
 
                 if (null != vs2010)
                 {
-                    qualifier_file_name = vs2010.GetValue("ShellFolder").ToString() + "\\VC\\include\\jqualifier.h";
+                    template_file_name = vs2010.GetValue("ShellFolder").ToString() + "\\VC\\include\\template.json.h";
 
-                    using (StreamReader sr = new StreamReader(qualifier_file_name))
+                    using (StreamReader sr = new StreamReader(template_file_name))
                     {
-                        qualifier_file_text = sr.ReadToEnd();
+                        template_file_text = sr.ReadToEnd();
                     }
 
                     vs2010.Close();
@@ -73,17 +73,9 @@ namespace jstructtool
 
                 using (StreamWriter sw = new StreamWriter(file.FullPath))
                 {
-                    sw.WriteLine("#pragma once");
-                    sw.WriteLine("#include <jstruct.h>");
-
-                    sw.WriteLine();
-                    sw.WriteLine();
-
-                    if (0 != qualifier_file_text.Length)
+                    if (0 != template_file_text.Length)
                     {
-                        sw.WriteLine("/*");
-                        sw.Write(qualifier_file_text);
-                        sw.WriteLine("*/");
+                        sw.Write(template_file_text);
                     }
 
                     sw.Close();

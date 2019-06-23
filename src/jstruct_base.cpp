@@ -10,6 +10,7 @@
 #include <Windows.h>
 #include <algorithm>
 
+#include <boost/format.hpp>
 #include <boost/xpressive/xpressive.hpp>
 
 using namespace boost::xpressive;
@@ -36,9 +37,9 @@ enum type
 struct field_info
 {
     size_t      type_   : 4;    // 15
-    size_t      offset_ : 8;    // 255
     size_t      row_    : 8;    // 255
-    size_t      col_    : 10;   // 1024
+    size_t      col_    : 11;   // 2047
+    size_t      offset_ : 16;   // 65535
 
     void*       address_;       // save derived struct field address
     void*       address_size_;  // save derived struct array size field address
@@ -59,15 +60,27 @@ static int array_size(const string& field_type)
 
     if (regex_match(field_type, sm, re1))
     {
-        return stoi(sm[1]);
+        int size = stoi(sm[1]);
+
+        if ((2 << 10) <= size) throw std::out_of_range((boost::format("bit variable overflow in %1% (%2%)") % __FILE__ % __LINE__).str());
+
+        return size;
     }
     else if (regex_match(field_type, sm, re2))
     {
-        return stoi(sm[1]);
+        int size = stoi(sm[1]);
+
+        if ((2 << 10) <= size) throw std::out_of_range((boost::format("bit variable overflow in %1% (%2%)") % __FILE__ % __LINE__).str());
+
+        return size;
     }
     else if (regex_match(field_type, sm, re3))
     {
-        return stoi(sm[1]);
+        int size = stoi(sm[1]);
+
+        if ((2 << 10) <= size) throw std::out_of_range((boost::format("bit variable overflow in %1% (%2%)") % __FILE__ % __LINE__).str());
+
+        return size;
     }
 
     return 0;
@@ -81,8 +94,14 @@ static void table_size(const string& field_type, size_t& row, size_t& col)
 
     if (regex_match(field_type, sm, re))
     {
-        row = stoi(sm[1]);
-        col = stoi(sm[2]);
+        int r = stoi(sm[1]);
+        int c = stoi(sm[2]);
+
+        if ((2 << 3) <= r)  throw std::out_of_range((boost::format("bit variable overflow in %1% (%2%)") % __FILE__ % __LINE__).str());
+        if ((2 << 10) <= c) throw std::out_of_range((boost::format("bit variable overflow in %1% (%2%)") % __FILE__ % __LINE__).str());
+
+        row = r;
+        col = c;
     }
 }
 
@@ -487,7 +506,7 @@ bool jstruct_base::from_json_(void* object)
 
                         if (cJSON_IsObject(arrItem))
                         {
-                            bool success = ((jstruct_base*)((byte*)field_address + i * field_information.offset_))->from_json_(arrItem);
+                            bool success = ((jstruct_base*)((byte*)field_address + i * 520/*field_information.offset_*/))->from_json_(arrItem);
 
                             if (!success) return false;
                         }
@@ -505,6 +524,8 @@ bool jstruct_base::from_json_(void* object)
 
 void jstruct_base::register_field(string field_type, string field_qualifier, string field_name, string field_name_alias, void* field_address, void* array_size_field_address, int offset)
 {
+    if ((2 << 15) <= offset) throw std::out_of_range((boost::format("bit variable overflow in %1% (%2%)") % __FILE__ % __LINE__).str());
+
     field_info f_info;
     size_t row = 0, col = 0;
 
@@ -537,8 +558,8 @@ jstruct_base::jstruct_base()
 
         field_type_re_str_[enum_bool]         = "bool";
 
-        field_type_re_str_[enum_number]       = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double)";
-        field_type_re_str_[enum_number_array] = "(?:int|unsigned short|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
+        field_type_re_str_[enum_number]       = "(?:short|unsigned short|int|unsigned int|long|unsigned long|__int64|float|double)";
+        field_type_re_str_[enum_number_array] = "(?:short|unsigned short|int|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
 
         field_type_re_str_[enum_wchar_array]  = "wchar_t \\[(\\d+)\\]";
         field_type_re_str_[enum_wchar_table]  = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";

@@ -16,6 +16,9 @@
     <Filter Include="test">
       <UniqueIdentifier>{af4c4708-72ea-49a3-a91f-34b938789566}</UniqueIdentifier>
     </Filter>
+    <Filter Include="template">
+      <UniqueIdentifier>{dba0a55a-5bbd-42e7-bb38-34fbc0214e9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -48,6 +51,9 @@
     </CustomBuild>
     <CustomBuild Include="test\student.json.h">
       <Filter>test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\inc\template.json.h">
+      <Filter>template</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

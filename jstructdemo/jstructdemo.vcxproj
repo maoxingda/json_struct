@@ -84,6 +84,14 @@
     <None Include="test\student.json" />
   </ItemGroup>
   <ItemGroup>
+    <CustomBuild Include="..\inc\template.json.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="test\date.h" />

@@ -454,16 +454,11 @@ static void read_fields()
                 {
                     //lines.insert(iter2, "    #error expect number field");
 
-                    continue;
+                    //continue;
                 }
             }
 
             iter1->fields_.push_back(f_info);
-
-            if (-1 != line.find("birthday"))
-            {
-                int i1=1;
-            }
 
             remove_qualifiers(line);
 
@@ -473,7 +468,9 @@ static void read_fields()
                 || std::string::npos != f_info.qualifier_.find(ESTR(STRUCT_ARRAY_T))
                 )
             {
-                auto iter3 = lines.insert(iter2, (boost::format("    int %1%_size;") % f_info.name_).str());
+                auto iter3 = lines.insert(++iter2, (boost::format("    int %1%_size;") % f_info.name_).str());
+
+                --iter2;
 
                 iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
