@@ -48,3 +48,4 @@ int main(int argc, char** argv)
 * concurrent
 * unit test
 * field type mismatch
+* throw exception in constructor function
