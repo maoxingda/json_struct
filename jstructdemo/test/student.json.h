@@ -1,5 +1,6 @@
 #pragma once
 #include <jstruct.h>
+#include "test/date.h"
 
 
 /*
@@ -26,12 +27,6 @@
 // optional qualifier
 #define ALIAS(name)
 */
-struct date
-{
-    REQUIRED WCHAR_ARRAY_T wchar_t year[6];
-    REQUIRED WCHAR_ARRAY_T wchar_t month[4];
-    REQUIRED WCHAR_ARRAY_T wchar_t day[4];
-};
 
 struct student
 {

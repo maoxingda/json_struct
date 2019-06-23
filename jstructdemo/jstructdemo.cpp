@@ -5,7 +5,8 @@
 //#include <vld.h>
 #include <fstream>
 #include <gtest/gtest.h>
-#include "mjst/student.h"
+#include "mjst/student.json.h"
+#include "mjst/field_qualifier_test.json.h"
 
 
 #define gut
@@ -125,7 +126,10 @@ int _tmain(int argc, _TCHAR* argv[])
     result = RUN_ALL_TESTS();
 #endif // gut
 
-    std::system("pause");
+    if (0 != result)
+    {
+        std::system("pause");
+    }
 
 	return result;
 }

@@ -19,7 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="student.json">
+    <None Include="test\student.json">
       <Filter>test</Filter>
     </None>
   </ItemGroup>
@@ -29,6 +29,9 @@
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="test\date.h">
+      <Filter>test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -40,7 +43,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="student.json.h">
+    <CustomBuild Include="test\field_qualifier_test.json.h">
+      <Filter>test</Filter>
+    </CustomBuild>
+    <CustomBuild Include="test\student.json.h">
       <Filter>test</Filter>
     </CustomBuild>
   </ItemGroup>

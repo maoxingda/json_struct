@@ -54,10 +54,9 @@ static std::map<int, const char*>*  perror_msg = nullptr;
 static po::variables_map            options;
 static boost::optional<bool>        multi_build(false);    // concurrent build, use multi-thread
 static boost::optional<bool>        always_build(false);   // ignore file last write time
-static std::vector< std::string >   input_files;
-static boost::optional<std::string> output_path;
+static boost::optional<std::string> input_file;
+static boost::optional<std::string> output_file;
 po::options_description             odesc("usage");
-po::positional_options_description  podesc;
 
 static std::string error_msg(std::string msg_id)
 {
@@ -71,7 +70,7 @@ static std::string error_msg(std::string msg_id)
 static bool is_user_field(std::string& line)
 {
     static smatch sm;
-    static sregex re = sregex::compile((boost::format("^\\s+(\\b%1%\\b\\s+)\\w+") % ESTR(USER)).str());
+    static sregex re = sregex::compile((boost::format("^\\s+(\\b%1%\\b\\s+)\\w+") % ESTR(USER_T)).str());
 
     if (regex_search(line, sm, re))
     {
@@ -85,12 +84,13 @@ static bool is_user_field(std::string& line)
 
 static bool is_field(std::string& line)
 {
-    boost::format fmt("^\\s*(?:(?:(?:%1%|%2%|%3%|%4%|%5%|%6%|%7%|%8%|%9%\\(\\s*[a-zA-Z_$][a-zA-Z0-9_$]*\\s*\\))\\s+){2,3})(?:[a-zA-Z_$][a-zA-Z0-9_$]*\\s+){1,2}[a-zA-Z_$][a-zA-Z0-9_$]*(?:\\[\\w+\\]){0,2}\\s*;");
+    boost::format fmt("^\\s*(?:(?:%1%|%2%|%3%|%4%|%5%|%6%|%7%|%8%|%9%|%10%)\\s+){2,3}[a-zA-Z_$][a-zA-Z0-9_$]*\\s+[a-zA-Z_$][a-zA-Z0-9_$]*(?:\\[\\w+\\]){0,2}\\s*;");
 
     fmt % ESTR(REQUIRED)      % ESTR(OPTIONAL);
     fmt % ESTR(BOOL_T)        % ESTR(NUMBER_T) % ESTR(NUMBER_ARRAY_T);
     fmt % ESTR(WCHAR_ARRAY_T) % ESTR(WCHAR_TABLE_T);
     fmt % ESTR(STRUCT_T)      % ESTR(STRUCT_ARRAY_T);
+    fmt % ESTR(ALIAS\\([a-zA-Z_$][a-zA-Z0-9_$]*\\));
 
     static sregex re = sregex::compile(fmt.str());
 
@@ -210,12 +210,13 @@ static void remove_qualifiers(std::string& line)
 {
     smatch sm;
 
-    boost::format fmt("(((%1%|%2%|%3%|%4%|%5%|%6%|%7%|%8%|%9%\\(\\s*\\w+\\s*\\))\\s+){2,3})");
+    boost::format fmt("((?:(?:%1%|%2%|%3%|%4%|%5%|%6%|%7%|%8%|%9%|%10%)\\s+){2,3})");
 
     fmt % ESTR(REQUIRED)      % ESTR(OPTIONAL);
     fmt % ESTR(BOOL_T)        % ESTR(NUMBER_T) % ESTR(NUMBER_ARRAY_T);
     fmt % ESTR(WCHAR_ARRAY_T) % ESTR(WCHAR_TABLE_T);
     fmt % ESTR(STRUCT_T)      % ESTR(STRUCT_ARRAY_T);
+    fmt % ESTR(ALIAS\\([a-zA-Z_$][a-zA-Z0-9_$]*\\));
 
     static sregex re = sregex::compile(fmt.str());
 
@@ -225,32 +226,44 @@ static void remove_qualifiers(std::string& line)
     }
 }
 
-static bool is_single_line_comment(std::string line)
+static int is_single_line_comment(std::string line)
 {
-    static sregex single_line_comment_re = sregex::compile("^\\s*//");
+    static sregex re1 = sregex::compile("^\\s*//.*$");
+    static sregex re2 = sregex::compile("^\\s*/\\*.*\\*/$");
 
-    return regex_search(line, single_line_comment_re);
+    if (regex_search(line, re1)) return 1;
+    if (regex_search(line, re2)) return 2;
+
+    return 0;
 }
 
 static bool is_multiline_comment_beg(std::string line)
 {
-    static sregex multiline_comment_beg_re = sregex::compile("^\\s*/\\*");
+    static sregex re = sregex::compile("^\\s*/\\*");
 
-    return regex_search(line, multiline_comment_beg_re);
+    return regex_search(line, re);
 }
 
 static bool is_multiline_comment_end(std::string line)
 {
-    static sregex multiline_comment_end_re = sregex::compile("^\\s*\\*/");
+    static sregex re = sregex::compile("(?:^\\s*\\*/|.*\\*/\\s*)$");
 
-    return regex_search(line, multiline_comment_end_re);
+    return regex_search(line, re);
 }
 
 static bool is_in_comment(const std::string& line)
 {
     static bool comment = false;
 
-    if (is_single_line_comment(line)) return true;
+    int single_line_comment = is_single_line_comment(line);
+
+    if (1 == single_line_comment) return true;
+    if (2 == single_line_comment)
+    {
+        comment = false;
+
+        return true;
+    }
 
     if (is_multiline_comment_beg(line))
     {
@@ -281,12 +294,12 @@ static void align(std::string& line1, std::string& line2, const sregex& re, unsi
 
     if (regex_search(line1, sm1, re) && regex_search(line2, sm2, re))
     {
-        auto offset1 = sm1[1].first - line1.begin();
-        auto offset2 = sm2[1].first - line2.begin();
+        auto offset1 = sm1[1].second - line1.begin();
+        auto offset2 = sm2[1].second - line2.begin();
 
         if (offset1 != offset2)
         {
-            line1.insert(sm1[1].first - line1.begin(), " ");
+            line1.insert(sm1[2].first - line1.begin(), " ");
 
             align(line1, line2, re, call_depth + 1);
         }
@@ -406,7 +419,7 @@ static void read_fields()
                 || std::string::npos != f_info.qualifier_.find(ESTR(STRUCT_ARRAY_T))
                 )
             {
-                if (0 == std::count_if(line.begin(), line.begin() + line.find(';'), [](char c) { return '[' == c; }))
+                if (1 != std::count_if(line.begin(), line.begin() + line.find(';'), [](char c) { return '[' == c; }))
                 {
                     lines.insert(iter2, "    #error expect array field");
 
@@ -439,13 +452,18 @@ static void read_fields()
 
                 if (!regex_search(line, re))
                 {
-                    lines.insert(iter2, "    #error expect number field");
+                    //lines.insert(iter2, "    #error expect number field");
 
                     continue;
                 }
             }
 
             iter1->fields_.push_back(f_info);
+
+            if (-1 != line.find("birthday"))
+            {
+                int i1=1;
+            }
 
             remove_qualifiers(line);
 
@@ -459,7 +477,7 @@ static void read_fields()
 
                 iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
-                align(*iter3, line, sregex::compile((boost::format("\\s+(%1%)") % f_info.name_).str()), 1);
+                align(*iter3, line, sregex::compile((boost::format("([a-zA-Z_$][a-zA-Z0-9_$]*\\s+(%1%))") % f_info.name_).str()), 1);
             }
         }
     }
@@ -579,7 +597,7 @@ static void align_reg_fields_code(std::list<std::string>& reg_fields_code)
     {
         if (iter2 != max_qualifier_iter)
         {
-            align(*iter2, *max_qualifier_iter, sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str()), 1);
+            align(*iter2, *max_qualifier_iter, sregex::compile((boost::format("((%1%|%2%))") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str()), 1);
         }
     }
 }
@@ -667,28 +685,28 @@ static bool is_out_of_date(const std::string& i_file_name, const std::string& o_
     return !exists(pof) || last_write_time(pif) > last_write_time(pof);
 }
 
-static void parse(std::string i_file_name, std::string out_path, std::string file_ext, bool always)
+static void parse(std::string i_file_name, std::string o_file_name, std::string file_ext, bool always)
 {
-    if ("." == out_path || "./" == out_path || ".\\" == out_path) out_path = path(i_file_name).parent_path().string();
+    //if ("." == o_file_name || "./" == o_file_name || ".\\" == o_file_name) o_file_name = path(i_file_name).parent_path().string();
 
-    if (!ends_with(out_path, "/") && !ends_with(out_path, "\\")) out_path += "\\";
+    //if (!ends_with(o_file_name, "/") && !ends_with(o_file_name, "\\")) o_file_name += "\\";
 
-    if (!exists(path(out_path))) create_directories(path(out_path));
+    //if (!exists(path(o_file_name))) create_directories(path(o_file_name));
 
-    std::string o_file_name = out_path + file_base_name(i_file_name);
+    //o_file_name = o_file_name + file_base_name(i_file_name);
 
-    replace_last(o_file_name, ".json", file_ext);
+    //replace_last(o_file_name, ".json", file_ext);
 
-    if (!always && !is_out_of_date(i_file_name, o_file_name))
-    {
-        std::cout << "output is up-to-date" << "\n" << std::endl;
+    //if (!always && !is_out_of_date(i_file_name, o_file_name))
+    //{
+    //    std::cout << "output is up-to-date" << "\n" << std::endl;
 
-        return;
-    }
-    else
-    {
-        std::cout << "output is out-of-date" << "\n" << std::endl;
-    }
+    //    return;
+    //}
+    //else
+    //{
+    //    std::cout << "output is out-of-date" << "\n" << std::endl;
+    //}
 
     read_file(i_file_name);
     read_struct(i_file_name);
@@ -721,24 +739,22 @@ static std::string cosn(const char* option_long_name, char character)
 
 void read_command_line_argument(int argc, char* argv[])
 {
-    std::string onif = cosn(ESTR(input_files), 'i');
-    std::string onop = cosn(ESTR(output_path), 'o');
+    std::string onif = cosn(ESTR(input_file), 'i');
+    std::string onof = cosn(ESTR(output_file), 'o');
     std::string onab = cosn(ESTR(always_build), 'a');
     std::string onmb = cosn(ESTR(multi_build), 'm');
 
     odesc.add_options()
-        ("help",                                 "show this text and exit")
+        ("help,h",                               "show this text and exit")
         ("h_out",                                "generate c++ header file")
         ("cpp_out",                              "generate c++ source file")
-        (onif.c_str(), po::value(&input_files),  "the input files that will be build")
-        (onop.c_str(), po::value(&output_path),  "save generate c++ header or source files path")
-        (onab.c_str(), po::value(&always_build), "is it always build the input files, 1 or 0")
-        (onmb.c_str(), po::value(&multi_build),  "is it always build the input files, 1 or 0")
+        (onif.c_str(), po::value(&input_file),   "the input file that will be build")
+        (onof.c_str(), po::value(&output_file),  "generate c++ header or source file name")
+        (onab.c_str(), po::value(&always_build), "is it always build the input file, 1 or 0")
+        (onmb.c_str(), po::value(&multi_build),  "is it build the input file concurrently, 1 or 0")
         ;
 
-    podesc.add(ESTR(input_files), -1);
-
-    store(po::command_line_parser(argc, argv).options(odesc).positional(podesc).run(), options);
+    store(po::parse_command_line(argc, argv, odesc), options);
 
     notify(options);
 }
@@ -756,8 +772,8 @@ int main(int argc, char *argv[])
             return 0;
         }
 
-        if (!input_files.size()) throw std::logic_error("the required option '--input_files' is missing");
-        if (!output_path)        throw std::logic_error("the required option '--output_path' is missing");
+        if (!input_file)  throw std::logic_error("the required option '--input_file' is missing");
+        if (!output_file) throw std::logic_error("the required option '--output_file' is missing");
 
         if (!options.count("h_out") && !options.count("cpp_out"))
         {
@@ -771,31 +787,11 @@ int main(int argc, char *argv[])
 
         if (options.count("h_out"))
         {
-            if (*multi_build)
-            {
-                concurrent_parse(input_files, *output_path, ".h", *always_build);
-            }
-            else
-            {
-                BOOST_FOREACH(auto file, input_files)
-                {
-                    parse(file, *output_path, ".h", *always_build);
-                }
-            }
+            parse(*input_file, *output_file, ".h", *always_build);
         }
         else if (options.count("cpp_out"))
         {
-            if (*multi_build)
-            {
-                concurrent_parse(input_files, *output_path, ".cpp", *always_build);
-            }
-            else
-            {
-                BOOST_FOREACH(auto file, input_files)
-                {
-                    parse(file, *output_path, ".cpp", *always_build);
-                }
-            }
+            parse(*input_file, *output_file, ".cpp", *always_build);
         }
 
         return 0;

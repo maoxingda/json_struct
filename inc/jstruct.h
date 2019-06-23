@@ -1,3 +1,5 @@
+// see https://github.com/maoxingda/json_struct
+// for updates, documentation, and revision history.
 #pragma once
 #include "jmacro.h"
 #include "jqualifier.h"
@@ -9,6 +11,3 @@
 #else
 #pragma comment(lib, "jstruct.lib")
 #endif // _DEBUG
-
-
-// See https://github.com/maoxingda/json_struct for updates, documentation, and revision history.

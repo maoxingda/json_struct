@@ -81,22 +81,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="student.json" />
+    <None Include="test\student.json" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <CustomBuild Include="student.json.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler -a 1 --multi_build off --h_out --output_path $(ProjectDir)mjst\ --input_files %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename);%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build off --h_out --output_path $(ProjectDir)mjst\ --input_files %(FullPath)</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename);%(Outputs)</Outputs>
-    </CustomBuild>
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="test\date.h" />
+    <CustomBuild Include="test\student.json.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="test\field_qualifier_test.json.h">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="jstructdemo.cpp" />
+    <ClCompile Include="jstructdemo.cpp">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
