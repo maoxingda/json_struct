@@ -2070,24 +2070,20 @@ Please click Finish to exit.
 <Event>
 <Name>On Post Uninstall</Name>
 <Args/>
-<Script>vs2010_install_path = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+<Script>-- delete the file was moved to other path when install
 
-if "" == vs2010_install_path then
-	Dialog.Message("Get vs2010 install path", "Get vs2010 install path failed!", MB_OK, MB_ICONINFORMATION);
-end
+File.Delete(vs2010_path.."\\VC\\lib\\jstruct.lib");
+File.Delete(vs2010_path.."\\VC\\lib\\jstructd.lib");
 
-File.Delete(vs2010_install_path.."\\VC\\lib\\jstruct.lib");
-File.Delete(vs2010_install_path.."\\VC\\lib\\jstructd.lib");
+File.Delete(vs2010_path.."\\VC\\lib\\jstruct.pdb");
+File.Delete(vs2010_path.."\\VC\\lib\\jstructd.pdb");
 
-File.Delete(vs2010_install_path.."\\VC\\lib\\jstruct.pdb");
-File.Delete(vs2010_install_path.."\\VC\\lib\\jstructd.pdb");
+File.Delete(vs2010_path.."\\VC\\include\\jmacro.h");
+File.Delete(vs2010_path.."\\VC\\include\\jstruct.h");
+File.Delete(vs2010_path.."\\VC\\include\\jqualifier.h");
+File.Delete(vs2010_path.."\\VC\\include\\jstruct_base.h");
 
-File.Delete(vs2010_install_path.."\\VC\\include\\jmacro.h");
-File.Delete(vs2010_install_path.."\\VC\\include\\jstruct.h");
-File.Delete(vs2010_install_path.."\\VC\\include\\jqualifier.h");
-File.Delete(vs2010_install_path.."\\VC\\include\\jstruct_base.h");
-
-File.Delete(vs2010_install_path.."\\VC\\bin\\"..SessionVar.Expand("%compiler%"));
+File.Delete(vs2010_path.."\\VC\\bin\\"..SessionVar.Expand("%compiler%"));
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -2249,14 +2245,26 @@ g_HandleSystemReboot();
 <Event>
 <Name>Global Functions</Name>
 <Args/>
-<Script/>
+<Script>-- save microsoft visual studio 2010 installation path
+
+vs2010_path = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+</Script>
 <BookMarks count="0">
 </BookMarks>
 </Event>
 <Event>
 <Name>On Startup</Name>
 <Args/>
-<Script/>
+<Script>-- if microsoft visual studio 2010 was not installed, show message for user and exit installation
+
+if "" == vs2010_path then
+
+	Dialog.Message("Get vs2010 installation path failed", "Please install the microsoft visual studio 2010 firstly!", MB_OK, MB_ICONINFORMATION);
+
+	Application.Exit();
+	
+end
+</Script>
 <BookMarks count="0">
 </BookMarks>
 </Event>
@@ -2278,21 +2286,19 @@ g_HandleSystemReboot();
 <Event>
 <Name>On Post Install</Name>
 <Args/>
-<Script>vs2010_install_path = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+<Script>-- move files to microsoft visual studio 2010 installation path
 
-if "" == vs2010_install_path then
-	Dialog.Message("Get vs2010 install path", "Get vs2010 install path failed!", MB_OK, MB_ICONINFORMATION);
-end
-
-File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.lib", vs2010_install_path.."\\VC\\lib\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.pdb", vs2010_install_path.."\\VC\\lib\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.h", vs2010_install_path.."\\VC\\include\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\"..SessionVar.Expand("%compiler%"), vs2010_install_path.."\\VC\\bin\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.lib", vs2010_path.."\\VC\\lib\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.pdb", vs2010_path.."\\VC\\lib\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.h", vs2010_path.."\\VC\\include\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\"..SessionVar.Expand("%compiler%"), vs2010_path.."\\VC\\bin\\");
 
 File.Delete(SessionVar.Expand("%AppFolder%").."\\lib");
 File.Delete(SessionVar.Expand("%AppFolder%").."\\include");
 
---File.OpenURL(SessionVar.Expand("%github_address%"), SW_MAXIMIZE);
+-- open json struct project website
+
+File.OpenURL(SessionVar.Expand("%github_address%"), SW_MAXIMIZE);
 </Script>
 <BookMarks count="0">
 </BookMarks>
