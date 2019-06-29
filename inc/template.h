@@ -1,7 +1,11 @@
+// [assembly: Guid("3f54dc6b-a5e8-424f-8ace-f0cb67196ddd")] warning! do not delete this line
 #pragma once
 #include <jstruct.h>
 
 
+/************************************************************************/
+/* this is an example struct, you can delete
+/************************************************************************/
 template <typename user_t
     , typename number_t
     , typename struct_t>

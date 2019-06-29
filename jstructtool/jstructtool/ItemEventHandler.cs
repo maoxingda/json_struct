@@ -10,9 +10,9 @@ using Microsoft.VisualStudio.VCProjectEngine;
 
 namespace jstructtool
 {
-    public class EventHandler
+    public class ItemEventHandler
     {
-        public EventHandler(DTE2 applicationObject)
+        public ItemEventHandler(DTE2 applicationObject)
         {
             _applicationObject  = applicationObject;
 
@@ -30,7 +30,10 @@ namespace jstructtool
 
                 if (null == file) return;
 
-                if (!file.Name.EndsWith(".json.h")) return;
+                using (StreamReader sr = new StreamReader(file.FullPath))
+                {
+                    if (!sr.ReadLine().Contains("// [assembly: Guid(\"3f54dc6b-a5e8-424f-8ace-f0cb67196ddd\")]")) return;
+                }
 
                 foreach (VCFileConfiguration fc in (IVCCollection)file.FileConfigurations)
                 {
@@ -42,43 +45,6 @@ namespace jstructtool
                         cbt.Description = "jstructcompiler%27ing %(Identity)...";
                         cbt.Outputs = "$(ProjectDir)mjst\\%(Filename).h";
                     }
-                }
-
-                int length = 0;
-                using (StreamReader sr = new StreamReader(file.FullPath))
-                {
-                    length = sr.ReadToEnd().Length;
-
-                    sr.Close();
-                }
-
-                if (0 != length) return;
-
-                string template_file_name = "";
-                string template_file_text = "";
-
-                RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config");
-
-                if (null != vs2010)
-                {
-                    template_file_name = vs2010.GetValue("ShellFolder").ToString() + "\\VC\\include\\template.json.h";
-
-                    using (StreamReader sr = new StreamReader(template_file_name))
-                    {
-                        template_file_text = sr.ReadToEnd();
-                    }
-
-                    vs2010.Close();
-                }
-
-                using (StreamWriter sw = new StreamWriter(file.FullPath))
-                {
-                    if (0 != template_file_text.Length)
-                    {
-                        sw.Write(template_file_text);
-                    }
-
-                    sw.Close();
                 }
             }
             catch (Exception e)
