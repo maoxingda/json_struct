@@ -51,3 +51,4 @@ int main(int argc, char** argv)
 * unit test
 * field type mismatch
 * throw exception in constructor function
+* delete intermediate files
