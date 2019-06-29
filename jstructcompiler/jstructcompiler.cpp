@@ -17,7 +17,7 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#define compiler_version "V1.0.0"
+#define compiler_version "V1.0.1"
 
 // {F960C1BA-33DE-485A-A6F7-5BBB3FB5C4DC}
 DEFINE_GUID(VSIX_ID,
