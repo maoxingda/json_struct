@@ -483,7 +483,7 @@ static void read_fields()
 static void gen_warning_code(std::ofstream& out)
 {
     out << "/****************************************************************************" << "\n";
-    out << "** register struct field code from reading C++ file '" << file_name(*input_file) << "\n";
+    out << "** register struct field code from reading C++ file '" << file_name(*input_file) << "'\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
     out << "**      by: the json struct compiler version " << compiler_version << "\n";
