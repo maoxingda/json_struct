@@ -3,7 +3,7 @@
 ## usage
 1. install jstructtool.exe
 
-2. add new item to microsoft visual studio vc++ project, item name pattern is ****.json.h***
+2. add new item to microsoft visual studio vc++ project by wizard
 
 3. declare struct, create struct object instance and call member function ***from_json***, so that's all
 
