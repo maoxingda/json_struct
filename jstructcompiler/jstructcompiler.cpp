@@ -306,9 +306,9 @@ static void align(std::string& line1, std::string& line2, const sregex& re, unsi
     }
 }
 
-static std::string file_base_name(const std::string& file_name)
+static std::string file_name(const std::string& file_name)
 {
-    return path(file_name).stem().string();
+    return path(file_name).filename().string();
 }
 
 static void read_file(const std::string& file_name)
@@ -480,10 +480,10 @@ static void read_fields()
     }
 }
 
-static void gen_warning_code(std::ofstream& out, const std::string& o_file_name)
+static void gen_warning_code(std::ofstream& out)
 {
     out << "/****************************************************************************" << "\n";
-    out << "** register struct field code from reading C++ file '" << file_base_name(o_file_name) << ".json.h'" << "\n";
+    out << "** register struct field code from reading C++ file '" << file_name(*input_file) << "\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
     out << "**      by: the json struct compiler version " << compiler_version << "\n";
@@ -656,7 +656,7 @@ static void write_decl_file(const std::string& o_file_name)
     }
 
     // save
-    gen_warning_code(out, o_file_name);
+    gen_warning_code(out);
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
         out << *iter << "\n";
