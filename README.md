@@ -4,6 +4,8 @@
 1. install jstructtool.exe
 
 2. add new item to microsoft visual studio vc++ project by wizard
+![Image](img/addnewitem.png)
+![Image](img/item.png)
 
 3. declare struct, create struct object instance and call member function ***from_json***, so that's all
 
