@@ -178,6 +178,114 @@ static type data_type(const string& field_type, size_t& row, size_t& col)
     return enum_none;
 }
 
+static cJSON* to_number(const string& field_type, const string& field_name, void* field_address, cJSON* object)
+{
+    if (typeid(int).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(int*)field_address);
+    }
+    else if (typeid(unsigned int).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(unsigned int*)field_address);
+    }
+    else if (typeid(__int64).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(__int64*)field_address);
+    }
+    else if (typeid(long).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(long*)field_address);
+    }
+    else if (typeid(unsigned short).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(unsigned short*)field_address);
+    }
+    else if (typeid(unsigned long).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(unsigned long*)field_address);
+    }
+    else if (typeid(float).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(float*)field_address);
+    }
+    else if (typeid(double).name() == field_type)
+    {
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(double*)field_address);
+    }
+
+    return nullptr;
+}
+
+static bool to_number_array(const string& field_type, void* field_address, cJSON* array, int offset)
+{
+    if (std::string::npos != string(field_type).find("int"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((int*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("unsigned int"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((unsigned int*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("__int64"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((__int64*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("long"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((long*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("unsigned short"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((unsigned short*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("unsigned long"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((unsigned long*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("float"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((float*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+    else if (std::string::npos != string(field_type).find("double"))
+    {
+        cJSON* item = cJSON_CreateNumber(*((double*)field_address + offset));
+
+        if (nullptr == item) return false;
+
+        cJSON_AddItemToArray(array, item);
+    }
+
+    return true;
+}
+
 static void from_number(const string& field_type, void* field_address, cJSON* item)
 {
     if (typeid(int).name() == field_type)
@@ -360,6 +468,196 @@ static void from_number_array(const string& field_type, void* field_address, cJS
     }
 }
 
+std::string jstruct_base::to_json()
+{
+    bool success = true;
+
+    cJSON* object = (cJSON*)to_json_(success);
+
+    if (!success)
+    {
+        cJSON_Delete(object);
+
+        return "";
+    }
+
+    throw std::logic_error("delete memory allocated by function cJSON_PrintUnformatted");
+
+    return cJSON_PrintUnformatted(object);
+}
+
+void* jstruct_base::to_json_(bool& success)
+{
+    auto data = (list<field_info>*)d;
+
+    if (nullptr == data)         return nullptr;
+    if (0       == data->size()) return nullptr;
+
+    cJSON* object = cJSON_CreateObject();
+
+    if (nullptr == object)
+    {
+        success = false;
+
+        return nullptr;
+    }
+
+    for (auto iter = data->begin(); iter != data->end(); ++iter)
+    {
+        auto&  field_information = *iter;
+        void*  field_address     = field_information.address_;
+        string field_name        = field_information.alias_.empty() ? field_information.name_.c_str() : field_information.alias_.c_str();
+
+        switch (field_information.type_)
+        {
+        case enum_bool:
+            {
+                cJSON* item = cJSON_AddBoolToObject(object, field_name.c_str(), *(bool*)field_address);
+
+                if (nullptr == item)
+                {
+                    success = false;
+
+                    return nullptr;
+                }
+            }
+            break;
+        case enum_number:
+            {
+                cJSON* item = to_number(field_information.type_name_, field_name, field_address, object);
+
+                if (nullptr == item)
+                {
+                    success = false;
+
+                    return nullptr;
+                }
+            }
+            break;
+        case enum_number_array:
+            {
+                int size = *(int*)field_information.address_size_;
+
+                cJSON* array = cJSON_CreateArray();
+
+                if (nullptr == array)
+                {
+                    success = false;
+
+                    return nullptr;
+                }
+
+                for (auto i = 0; i < size; ++i)
+                {
+                    bool success = to_number_array(field_information.type_name_, field_address, array, i * field_information.offset_);
+
+                    if (!success)
+                    {
+                        success = false;
+
+                        return nullptr;
+                    }
+                }
+
+                cJSON_AddItemToObject(object, field_name.c_str(), array);
+            }
+            break;
+        case enum_wchar_array:
+            {
+                string utf8 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().to_bytes((wchar_t*)field_address);
+
+                cJSON* item = cJSON_AddStringToObject(object, field_name.c_str(), utf8.c_str());
+
+                if (nullptr == item)
+                {
+                    success = false;
+
+                    return nullptr;
+                }
+            }
+            break;
+        case enum_wchar_table:
+            {
+                int size = *(int*)field_information.address_size_;
+
+                cJSON* array = cJSON_CreateArray();
+
+                if (nullptr == array)
+                {
+                    success = false;
+
+                    return nullptr;
+                }
+
+                for (auto i = 0; i < size; ++i)
+                {
+                    string utf8 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().to_bytes((wchar_t*)field_address + i * field_information.offset_);
+
+                    cJSON* item = cJSON_CreateString(utf8.c_str());
+
+                    if (nullptr == item)
+                    {
+                        success = false;
+
+                        return nullptr;
+                    }
+
+                    cJSON_AddItemToArray(array, item);
+                }
+            }
+            break;
+        case enum_struct:
+            {
+                bool subsuccess = true;
+
+                cJSON* subobject = (cJSON*)((jstruct_base*)field_address)->to_json_(subsuccess);
+
+                if (!subsuccess)
+                {
+                    cJSON_Delete(subobject);
+
+                    return nullptr;
+                }
+
+                cJSON_AddItemToObject(object, field_name.c_str(), subobject);
+            }
+            break;
+        case enum_struct_array:
+            {
+                int size = *(int*)field_information.address_size_;
+
+                cJSON* array = cJSON_CreateArray();
+
+                if (nullptr == array)
+                {
+                    success = false;
+
+                    return nullptr;
+                }
+
+                for (auto i = 0; i < size; ++i)
+                {
+                    bool subsuccess = true;
+
+                    cJSON* subobject = (cJSON*)((jstruct_base*)field_address + i * field_information.offset_)->to_json_(subsuccess);
+
+                    if (!subsuccess)
+                    {
+                        cJSON_Delete(subobject);
+
+                        return nullptr;
+                    }
+
+                    cJSON_AddItemToObject(object, field_name.c_str(), subobject);
+                }
+            }
+            break;
+        }
+    }
+
+    return object;
+}
+
 bool jstruct_base::from_json(string json)
 {
     if (json.empty()) return false;
@@ -470,7 +768,7 @@ bool jstruct_base::from_json_(void* object)
             {
                 if (cJSON_IsObject(item))
                 {
-                    bool success = ((jstruct_base *)field_address)->from_json_(item);
+                    bool success = ((jstruct_base*)field_address)->from_json_(item);
 
                     if (!success) return false;
                 }

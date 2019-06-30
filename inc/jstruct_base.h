@@ -14,10 +14,12 @@ public:
     const jstruct_base& operator=(const jstruct_base& other);
     ~jstruct_base();
 
+    string to_json();
     bool from_json(string);
 
 private:
     bool from_json_(void*);
+    void* to_json_(bool&);
 
 protected:
     void register_field(string, string, string, string, void*, void*, int);

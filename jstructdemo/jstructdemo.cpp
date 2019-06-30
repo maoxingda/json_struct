@@ -5,8 +5,8 @@
 //#include <vld.h>
 #include <fstream>
 #include <gtest/gtest.h>
-#include "mjst/student.json.h"
-#include "mjst/field_qualifier_test.json.h"
+#include "mjst/json_student.h"
+#include "mjst/json_field_qualifier_test.h"
 
 
 #define gut
@@ -31,6 +31,10 @@ TEST(jstructdemo, int)
         EXPECT_EQ(1,    s.sex);
         EXPECT_EQ(1001, s.identifier);
         //EXPECT_EQ(1001, s.identifier);
+
+        std::string json = s.to_json();
+
+        wstring ucs2 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(json.c_str());
     }
 }
 

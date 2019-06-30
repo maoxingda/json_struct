@@ -1,32 +1,8 @@
+// [assembly: Guid("3f54dc6b-a5e8-424f-8ace-f0cb67196ddd")] warning! do not delete this line
 #pragma once
 #include <jstruct.h>
-#include "test/date.h"
+#include "mjst/json_date.h"
 
-
-/*
-#pragma once
-
-
-// mandatory qualifier, specify one of them
-#define OPTIONAL
-#define REQUIRED
-
-// mandatory qualifier, specify one of them
-#define USER_T
-#define BOOL_T
-
-#define NUMBER_T
-#define NUMBER_ARRAY_T
-
-#define WCHAR_ARRAY_T
-#define WCHAR_TABLE_T
-
-#define STRUCT_T
-#define STRUCT_ARRAY_T
-
-// optional qualifier
-#define ALIAS(name)
-*/
 
 struct student
 {

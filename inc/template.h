@@ -23,3 +23,5 @@ struct struct_name
     REQUIRED STRUCT_T       struct_t    struct_field;               // user custom defined struct
     REQUIRED STRUCT_ARRAY_T struct_t    struct_array_field[2];
 };
+
+// TODO: Add your struct declaration code here

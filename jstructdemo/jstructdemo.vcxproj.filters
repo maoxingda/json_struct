@@ -16,9 +16,6 @@
     <Filter Include="test">
       <UniqueIdentifier>{af4c4708-72ea-49a3-a91f-34b938789566}</UniqueIdentifier>
     </Filter>
-    <Filter Include="template">
-      <UniqueIdentifier>{dba0a55a-5bbd-42e7-bb38-34fbc0214e9b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -33,9 +30,6 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="test\date.h">
-      <Filter>test</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -44,21 +38,15 @@
     <ClCompile Include="jstructdemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="test\field_qualifier_test.json.h">
+    <CustomBuild Include="test\date.h">
       <Filter>test</Filter>
     </CustomBuild>
-    <CustomBuild Include="test\student.json.h">
+    <CustomBuild Include="test\student1.h">
       <Filter>test</Filter>
     </CustomBuild>
-    <CustomBuild Include="..\inc\template.json.h">
-      <Filter>template</Filter>
-    </CustomBuild>
-    <CustomBuild Include="test\user_comsuption_list.json.h">
+    <CustomBuild Include="test\field_qualifier_test.h">
       <Filter>test</Filter>
     </CustomBuild>
   </ItemGroup>
