@@ -29,7 +29,7 @@ namespace jstructwizd
 
             if (null != vs2010)
             {
-                template_file_name_src = vs2010.GetValue("ShellFolder").ToString() + "VC\\include\\template.h";
+                template_file_name_src = vs2010.GetValue("ShellFolder").ToString() + "VC\\include\\template.jst";
 
                 vs2010.Close();
             }
@@ -42,7 +42,7 @@ namespace jstructwizd
 
                 foreach (VCFile firstFile in filter.Files as IVCCollection)
                 {
-                    template_file_name_dst = firstFile.FullPath.Substring(0, firstFile.FullPath.LastIndexOf("\\") + 1) + "template.h";
+                    template_file_name_dst = firstFile.FullPath.Substring(0, firstFile.FullPath.LastIndexOf("\\") + 1) + "template.jst";
 
                     break;
                 }
@@ -53,7 +53,7 @@ namespace jstructwizd
 
                     if (null == proj) return;
 
-                    template_file_name_dst = proj.ProjectDirectory + "template.h";
+                    template_file_name_dst = proj.ProjectDirectory + "template.jst";
                 }
 
                 File.Copy(template_file_name_src, template_file_name_dst);
