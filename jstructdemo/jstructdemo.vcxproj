@@ -100,7 +100,7 @@
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="test\student1.h">
+    <CustomBuild Include="test\student.h">
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>

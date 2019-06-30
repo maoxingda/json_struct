@@ -468,22 +468,26 @@ static void from_number_array(const string& field_type, void* field_address, cJS
     }
 }
 
-std::string jstruct_base::to_json()
+string jstruct_base::to_json()
 {
+    string json;
     bool success = true;
 
     cJSON* object = (cJSON*)to_json_(success);
 
     if (!success)
     {
-        cJSON_Delete(object);
-
-        return "";
+        return json;
     }
 
-    throw std::logic_error("delete memory allocated by function cJSON_PrintUnformatted");
+    char* s = cJSON_PrintUnformatted(object);
 
-    return cJSON_PrintUnformatted(object);
+    json = s;
+
+    delete s;
+    cJSON_Delete(object);
+
+    return json;
 }
 
 void* jstruct_base::to_json_(bool& success)

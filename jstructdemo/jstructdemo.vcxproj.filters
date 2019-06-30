@@ -43,10 +43,10 @@
     <CustomBuild Include="test\date.h">
       <Filter>test</Filter>
     </CustomBuild>
-    <CustomBuild Include="test\student1.h">
+    <CustomBuild Include="test\field_qualifier_test.h">
       <Filter>test</Filter>
     </CustomBuild>
-    <CustomBuild Include="test\field_qualifier_test.h">
+    <CustomBuild Include="test\student.h">
       <Filter>test</Filter>
     </CustomBuild>
   </ItemGroup>
