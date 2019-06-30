@@ -41,9 +41,9 @@ namespace jstructtool
 
                     if (null != cbt)
                     {
-                        cbt.CommandLine = "jstructcompiler --multi_build=off --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\json_%(Filename).h\"";
+                        cbt.CommandLine = "jstructcompiler --multi_build=off --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
                         cbt.Description = "jstructcompiler%27ing %(Identity)...";
-                        cbt.Outputs = "$(ProjectDir)mjst\\json_%(Filename).h";
+                        cbt.Outputs = "$(ProjectDir)mjst\\%(Filename).h";
                     }
                 }
             }

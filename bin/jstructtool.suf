@@ -2375,6 +2375,7 @@ end
 File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.lib", vs2010_path.."\\VC\\lib\\");
 File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.pdb", vs2010_path.."\\VC\\lib\\");
 File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.h", vs2010_path.."\\VC\\include\\");
+File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.jst", vs2010_path.."\\VC\\include\\");
 File.Move(SessionVar.Expand("%AppFolder%").."\\"..SessionVar.Expand("%compiler%"), vs2010_path.."\\VC\\bin\\");
 
 -- File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.dll", vs2010_path.."\\VC\\vcprojectitems\\");
@@ -2505,7 +2506,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>jstructtool.exe</Filename>
+<Filename>jstructtool-1.0.2.exe</Filename>
 <OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>
