@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 2. not support - basic_data_type var_name([array_size]){2,} **other than** wchar_t[row][col]
 3. not support - custom_type var_name([array_size]){2,}
 4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
-5. gtest has memory leak
+5. gtest has memory leak itself
 
 ###### TODO
 * serialize c++ struct to json stream
