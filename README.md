@@ -52,4 +52,5 @@ int main(int argc, char** argv)
 * field type mismatch
 * throw exception in constructor function
 * delete intermediate files
-* addd new item wizard name and location field
+* add new item wizard name and location field
+* project dependencys
