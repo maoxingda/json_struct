@@ -1306,269 +1306,7 @@ end
 <LFCmdLineOverride>0</LFCmdLineOverride>
 <LFWriteMode>0</LFWriteMode>
 <LFActionDetailLevel>1</LFActionDetailLevel>
-<BeforeScreens>
-<Screen>
-<Type>100</Type>
-<Name>Welcome to Uninstall</Name>
-<BannerStyle>1</BannerStyle>
-<TemplateName>Welcome to Uninstall</TemplateName>
-<OverrideProjTheme>0</OverrideProjTheme>
-<StyleData>
-<CstClrs>0</CstClrs>
-<TBBG format="hex">ffffff</TBBG>
-<BDYBG format="hex">ece9d8</BDYBG>
-<FTBG format="hex">ece9d8</FTBG>
-<TBTXT format="hex">000000</TBTXT>
-<BDYTXT format="hex">000000</BDYTXT>
-<CBG format="hex">ffffff</CBG>
-<C3DFACE format="hex">ece9d8</C3DFACE>
-<C3DHLT format="hex">ece9d8</C3DHLT>
-<C3DLIT format="hex">ffffff</C3DLIT>
-<C3DSH format="hex">aca899</C3DSH>
-<CBTNTXT format="hex">000000</CBTNTXT>
-<CTEXT format="hex">000000</CTEXT>
-<CDISTXT format="hex">aca899</CDISTXT>
-<CPRGRS format="hex">316ac5</CPRGRS>
-<C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>Default_Top_Banner.jpg</TBIMG>
-<SBIMG>Default_Side_Banner.jpg</SBIMG>
-<BDIMG/>
-<BDFILL>0</BDFILL>
-<HDSEP>1</HDSEP>
-<FTSEP>1</FTSEP>
-<CstFnts>0</CstFnts>
-<Fonts>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>700</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>700</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-24</Height>
-<Weight>700</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>400</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>400</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-</Fonts>
-<CAOff>
-<TP>0</TP>
-<L>15</L>
-<T>15</T>
-<R>15</R>
-<B>15</B>
-</CAOff>
-<CAOff>
-<TP>1</TP>
-<L>15</L>
-<T>15</T>
-<R>15</R>
-<B>15</B>
-</CAOff>
-<CAOff>
-<TP>2</TP>
-<L>15</L>
-<T>15</T>
-<R>15</R>
-<B>15</B>
-</CAOff>
-<TBTXTX>10</TBTXTX>
-<TBTXTY>10</TBTXTY>
-<ScreenW>497</ScreenW>
-<ScreenH>362</ScreenH>
-</StyleData>
-<Events>
-<Event>
-<Name>On Preload</Name>
-<Args/>
-<Script>-- These actions are performed before the screen is shown.
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Back</Name>
-<Args/>
-<Script>-- These actions are performed when the Back button is clicked.
-
--- go back to the previous screen
-Screen.Back();
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Next</Name>
-<Args/>
-<Script>-- These actions are performed when the Next button is clicked.
-
--- advance to the next screen
-Screen.Next();
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Cancel</Name>
-<Args/>
-<Script>-- These actions are performed when the Cancel button is clicked.
-
--- from _SUF70_Global_Functions.lua:
--- ask user if they're sure they want to exit
-if g_ConfirmSetupAbort() then
-	Application.Exit(EXIT_REASON_USER_ABORTED);
-end
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Help</Name>
-<Args/>
-<Script>-- These actions are performed when the Help button is clicked.
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Ctrl Message</Name>
-<Args>number e_CtrlID, number e_MsgID, table e_Details</Args>
-<Script>-- These actions are triggered by the controls on the screen.
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-</Events>
-<Controls>
-<Control>
-<Type>1</Type>
-<ID>103</ID>
-<Visible>0</Visible>
-<Enabled>0</Enabled>
-<TabOrder>75</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>1</Type>
-<ID>101</ID>
-<Visible>1</Visible>
-<Enabled>0</Enabled>
-<TabOrder>76</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>1</Type>
-<ID>100</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>-10</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>1</Type>
-<ID>102</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>-9</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>2</Type>
-<ID>200</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>1</TabOrder>
-<IsHeading>0</IsHeading>
-</Control>
-<Control>
-<Type>2</Type>
-<ID>300</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>0</TabOrder>
-<IsHeading>1</IsHeading>
-</Control>
-</Controls>
-<Languages>
-<SUF70Messages>
-<Language>
-<Name>English</Name>
-<Default>1</Default>
-<Primary>9</Primary>
-<Secondary>
-<ID>1</ID>
-<ID>2</ID>
-<ID>3</ID>
-<ID>4</ID>
-<ID>5</ID>
-<ID>6</ID>
-<ID>7</ID>
-<ID>8</ID>
-<ID>9</ID>
-<ID>10</ID>
-<ID>11</ID>
-<ID>12</ID>
-<ID>13</ID>
-</Secondary>
-</Language>
-<Messages>
-<IDS_WINDOW_TITLE>%ProductName% Uninstaller</IDS_WINDOW_TITLE>
-<IDS_HEADER_TEXT>Welcome</IDS_HEADER_TEXT>
-<IDS_SUBHEADER_TEXT>Welcome to the uninstaller for %ProductName% %ProductVer%</IDS_SUBHEADER_TEXT>
-<IDS_CTRL_BUTTON_NEXT>&amp;Next &gt;</IDS_CTRL_BUTTON_NEXT>
-<IDS_CTRL_BUTTON_BACK>&lt; &amp;Back</IDS_CTRL_BUTTON_BACK>
-<IDS_CTRL_BUTTON_CANCEL>&amp;Cancel</IDS_CTRL_BUTTON_CANCEL>
-<IDS_CTRL_BUTTON_HELP>&amp;Help</IDS_CTRL_BUTTON_HELP>
-<IDS_CTRL_STATICTEXT_BODY>This program will uninstall %ProductName% %ProductVer%.
-
-If %ProductName% is currently running, please close it before proceeding with the uninstallation.
-
-Otherwise, click Next to continue.
-</IDS_CTRL_STATICTEXT_BODY>
-<IDS_CTRL_HEADINGTEXT_BODY>Uninstall %ProductName%</IDS_CTRL_HEADINGTEXT_BODY>
-</Messages>
-</SUF70Messages>
-</Languages>
-</Screen>
-</BeforeScreens>
+<BeforeScreens/>
 <DuringInstScreenData>
 <ShowProgress>1</ShowProgress>
 <Screens>
@@ -1862,267 +1600,7 @@ end
 </Screen>
 </Screens>
 </DuringInstScreenData>
-<AfterScreens>
-<Screen>
-<Type>100</Type>
-<Name>Finished Uninstall</Name>
-<BannerStyle>1</BannerStyle>
-<TemplateName>Finished Uninstall</TemplateName>
-<OverrideProjTheme>0</OverrideProjTheme>
-<StyleData>
-<CstClrs>0</CstClrs>
-<TBBG format="hex">ffffff</TBBG>
-<BDYBG format="hex">ece9d8</BDYBG>
-<FTBG format="hex">ece9d8</FTBG>
-<TBTXT format="hex">000000</TBTXT>
-<BDYTXT format="hex">000000</BDYTXT>
-<CBG format="hex">ffffff</CBG>
-<C3DFACE format="hex">ece9d8</C3DFACE>
-<C3DHLT format="hex">ece9d8</C3DHLT>
-<C3DLIT format="hex">ffffff</C3DLIT>
-<C3DSH format="hex">aca899</C3DSH>
-<CBTNTXT format="hex">000000</CBTNTXT>
-<CTEXT format="hex">000000</CTEXT>
-<CDISTXT format="hex">aca899</CDISTXT>
-<CPRGRS format="hex">316ac5</CPRGRS>
-<C3DSHDK format="hex">716f64</C3DSHDK>
-<TBIMG>Default_Top_Banner.jpg</TBIMG>
-<SBIMG>Default_Side_Banner.jpg</SBIMG>
-<BDIMG/>
-<BDFILL>0</BDFILL>
-<HDSEP>1</HDSEP>
-<FTSEP>1</FTSEP>
-<CstFnts>0</CstFnts>
-<Fonts>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>700</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>700</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-24</Height>
-<Weight>700</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>400</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-<FontData>
-<FontName>Arial</FontName>
-<CharacterSet>0</CharacterSet>
-<Height>-13</Height>
-<Weight>400</Weight>
-<Italic>0</Italic>
-<Underline>0</Underline>
-<StrikeOut>0</StrikeOut>
-<AntiAlias>1</AntiAlias>
-</FontData>
-</Fonts>
-<CAOff>
-<TP>0</TP>
-<L>15</L>
-<T>15</T>
-<R>15</R>
-<B>15</B>
-</CAOff>
-<CAOff>
-<TP>1</TP>
-<L>15</L>
-<T>15</T>
-<R>15</R>
-<B>15</B>
-</CAOff>
-<CAOff>
-<TP>2</TP>
-<L>15</L>
-<T>15</T>
-<R>15</R>
-<B>15</B>
-</CAOff>
-<TBTXTX>10</TBTXTX>
-<TBTXTY>10</TBTXTY>
-<ScreenW>497</ScreenW>
-<ScreenH>362</ScreenH>
-</StyleData>
-<Events>
-<Event>
-<Name>On Preload</Name>
-<Args/>
-<Script>-- These actions are performed before the screen is shown.
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Back</Name>
-<Args/>
-<Script>-- These actions are performed when the Back button is clicked.
-
--- go back to the previous screen
-Screen.Back();
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Next</Name>
-<Args/>
-<Script>-- These actions are performed when the Next button is clicked.
-
--- advance to the next screen
-Screen.Next();
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Cancel</Name>
-<Args/>
-<Script>-- These actions are performed when the Cancel button is clicked.
-
--- from _SUF70_Global_Functions.lua:
--- ask user if they're sure they want to exit
-if g_ConfirmSetupAbort() then
-	Application.Exit(EXIT_REASON_USER_ABORTED);
-end
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Help</Name>
-<Args/>
-<Script>-- These actions are performed when the Help button is clicked.
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-<Event>
-<Name>On Ctrl Message</Name>
-<Args>number e_CtrlID, number e_MsgID, table e_Details</Args>
-<Script>-- These actions are triggered by the controls on the screen.
-</Script>
-<BookMarks count="0">
-</BookMarks>
-</Event>
-</Events>
-<Controls>
-<Control>
-<Type>1</Type>
-<ID>103</ID>
-<Visible>0</Visible>
-<Enabled>0</Enabled>
-<TabOrder>75</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>1</Type>
-<ID>101</ID>
-<Visible>1</Visible>
-<Enabled>0</Enabled>
-<TabOrder>76</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>1</Type>
-<ID>100</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>-10</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>1</Type>
-<ID>102</ID>
-<Visible>1</Visible>
-<Enabled>0</Enabled>
-<TabOrder>-9</TabOrder>
-<FTButton>1</FTButton>
-</Control>
-<Control>
-<Type>2</Type>
-<ID>200</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>0</TabOrder>
-<IsHeading>0</IsHeading>
-</Control>
-<Control>
-<Type>2</Type>
-<ID>300</ID>
-<Visible>1</Visible>
-<Enabled>1</Enabled>
-<TabOrder>1</TabOrder>
-<IsHeading>1</IsHeading>
-</Control>
-</Controls>
-<Languages>
-<SUF70Messages>
-<Language>
-<Name>English</Name>
-<Default>1</Default>
-<Primary>9</Primary>
-<Secondary>
-<ID>1</ID>
-<ID>2</ID>
-<ID>3</ID>
-<ID>4</ID>
-<ID>5</ID>
-<ID>6</ID>
-<ID>7</ID>
-<ID>8</ID>
-<ID>9</ID>
-<ID>10</ID>
-<ID>11</ID>
-<ID>12</ID>
-<ID>13</ID>
-</Secondary>
-</Language>
-<Messages>
-<IDS_WINDOW_TITLE>%ProductName% Uninstaller</IDS_WINDOW_TITLE>
-<IDS_HEADER_TEXT>Uninstallation Finished</IDS_HEADER_TEXT>
-<IDS_SUBHEADER_TEXT>The uninstallation has completed successfully.</IDS_SUBHEADER_TEXT>
-<IDS_CTRL_BUTTON_NEXT>&amp;Finish</IDS_CTRL_BUTTON_NEXT>
-<IDS_CTRL_BUTTON_BACK>&lt; &amp;Back</IDS_CTRL_BUTTON_BACK>
-<IDS_CTRL_BUTTON_CANCEL>&amp;Cancel</IDS_CTRL_BUTTON_CANCEL>
-<IDS_CTRL_BUTTON_HELP>&amp;Help</IDS_CTRL_BUTTON_HELP>
-<IDS_CTRL_STATICTEXT_BODY>%ProductName% %ProductVer% has been uninstalled.
-
-Please click Finish to exit.
-</IDS_CTRL_STATICTEXT_BODY>
-<IDS_CTRL_HEADINGTEXT_BODY>Uninstallation Successful</IDS_CTRL_HEADINGTEXT_BODY>
-</Messages>
-</SUF70Messages>
-</Languages>
-</Screen>
-</AfterScreens>
+<AfterScreens/>
 <Events>
 <Event>
 <Name>On Startup</Name>
@@ -2159,7 +1637,7 @@ File.Delete(vs2010_path.."\\VC\\lib\\jstructd.pdb");
 
 File.Delete(vs2010_path.."\\VC\\include\\jmacro.h");
 File.Delete(vs2010_path.."\\VC\\include\\jstruct.h");
-File.Delete(vs2010_path.."\\VC\\include\\template.h");
+File.Delete(vs2010_path.."\\VC\\include\\template.jst");
 File.Delete(vs2010_path.."\\VC\\include\\jqualifier.h");
 File.Delete(vs2010_path.."\\VC\\include\\jstruct_base.h");
 
@@ -2168,6 +1646,13 @@ File.Delete(vs2010_path.."\\VC\\vcprojectitems\\jstructwizd.vsz");
 File.Delete(vs2010_path.."\\VC\\vcprojectitems\\jstructwizd.vsdir");
 
 File.Delete(vs2010_path.."\\VC\\bin\\"..SessionVar.Expand("%compiler%"));
+
+-- delete c++ header file non-standard extension
+ext = h_ext_non_std;
+
+ext = String.Replace(ext, ";.jst", "");
+
+Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", ext);
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -2332,6 +1817,10 @@ g_HandleSystemReboot();
 <Script>-- save microsoft visual studio 2010 installation path
 
 vs2010_path = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+
+-- save c++ header file non-standard extension
+
+h_ext_non_std = Registry.GetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", false);
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -2387,7 +1876,17 @@ File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.ico", vs2010_path.."\
 File.Delete(SessionVar.Expand("%AppFolder%").."\\lib");
 File.Delete(SessionVar.Expand("%AppFolder%").."\\include");
 
--- register
+-- add c++ header file non-standard extension
+
+ext = ";.jst"
+
+pos = String.Find(h_ext_non_std, ext)
+
+if -1 == pos then
+	Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", h_ext_non_std..ext);
+end
+
+-- register wizard dll
 
 Shell.Execute(SessionVar.Expand("%AppFolder%").."\\RegAsm.exe", "open", "/codebase C:\\windows\\System32\\jstructwizd.dll", "", SW_HIDE);
 
@@ -2506,7 +2005,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>jstructtool-1.0.2.exe</Filename>
+<Filename>jstructtool-1.0.1.exe</Filename>
 <OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>
