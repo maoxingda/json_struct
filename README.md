@@ -3,7 +3,7 @@
 ## usage
 1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
 
-2. add new item to microsoft visual studio vc++ project by wizard
+2. add new item to microsoft visual studio vc++ project
 ![Image](img/addnewitem.png)
 ![Image](img/item.png)
 ![Image](img/nonstdext.png)
