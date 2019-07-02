@@ -39,22 +39,21 @@ int main(int argc, char** argv)
 }
 ```
 
+## support field type
+1. bool
+2. number, number array 
+3. wchar_t array and wchar_t table
+4. struct and struct array
+
 ## note
-1. not support - bool var_name([array_size])+
-2. not support - basic_data_type var_name([array_size]){2,} **other than** wchar_t[row][col]
-3. not support - custom_type var_name([array_size]){2,}
-4. can only support ***utf8*** json stream, because the conversion from utf8 to utf16 was done internally
-5. gtest has memory leak itself
+1. can only support ***utf8*** json stream, because the conversion between utf8 and utf16 was done internally
+2. gtest has memory leak itself
 
 ###### TODO
-* serialize c++ struct to json stream
-* if the optional field has a value
-* null value
 * derive
+* null value
 * concurrent
-* unit test
 * field type mismatch
-* throw exception in constructor function
 * delete intermediate files
-* add new item wizard name and location field
-* project dependencys
+* if the optional field has a value
+* get name and location field value in vs add new item wizard
