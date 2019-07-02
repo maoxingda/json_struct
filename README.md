@@ -20,7 +20,7 @@ struct date
     REQUIRED WCHAR_ARRAY_T wchar_t day[4];
 };
 
-struct student
+struct person
 {
     REQUIRED NUMBER_T ALIAS(id) int     identifier;
     REQUIRED WCHAR_ARRAY_T      wchar_t name[32];
