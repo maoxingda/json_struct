@@ -1,12 +1,14 @@
 # struct <---> json
----
+
 ## usage
+
 1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
 
 2. add new item to vc++ project
-[1](img/addnewitem.png)
-[2](img/item.png)
-[3](img/nonstdext.png)
+
+[①](img/addnewitem.png)
+[②](img/item.png)
+[③](img/nonstdext.png)
 
 3. declare struct, create struct object instance and call member function ***from_json <---> to_json***, so that's all
 
@@ -30,11 +32,11 @@ struct student
 
 int main(int argc, char** argv)
 {
-	student stu1;
-
-	assert(stu1.from_json("{\"identifier\":1001,\"name\":\"毛兴达\",\"qq\":[954192476],\"email\":[\"954192476@qq.com\",\"15068510522@qq.com\"],\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16}"));
+	person p;
 	
-	string json = stu1.to_json();
+	assert(p.from_json("{\"identifier\":1001,\"name\":\"毛兴达\",\"qq\":[954192476],\"email\":[\"954192476@qq.com\",\"15068510522@qq.com\"],\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16}"));
+	
+	string json = p.to_json();
 }
 ```
 
