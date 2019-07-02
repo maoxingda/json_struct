@@ -1,7 +1,7 @@
 # deserialize c++ struct from json stream
 ---
 ## usage
-1. install jstructtool.exe
+1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
 
 2. add new item to microsoft visual studio vc++ project by wizard
 ![Image](img/addnewitem.png)
