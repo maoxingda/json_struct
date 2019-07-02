@@ -5,7 +5,6 @@
 1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
 
 2. add new item to vc++ project
-
 [①](img/addnewitem.png)
 [②](img/item.png)
 [③](img/nonstdext.png)
