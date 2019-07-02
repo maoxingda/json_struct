@@ -1,7 +1,7 @@
 # c++ struct <---> json stream
 ---
 ## usage
-1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
+1. install [jstructtool.exe](releases)
 
 2. add new item to microsoft visual studio vc++ project
 [Image](img/addnewitem.png)
