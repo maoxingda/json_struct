@@ -1,12 +1,12 @@
-# c++ struct <---> json stream
+# struct <---> json
 ---
 ## usage
 1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
 
-2. add new item to microsoft visual studio vc++ project
-[Image](img/addnewitem.png)
-[Image](img/item.png)
-[Image](img/nonstdext.png)
+2. add new item to vc++ project
+[1](img/addnewitem.png)
+[2](img/item.png)
+[3](img/nonstdext.png)
 
 3. declare struct, create struct object instance and call member function ***from_json <---> to_json***, so that's all
 
