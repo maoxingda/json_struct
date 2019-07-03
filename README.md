@@ -1,6 +1,6 @@
-# <center>**struct <---> json**</center>
+# struct <---> json
 
-## usage
+# usage
 
 1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
 
@@ -11,7 +11,7 @@
 
 3. declare struct, create struct object instance and call member function ***from_json <---> to_json***, so that's all
 
-## example
+# example
 ```
 struct date
 {
@@ -39,17 +39,17 @@ int main(int argc, char** argv)
 }
 ```
 
-## support field type
+# support field type
 1. bool
 2. number, number array 
 3. wchar_t array and wchar_t table
 4. struct and struct array
 
-## note
+# note
 1. can only support ***utf8*** json stream, because the conversion between utf8 and utf16 was done internally
 2. gtest has memory leak itself
 
-###### TODO
+# TODO
 * derive
 * null value
 * concurrent
