@@ -20,47 +20,47 @@ namespace jstructwizd
             ref object[] customParams,
             ref EnvDTE.wizardResult retval)
         {
-            _applicationObject  = Application as DTE2;
-
-            string template_file_name_src = "";
-            string template_file_name_dst = "";
-
-            RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config");
-
-            if (null != vs2010)
+            try
             {
-                template_file_name_src = vs2010.GetValue("ShellFolder").ToString() + "VC\\include\\template.jst";
+                _applicationObject = Application as DTE2;
+
+                string template_file_name_src = "";
+                string template_file_name_dst = "";
+
+                RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("software\\jstructtool");
+
+                template_file_name_src = vs2010.GetValue("AppFolder").ToString() + "\\inc\\template.jst";
 
                 vs2010.Close();
+
+                foreach (SelectedItem si in _applicationObject.SelectedItems)
+                {
+                    VCFilter filter = si.ProjectItem.Object as VCFilter;
+
+                    foreach (VCFile firstFile in filter.Files as IVCCollection)
+                    {
+                        template_file_name_dst = firstFile.FullPath.Substring(0, firstFile.FullPath.LastIndexOf("\\") + 1) + "template.jst";
+
+                        break;
+                    }
+
+                    if ("" == template_file_name_dst)
+                    {
+                        VCProject proj = filter.project as VCProject;
+
+                        template_file_name_dst = proj.ProjectDirectory + "template.jst";
+                    }
+
+                    File.Copy(template_file_name_src, template_file_name_dst);
+
+                    if (filter.CanAddFile(template_file_name_dst)) filter.AddFile(template_file_name_dst);
+
+                    // open added file
+                    _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
+                }
             }
-
-            foreach (SelectedItem si in _applicationObject.SelectedItems)
+            catch (Exception e)
             {
-                VCFilter filter = si.ProjectItem.Object as VCFilter;
-
-                if (null == filter) return;
-
-                foreach (VCFile firstFile in filter.Files as IVCCollection)
-                {
-                    template_file_name_dst = firstFile.FullPath.Substring(0, firstFile.FullPath.LastIndexOf("\\") + 1) + "template.jst";
-
-                    break;
-                }
-
-                if ("" == template_file_name_dst)
-                {
-                    VCProject proj = filter.project as VCProject;
-
-                    if (null == proj) return;
-
-                    template_file_name_dst = proj.ProjectDirectory + "template.jst";
-                }
-
-                File.Copy(template_file_name_src, template_file_name_dst);
-
-                if (filter.CanAddFile(template_file_name_dst)) filter.AddFile(template_file_name_dst);
-
-                // open added file
             }
         }
     }

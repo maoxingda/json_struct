@@ -28,8 +28,6 @@ namespace jstructtool
             {
                 VCFile file = projectItem.Object as VCFile;
 
-                if (null == file) return;
-
                 using (StreamReader sr = new StreamReader(file.FullPath))
                 {
                     if (!sr.ReadLine().Contains("// [assembly: Guid(\"3f54dc6b-a5e8-424f-8ace-f0cb67196ddd\")]")) return;
@@ -39,11 +37,43 @@ namespace jstructtool
                 {
                     VCCustomBuildTool cbt = fc.Tool as VCCustomBuildTool;
 
-                    if (null != cbt)
+                    cbt.CommandLine = "jstructcompiler --multi_build=off --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
+                    cbt.Description = "jstructcompiler%27ing %(Identity)...";
+                    cbt.Outputs = "$(ProjectDir)mjst\\%(Filename).h";
+                }
+
+                VCProject           proj;
+                IVCCollection       cfgs, tools;
+                VCLinkerTool        linktool;
+                VCCLCompilerTool    comptool;
+
+                proj = projectItem.ContainingProject.Object  as VCProject;
+                cfgs = proj.Configurations                   as IVCCollection;
+
+                string incpath = "$(VisualStudioDir)\\Addins\\inc;";
+                string libpath = "$(VisualStudioDir)\\Addins\\lib;";
+
+                foreach (VCConfiguration cfg in cfgs as IVCCollection)
+                {
+                    tools       = cfg.Tools                         as IVCCollection;
+                    comptool    = tools.Item("VCCLCompilerTool")    as VCCLCompilerTool;
+                    linktool    = tools.Item("VCLinkerTool")        as VCLinkerTool;
+
+                    StringBuilder sbcomp = new StringBuilder(comptool.AdditionalIncludeDirectories);
+                    StringBuilder sblink = new StringBuilder(linktool.AdditionalLibraryDirectories);
+
+                    if (!sbcomp.ToString().Contains("$(VisualStudioDir)"))
                     {
-                        cbt.CommandLine = "jstructcompiler --multi_build=off --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
-                        cbt.Description = "jstructcompiler%27ing %(Identity)...";
-                        cbt.Outputs = "$(ProjectDir)mjst\\%(Filename).h";
+                        sbcomp.Insert(0, incpath);
+
+                        comptool.AdditionalIncludeDirectories = sbcomp.ToString();
+                    }
+
+                    if (!sblink.ToString().Contains("$(VisualStudioDir)"))
+                    {
+                        sblink.Insert(0, libpath);
+
+                        linktool.AdditionalLibraryDirectories = sblink.ToString();
                     }
                 }
             }

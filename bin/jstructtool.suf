@@ -14,7 +14,7 @@
 <Desc/>
 <Recurse>1</Recurse>
 <MatchMode>0</MatchMode>
-<Dest>%AppFolder%\include</Dest>
+<Dest>%AppFolder%\inc</Dest>
 <Overwrite>2</Overwrite>
 <Backup>0</Backup>
 <Protect>0</Protect>
@@ -82,7 +82,7 @@
 <Desc>.</Desc>
 <Recurse>1</Recurse>
 <MatchMode>0</MatchMode>
-<Dest>%AppFolder%</Dest>
+<Dest>%SystemFolder%</Dest>
 <Overwrite>2</Overwrite>
 <Backup>0</Backup>
 <Protect>0</Protect>
@@ -429,7 +429,7 @@
 <InstallOrder>1000</InstallOrder>
 <SCStartRoot>0</SCStartRoot>
 <SCStartProgs>0</SCStartProgs>
-<SCAppFld>1</SCAppFld>
+<SCAppFld>0</SCAppFld>
 <SCStartup>0</SCStartup>
 <SCDesk>0</SCDesk>
 <SCQLaunch>0</SCQLaunch>
@@ -626,7 +626,7 @@
 <Desc/>
 <Recurse>1</Recurse>
 <MatchMode>0</MatchMode>
-<Dest>%AppFolder%</Dest>
+<Dest>%SystemFolder%</Dest>
 <Overwrite>2</Overwrite>
 <Backup>0</Backup>
 <Protect>0</Protect>
@@ -1295,7 +1295,7 @@ end
 <CPSIInstallLocation>%AppFolder%</CPSIInstallLocation>
 <CPSIVersionMajor/>
 <CPSIVersionMinor/>
-<CreateAppFldSC>0</CreateAppFldSC>
+<CreateAppFldSC>1</CreateAppFldSC>
 <AppFldSCDesc>Uninstall %ProductName%</AppFldSCDesc>
 <SCComment>Removes %ProductName% from your computer.</SCComment>
 <UseCustomAppFldSCIcon>0</UseCustomAppFldSCIcon>
@@ -1627,32 +1627,45 @@ end
 <Event>
 <Name>On Post Uninstall</Name>
 <Args/>
-<Script>-- delete the file was moved to other path when install
+<Script>-- delete the files moved to other path when install
 
-File.Delete(vs2010_path.."\\VC\\lib\\jstruct.lib");
-File.Delete(vs2010_path.."\\VC\\lib\\jstructd.lib");
+File.Delete(shell_folder.."\\VC\\vcprojectitems\\jstructwizd.ico");
+File.Delete(shell_folder.."\\VC\\vcprojectitems\\jstructwizd.vsz");
+File.Delete(shell_folder.."\\VC\\vcprojectitems\\jstructwizd.vsdir");
 
-File.Delete(vs2010_path.."\\VC\\lib\\jstruct.pdb");
-File.Delete(vs2010_path.."\\VC\\lib\\jstructd.pdb");
+--[[
 
-File.Delete(vs2010_path.."\\VC\\include\\jmacro.h");
-File.Delete(vs2010_path.."\\VC\\include\\jstruct.h");
-File.Delete(vs2010_path.."\\VC\\include\\template.jst");
-File.Delete(vs2010_path.."\\VC\\include\\jqualifier.h");
-File.Delete(vs2010_path.."\\VC\\include\\jstruct_base.h");
+-- delete compiler directory from system environment variable path
 
-File.Delete(vs2010_path.."\\VC\\vcprojectitems\\jstructwizd.dll");
-File.Delete(vs2010_path.."\\VC\\vcprojectitems\\jstructwizd.vsz");
-File.Delete(vs2010_path.."\\VC\\vcprojectitems\\jstructwizd.vsdir");
+cl_dir = SessionVar.Expand("%AppFolder%");
 
-File.Delete(vs2010_path.."\\VC\\bin\\"..SessionVar.Expand("%compiler%"));
+pos = String.Find(path, cl_dir);
 
--- delete c++ header file non-standard extension
-ext = h_ext_non_std;
+if -1 ~= pos then
 
-ext = String.Replace(ext, ";.jst", "");
+	path = String.Replace(path, ";"..cl_dir, "");
+	
+	Registry.SetValue(HKEY_CURRENT_USER, "Environment", "path", path);
 
-Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", ext);
+end
+     
+]]
+     
+
+-- delete file extension (*.jst)
+
+exth = String.Replace(exth, next, "");
+
+Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", exth);
+
+
+-- delete app folder registry
+
+if true == Registry.DoesKeyExist(HKEY_CURRENT_USER, "software\\jstructtool") then
+
+	Registry.DeleteKey(HKEY_CURRENT_USER, "software\\jstructtool");
+
+end
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -1794,12 +1807,12 @@ g_HandleSystemReboot();
 <Launcher/>
 <ProjectTheme>Default</ProjectTheme>
 <ProjFileDesc>New Project</ProjFileDesc>
-<ProjFileAuthor/>
-<ProjFileCompany/>
+<ProjFileAuthor>maoxd</ProjFileAuthor>
+<ProjFileCompany>qiqi</ProjFileCompany>
 <ProjFileNotes/>
 <ProjFileCopyright>Copyright 2019 </ProjFileCopyright>
-<ProjFileURL/>
-<ProjFileEmail/>
+<ProjFileURL>https://github.com/maoxingda/json_struct</ProjFileURL>
+<ProjFileEmail>954192476@qq.com</ProjFileEmail>
 <ProjFileCreatedVer>9.1.0.0</ProjFileCreatedVer>
 <ProjFileSavedVer>9.1.0.0</ProjFileSavedVer>
 <BaseFolderArchive>C:\Users\Administrator\Desktop\MyAddin4</BaseFolderArchive>
@@ -1814,13 +1827,20 @@ g_HandleSystemReboot();
 <Event>
 <Name>Global Functions</Name>
 <Args/>
-<Script>-- save microsoft visual studio 2010 installation path
+<Script>-- save environment variable path
 
-vs2010_path = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+path = Registry.GetValue(HKEY_CURRENT_USER, "Environment", "path", true);
 
--- save c++ header file non-standard extension
 
-h_ext_non_std = Registry.GetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", false);
+-- save vs2010 shell folder
+
+shell_folder = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\VisualStudio\\10.0_Config", "ShellFolder", false);
+
+
+-- save file extension
+
+next = ";.jst";
+exth = Registry.GetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", false);
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -1828,14 +1848,34 @@ h_ext_non_std = Registry.GetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Vi
 <Event>
 <Name>On Startup</Name>
 <Args/>
-<Script>-- if microsoft visual studio 2010 was not installed, show message for user and exit installation
+<Script>-- Show the debug window.
 
-if "" == vs2010_path then
+-- Debug.ShowWindow(true);
 
-	Dialog.Message("Get vs2010 installation path failed", "Please install the microsoft visual studio 2010 firstly!", MB_OK, MB_ICONINFORMATION);
+-- Turn on the debug trace mode.
+
+-- Debug.SetTraceMode(true);
+
+
+-- if vs2010 was not installed, exit
+
+if "" == shell_folder then
+
+	Dialog.Message("Get vs2010 shell folder failed", "Please install the microsoft visual studio 2010 firstly!", MB_OK, MB_ICONINFORMATION);
 
 	Application.Exit();
 	
+end
+
+
+-- if vs2010 is in use, prompt user to exit vs
+
+if File.IsInUse(shell_folder.."\\Common7\\IDE\\devenv.exe") then
+
+	Dialog.Message("Microsoft visual studio 2010 is in use", "Please exit it and come back to install");
+	
+	Application.Exit();
+
 end
 </Script>
 <BookMarks count="0">
@@ -1844,7 +1884,14 @@ end
 <Event>
 <Name>On Pre Install</Name>
 <Args/>
-<Script/>
+<Script>-- uninstall history version
+
+if true == File.DoesExist(SessionVar.Expand("%AppFolder%\\uninstall.exe")) then
+
+	File.Run(SessionVar.Expand("%AppFolder%\\uninstall.exe"), "/U:Uninstall/uninstall.xml", SessionVar.Expand("%AppFolder%"), SW_SHOWNORMAL, true);
+	
+end
+</Script>
 <BookMarks count="0">
 </BookMarks>
 </Event>
@@ -1859,36 +1906,58 @@ end
 <Event>
 <Name>On Post Install</Name>
 <Args/>
-<Script>-- move files to microsoft visual studio 2010 installation path
+<Script>--[[
 
-File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.lib", vs2010_path.."\\VC\\lib\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\lib\\*.pdb", vs2010_path.."\\VC\\lib\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.h", vs2010_path.."\\VC\\include\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\include\\*.jst", vs2010_path.."\\VC\\include\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\"..SessionVar.Expand("%compiler%"), vs2010_path.."\\VC\\bin\\");
+-- add compiler directory to system environment variable path
 
--- File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.dll", vs2010_path.."\\VC\\vcprojectitems\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.dll", "C:\\windows\\System32\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.vsz", vs2010_path.."\\VC\\vcprojectitems\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.vsdir", vs2010_path.."\\VC\\vcprojectitems\\");
-File.Move(SessionVar.Expand("%AppFolder%").."\\jstructwizd.ico", vs2010_path.."\\VC\\vcprojectitems\\");
+cl_dir = SessionVar.Expand("%AppFolder%");
 
-File.Delete(SessionVar.Expand("%AppFolder%").."\\lib");
-File.Delete(SessionVar.Expand("%AppFolder%").."\\include");
-
--- add c++ header file non-standard extension
-
-ext = ";.jst"
-
-pos = String.Find(h_ext_non_std, ext)
+pos = String.Find(path, cl_dir);
 
 if -1 == pos then
-	Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", h_ext_non_std..ext);
+
+	path = path..";"..cl_dir;
+	
+	Registry.SetValue(HKEY_CURRENT_USER, "Environment", "path", path);
+
 end
+     
+]]
+     
+
+File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.vsz")		, shell_folder.."\\VC\\vcprojectitems\\");
+File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.vsdir")	, shell_folder.."\\VC\\vcprojectitems\\");
+File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.ico")		, shell_folder.."\\VC\\vcprojectitems\\");
+
+
+-- add file extension (*.jst)
+
+pos = String.Find(exth, next)
+
+if -1 == pos then
+
+	Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", exth..next);
+	
+end
+
+
+-- save app folder to registry
+
+if false == Registry.DoesKeyExist (HKEY_CURRENT_USER, "software\\jstructtool") then
+
+	Registry.CreateKey(HKEY_CURRENT_USER, "software\\jstructtool");
+	
+	Registry.SetValue(HKEY_CURRENT_USER, "software\\jstructtool", "AppFolder", SessionVar.Expand("%AppFolder%"), REG_SZ);
+	
+end
+
 
 -- register wizard dll
 
-Shell.Execute(SessionVar.Expand("%AppFolder%").."\\RegAsm.exe", "open", "/codebase C:\\windows\\System32\\jstructwizd.dll", "", SW_HIDE);
+args = "/codebase "..SessionVar.Expand("%SystemFolder%\\jstructwizd.dll");
+
+Shell.Execute(SessionVar.Expand("%AppFolder%\\RegAsm.exe"), "open", args, "", SW_HIDE);
+
 
 -- open json struct project website
 
@@ -1990,11 +2059,6 @@ g_HandleSystemReboot();
 <Value>jstructcompiler.exe</Value>
 <Type>10</Type>
 </SessionVar>
-<SessionVar>
-<Name>%vs2010%</Name>
-<Value/>
-<Type>10</Type>
-</SessionVar>
 </SUF7SessionVars>
 <BuildConfigurations>
 <BuildConfig>
@@ -2005,7 +2069,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>jstructtool-1.0.1.exe</Filename>
+<Filename>jstructtool-1.0.2.exe</Filename>
 <OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>
