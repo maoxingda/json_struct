@@ -490,7 +490,7 @@
 <Desc/>
 <Recurse>1</Recurse>
 <MatchMode>0</MatchMode>
-<Dest>%AppFolder%</Dest>
+<Dest>%AppFolder%\jstwiz</Dest>
 <Overwrite>2</Overwrite>
 <Backup>0</Backup>
 <Protect>0</Protect>
@@ -558,7 +558,7 @@
 <Desc/>
 <Recurse>1</Recurse>
 <MatchMode>0</MatchMode>
-<Dest>%AppFolder%</Dest>
+<Dest>%AppFolder%\jstwiz</Dest>
 <Overwrite>2</Overwrite>
 <Backup>0</Backup>
 <Protect>0</Protect>
@@ -830,7 +830,7 @@
 <Desc/>
 <Recurse>1</Recurse>
 <MatchMode>0</MatchMode>
-<Dest>%AppFolder%</Dest>
+<Dest>%AppFolder%\jstwiz</Dest>
 <Overwrite>2</Overwrite>
 <Backup>0</Backup>
 <Protect>0</Protect>
@@ -1007,7 +1007,17 @@
 <Name>On Preload</Name>
 <Args/>
 <Script>-- These actions are performed before the screen is shown.
---result = System.GetLANInfo();
+
+-- uninstall history version
+
+if true == File.DoesExist(SessionVar.Expand("%AppFolder%\\uninstall.exe")) then
+
+	File.Run(SessionVar.Expand("%AppFolder%\\uninstall.exe"), "/U:Uninstall/uninstall.xml", SessionVar.Expand("%AppFolder%"), SW_SHOWNORMAL, true);
+	
+end
+
+-- set default value
+
 DlgEditField.SetProperties(CTRL_EDIT_01, {Text=System.GetLANInfo().User});
 DlgEditField.SetProperties(CTRL_EDIT_02, {Text=SessionVar.Expand("%CompanyName%")});
 </Script>
@@ -3258,7 +3268,267 @@ end
 </Screen>
 </Screens>
 </DuringInstScreenData>
-<AfterScreens/>
+<AfterScreens>
+<Screen>
+<Type>100</Type>
+<Name>Finished Uninstall</Name>
+<BannerStyle>1</BannerStyle>
+<TemplateName>Finished Uninstall</TemplateName>
+<OverrideProjTheme>0</OverrideProjTheme>
+<StyleData>
+<CstClrs>0</CstClrs>
+<TBBG format="hex">ffffff</TBBG>
+<BDYBG format="hex">ece9d8</BDYBG>
+<FTBG format="hex">ece9d8</FTBG>
+<TBTXT format="hex">000000</TBTXT>
+<BDYTXT format="hex">000000</BDYTXT>
+<CBG format="hex">ffffff</CBG>
+<C3DFACE format="hex">ece9d8</C3DFACE>
+<C3DHLT format="hex">ece9d8</C3DHLT>
+<C3DLIT format="hex">ffffff</C3DLIT>
+<C3DSH format="hex">aca899</C3DSH>
+<CBTNTXT format="hex">000000</CBTNTXT>
+<CTEXT format="hex">000000</CTEXT>
+<CDISTXT format="hex">aca899</CDISTXT>
+<CPRGRS format="hex">316ac5</CPRGRS>
+<C3DSHDK format="hex">716f64</C3DSHDK>
+<TBIMG>111_X_63_laptop.jpg</TBIMG>
+<SBIMG>166_X_312_laptop.jpg</SBIMG>
+<BDIMG/>
+<BDFILL>0</BDFILL>
+<HDSEP>1</HDSEP>
+<FTSEP>1</FTSEP>
+<CstFnts>0</CstFnts>
+<Fonts>
+<FontData>
+<FontName>Arial</FontName>
+<CharacterSet>0</CharacterSet>
+<Height>-13</Height>
+<Weight>700</Weight>
+<Italic>0</Italic>
+<Underline>0</Underline>
+<StrikeOut>0</StrikeOut>
+<AntiAlias>1</AntiAlias>
+</FontData>
+<FontData>
+<FontName>Arial</FontName>
+<CharacterSet>0</CharacterSet>
+<Height>-13</Height>
+<Weight>700</Weight>
+<Italic>0</Italic>
+<Underline>0</Underline>
+<StrikeOut>0</StrikeOut>
+<AntiAlias>1</AntiAlias>
+</FontData>
+<FontData>
+<FontName>Arial</FontName>
+<CharacterSet>0</CharacterSet>
+<Height>-24</Height>
+<Weight>700</Weight>
+<Italic>0</Italic>
+<Underline>0</Underline>
+<StrikeOut>0</StrikeOut>
+<AntiAlias>1</AntiAlias>
+</FontData>
+<FontData>
+<FontName>Arial</FontName>
+<CharacterSet>0</CharacterSet>
+<Height>-13</Height>
+<Weight>400</Weight>
+<Italic>0</Italic>
+<Underline>0</Underline>
+<StrikeOut>0</StrikeOut>
+<AntiAlias>1</AntiAlias>
+</FontData>
+<FontData>
+<FontName>Arial</FontName>
+<CharacterSet>0</CharacterSet>
+<Height>-13</Height>
+<Weight>400</Weight>
+<Italic>0</Italic>
+<Underline>0</Underline>
+<StrikeOut>0</StrikeOut>
+<AntiAlias>1</AntiAlias>
+</FontData>
+</Fonts>
+<CAOff>
+<TP>0</TP>
+<L>15</L>
+<T>15</T>
+<R>15</R>
+<B>15</B>
+</CAOff>
+<CAOff>
+<TP>1</TP>
+<L>15</L>
+<T>15</T>
+<R>15</R>
+<B>15</B>
+</CAOff>
+<CAOff>
+<TP>2</TP>
+<L>15</L>
+<T>15</T>
+<R>15</R>
+<B>15</B>
+</CAOff>
+<TBTXTX>10</TBTXTX>
+<TBTXTY>10</TBTXTY>
+<ScreenW>497</ScreenW>
+<ScreenH>362</ScreenH>
+</StyleData>
+<Events>
+<Event>
+<Name>On Preload</Name>
+<Args/>
+<Script>-- These actions are performed before the screen is shown.
+</Script>
+<BookMarks count="0">
+</BookMarks>
+</Event>
+<Event>
+<Name>On Back</Name>
+<Args/>
+<Script>-- These actions are performed when the Back button is clicked.
+
+-- go back to the previous screen
+Screen.Back();
+</Script>
+<BookMarks count="0">
+</BookMarks>
+</Event>
+<Event>
+<Name>On Next</Name>
+<Args/>
+<Script>-- These actions are performed when the Next button is clicked.
+
+-- advance to the next screen
+Screen.Next();
+</Script>
+<BookMarks count="0">
+</BookMarks>
+</Event>
+<Event>
+<Name>On Cancel</Name>
+<Args/>
+<Script>-- These actions are performed when the Cancel button is clicked.
+
+-- from _SUF70_Global_Functions.lua:
+-- ask user if they're sure they want to exit
+if g_ConfirmSetupAbort() then
+	Application.Exit(EXIT_REASON_USER_ABORTED);
+end
+</Script>
+<BookMarks count="0">
+</BookMarks>
+</Event>
+<Event>
+<Name>On Help</Name>
+<Args/>
+<Script>-- These actions are performed when the Help button is clicked.
+</Script>
+<BookMarks count="0">
+</BookMarks>
+</Event>
+<Event>
+<Name>On Ctrl Message</Name>
+<Args>number e_CtrlID, number e_MsgID, table e_Details</Args>
+<Script>-- These actions are triggered by the controls on the screen.
+</Script>
+<BookMarks count="0">
+</BookMarks>
+</Event>
+</Events>
+<Controls>
+<Control>
+<Type>1</Type>
+<ID>103</ID>
+<Visible>0</Visible>
+<Enabled>0</Enabled>
+<TabOrder>75</TabOrder>
+<FTButton>1</FTButton>
+</Control>
+<Control>
+<Type>1</Type>
+<ID>101</ID>
+<Visible>1</Visible>
+<Enabled>0</Enabled>
+<TabOrder>76</TabOrder>
+<FTButton>1</FTButton>
+</Control>
+<Control>
+<Type>1</Type>
+<ID>100</ID>
+<Visible>1</Visible>
+<Enabled>1</Enabled>
+<TabOrder>-10</TabOrder>
+<FTButton>1</FTButton>
+</Control>
+<Control>
+<Type>1</Type>
+<ID>102</ID>
+<Visible>1</Visible>
+<Enabled>0</Enabled>
+<TabOrder>-9</TabOrder>
+<FTButton>1</FTButton>
+</Control>
+<Control>
+<Type>2</Type>
+<ID>200</ID>
+<Visible>1</Visible>
+<Enabled>1</Enabled>
+<TabOrder>0</TabOrder>
+<IsHeading>0</IsHeading>
+</Control>
+<Control>
+<Type>2</Type>
+<ID>300</ID>
+<Visible>1</Visible>
+<Enabled>1</Enabled>
+<TabOrder>1</TabOrder>
+<IsHeading>1</IsHeading>
+</Control>
+</Controls>
+<Languages>
+<SUF70Messages>
+<Language>
+<Name>English</Name>
+<Default>1</Default>
+<Primary>9</Primary>
+<Secondary>
+<ID>1</ID>
+<ID>2</ID>
+<ID>3</ID>
+<ID>4</ID>
+<ID>5</ID>
+<ID>6</ID>
+<ID>7</ID>
+<ID>8</ID>
+<ID>9</ID>
+<ID>10</ID>
+<ID>11</ID>
+<ID>12</ID>
+<ID>13</ID>
+</Secondary>
+</Language>
+<Messages>
+<IDS_WINDOW_TITLE>%ProductName% Uninstaller</IDS_WINDOW_TITLE>
+<IDS_HEADER_TEXT>Uninstallation Finished</IDS_HEADER_TEXT>
+<IDS_SUBHEADER_TEXT>The uninstallation has completed successfully.</IDS_SUBHEADER_TEXT>
+<IDS_CTRL_BUTTON_NEXT>&amp;Finish</IDS_CTRL_BUTTON_NEXT>
+<IDS_CTRL_BUTTON_BACK>&lt; &amp;Back</IDS_CTRL_BUTTON_BACK>
+<IDS_CTRL_BUTTON_CANCEL>&amp;Cancel</IDS_CTRL_BUTTON_CANCEL>
+<IDS_CTRL_BUTTON_HELP>&amp;Help</IDS_CTRL_BUTTON_HELP>
+<IDS_CTRL_STATICTEXT_BODY>%ProductName% %ProductVer% has been uninstalled.
+
+Please click Finish to exit.
+</IDS_CTRL_STATICTEXT_BODY>
+<IDS_CTRL_HEADINGTEXT_BODY>Uninstallation Successful</IDS_CTRL_HEADINGTEXT_BODY>
+</Messages>
+</SUF70Messages>
+</Languages>
+</Screen>
+</AfterScreens>
 <Events>
 <Event>
 <Name>On Startup</Name>
@@ -3285,39 +3555,19 @@ end
 <Event>
 <Name>On Post Uninstall</Name>
 <Args/>
-<Script>--[[
-
--- delete compiler directory from system environment variable path
-
-cl_dir = SessionVar.Expand("%AppFolder%");
-
-pos = String.Find(path, cl_dir);
-
-if -1 ~= pos then
-
-	path = String.Replace(path, ";"..cl_dir, "");
-	
-	Registry.SetValue(HKEY_CURRENT_USER, "Environment", "path", path);
-
-end
-     
-]]
-     
-
--- delete file extension (*.jst)
-
-exth = String.Replace(exth, next, "");
-
-Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", exth);
-
-
--- delete app folder registry
+<Script>-- delete app folder registry
 
 if true == Registry.DoesKeyExist(HKEY_CURRENT_USER, "software\\jstructtool") then
 
 	Registry.DeleteKey(HKEY_CURRENT_USER, "software\\jstructtool");
 
 end
+
+
+-- delete vs add new item wizard files
+
+File.Delete(shell_folder.."VC\\vcprojectitems\\jstruct\\*.*");
+Folder.Delete(shell_folder.."VC\\vcprojectitems\\jstruct");
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -3500,7 +3750,7 @@ shell_folder = Registry.GetValue(HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Visual
 
 -- save file extension
 
-next = ";.jst";
+next = ".jst;";
 exth = Registry.GetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", false);
 </Script>
 <BookMarks count="0">
@@ -3545,14 +3795,7 @@ end
 <Event>
 <Name>On Pre Install</Name>
 <Args/>
-<Script>-- uninstall history version
-
-if true == File.DoesExist(SessionVar.Expand("%AppFolder%\\uninstall.exe")) then
-
-	File.Run(SessionVar.Expand("%AppFolder%\\uninstall.exe"), "/U:Uninstall/uninstall.xml", SessionVar.Expand("%AppFolder%"), SW_SHOWNORMAL, true);
-	
-end
-</Script>
+<Script/>
 <BookMarks count="0">
 </BookMarks>
 </Event>
@@ -3567,53 +3810,47 @@ end
 <Event>
 <Name>On Post Install</Name>
 <Args/>
-<Script>--[[
+<Script>-- copy vs add new item wizard files
 
--- add compiler directory to system environment variable path
+--wizard_file_table_vsz_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.vsz";
+--wizard_file_table_ico_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.ico";
+--wizard_file_table_dir_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.vsdir";
 
-cl_dir = SessionVar.Expand("%AppFolder%");
+--wizard_file_table_vsz = {};
+--wizard_file_table_ico = {};
+--wizard_file_table_dir = {};
+--wiz_folder = {};
 
-pos = String.Find(path, cl_dir);
+result = Folder.DoesExist(shell_folder.."VC\\vcprojectitems\\jstruct");
 
-if -1 == pos then
+if (false == result) then
 
-	path = path..";"..cl_dir;
-	
-	Registry.SetValue(HKEY_CURRENT_USER, "Environment", "path", path);
+	Folder.Create(shell_folder.."VC\\vcprojectitems\\jstruct");
 
 end
-     
-]]
-     
 
-wizard_file_table_vsz_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.vsz";
-wizard_file_table_ico_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.ico";
-wizard_file_table_dir_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.dir";
+File.Copy(SessionVar.Expand("%AppFolder%\\jstwiz\\*.*"), shell_folder.."VC\\vcprojectitems\\jstruct");
 
-wizard_file_table_vsz = {};
-wizard_file_table_ico = {};
-wizard_file_table_dir = {};
+--wiz_folder.FolderPath = shell_folder.."VC\\vcprojectitems\\jstruct";
 
-wizard_file_table_vsz.Filename = wizard_file_table_vsz_filename;
-wizard_file_table_ico.Filename = wizard_file_table_ico_filename;
-wizard_file_table_dir.Filename = wizard_file_table_dir_filename;
+--wizard_file_table_vsz.Filename = wizard_file_table_vsz_filename;
+--wizard_file_table_ico.Filename = wizard_file_table_ico_filename;
+--wizard_file_table_dir.Filename = wizard_file_table_dir_filename;
 
-UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_vsz);
-UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_ico);
-UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_dir);
+--UninstallData.AddItem(UNINDATA_FOLDERS, wiz_folder);
+--UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_ico);
+--UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_dir);
 
-File.Copy(SessionVar.Expand("%AppFolder%\\jstructwizd.vsz")		, wizard_file_table_vsz_filename);
-File.Copy(SessionVar.Expand("%AppFolder%\\jstructwizd.ico")		, wizard_file_table_ico_filename);
-File.Copy(SessionVar.Expand("%AppFolder%\\jstructwizd.vsdir")	, wizard_file_table_dir_filename);
+--File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.vsz")		, wizard_file_table_vsz_filename);
+--File.Copy(SessionVar.Expand("%AppFolder%\\jstructwizd.ico")		, wizard_file_table_ico_filename);
+--File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.vsdir")	, wizard_file_table_dir_filename);
 
 
 -- add file extension (*.jst)
 
-pos = String.Find(exth, next)
+if -1 == String.Find(exth, next) then
 
-if -1 == pos then
-
-	Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", exth..next);
+	Registry.SetValue(HKEY_CURRENT_USER, "Software\\Whole Tomato\\Visual Assist X\\VANet10", "ExtHeader", next..exth);
 	
 end
 

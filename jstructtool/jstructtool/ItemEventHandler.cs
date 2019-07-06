@@ -28,10 +28,7 @@ namespace jstructtool
             {
                 VCFile file = projectItem.Object as VCFile;
 
-                using (StreamReader sr = new StreamReader(file.FullPath))
-                {
-                    if (!sr.ReadLine().Contains("// [assembly: Guid(\"3f54dc6b-a5e8-424f-8ace-f0cb67196ddd\")]")) return;
-                }
+                if (!file.Name.EndsWith(".jst")) return;
 
                 foreach (VCFileConfiguration fc in (IVCCollection)file.FileConfigurations)
                 {
@@ -39,7 +36,7 @@ namespace jstructtool
 
                     cbt.CommandLine = "jstructcompiler --multi_build=off --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
                     cbt.Description = "jstructcompiler%27ing %(Identity)...";
-                    cbt.Outputs = "$(ProjectDir)mjst\\%(Filename).h";
+                    cbt.Outputs     = "$(ProjectDir)mjst\\%(Filename).h";
                 }
 
                 VCProject           proj;
@@ -64,7 +61,7 @@ namespace jstructtool
 
                     if (!sbcomp.ToString().Contains("$(VisualStudioDir)"))
                     {
-                        sbcomp.Insert(0, incpath);
+                        sbcomp.Insert(0, incpath + ".\\mjst;");
 
                         comptool.AdditionalIncludeDirectories = sbcomp.ToString();
                     }
