@@ -3,20 +3,29 @@
 #include "jqualifier.h"
 #include "jstruct_base.h"
 
-#include <map>
 #include <list>
 #include <codecvt>
-#include <typeinfo>
-#include <Windows.h>
-#include <algorithm>
 
 #include <boost/format.hpp>
-#include <boost/xpressive/xpressive.hpp>
+#include <boost/xpressive/xpressive_static.hpp>
 
 using namespace boost::xpressive;
 
+static smatch sm;
+// common regex expressions
+static const sregex re_bool         = as_xpr("bool");
 
-static map<int, const char*>* pfield_type_re_str_ = nullptr;
+static const sregex re_array        = as_xpr("[") >> +_d >> "]";
+
+static const sregex re_number       = as_xpr("short") | "unsigned short" | "int" | "unsigned int" | "long" | "unsigned long" | "__int64" | "float" | "double";
+static const sregex re_number_array = re_number >> " " >> re_array;
+
+static const sregex re_wchar_array  = as_xpr("wchar_t ") >> re_array;
+static const sregex re_wchar_table  = as_xpr("wchar_t ") >> repeat<2>(re_array);
+
+static const sregex re_struct       = as_xpr("struct ") >> +_w;
+static const sregex re_struct_array = as_xpr("struct ") >> +_w >> " " >> re_array;
+
 
 enum type
 {
@@ -52,21 +61,15 @@ struct field_info
 
 static int array_size(const string& field_type)
 {
-    static sregex re1 = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
-    static sregex re2 = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
-    static sregex re3 = sregex::compile((*pfield_type_re_str_)[enum_struct_array]);
-
-    smatch sm;
-
-    if (regex_match(field_type, sm, re1))
+    if (regex_match(field_type, sm, re_number_array))
     {
         return stoi(sm[1]);
     }
-    else if (regex_match(field_type, sm, re2))
+    else if (regex_match(field_type, sm, re_wchar_array))
     {
         return stoi(sm[1]);
     }
-    else if (regex_match(field_type, sm, re3))
+    else if (regex_match(field_type, sm, re_struct_array))
     {
         return stoi(sm[1]);
     }
@@ -76,11 +79,7 @@ static int array_size(const string& field_type)
 
 static void table_size(const string& field_type, size_t& row, size_t& col)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_table]);
-
-    smatch sm;
-
-    if (regex_match(field_type, sm, re))
+    if (regex_match(field_type, sm, re_bool))
     {
         row = stoi(sm[1]);
         col = stoi(sm[2]);
@@ -89,51 +88,37 @@ static void table_size(const string& field_type, size_t& row, size_t& col)
 
 static bool is_bool(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_bool]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static bool is_number(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_number]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static bool is_number_array(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_number_array]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static bool is_wchar_array(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_array]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static bool is_wchar_table(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_wchar_table]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static bool is_struct(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_struct]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static bool is_struct_array(const string& field_type)
 {
-    static sregex re = sregex::compile((*pfield_type_re_str_)[enum_struct_array]);
-
-    return regex_match(field_type, re);
+    return regex_match(field_type, re_bool);
 }
 
 static type data_type(const string& field_type, size_t& row, size_t& col)
@@ -190,7 +175,7 @@ static cJSON* to_number(const string& field_type, const string& field_name, void
     }
     else if (typeid(__int64).name() == field_type)
     {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(__int64*)field_address);
+        return cJSON_AddNumberToObject(object, field_name.c_str(), *(double*)field_address);
     }
     else if (typeid(long).name() == field_type)
     {
@@ -236,7 +221,7 @@ static bool to_number_array(const string& field_type, void* field_address, cJSON
     }
     else if (std::string::npos != string(field_type).find("__int64"))
     {
-        cJSON* item = cJSON_CreateNumber(*((__int64*)field_address + offset));
+        cJSON* item = cJSON_CreateNumber(*((double*)field_address + offset));
 
         if (nullptr == item) return false;
 
@@ -471,6 +456,7 @@ static void from_number_array(const string& field_type, void* field_address, cJS
 string jstruct_base::to_json()
 {
     string json;
+
     bool success = true;
 
     cJSON* object = (cJSON*)to_json_(success);
@@ -485,6 +471,7 @@ string jstruct_base::to_json()
     json = s;
 
     delete s;
+
     cJSON_Delete(object);
 
     return json;
@@ -734,11 +721,9 @@ bool jstruct_base::from_json_(void* object)
                 {
                     wstring ucs2 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(item->valuestring);
 
-                    WCHAR* dst = (WCHAR*)field_address;
+                    wchar_t* dst = (wchar_t*)field_address;
 
                     wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
-
-                    *(dst + ucs2.size()) = '\0';
                 }
             }
             break;
@@ -756,11 +741,9 @@ bool jstruct_base::from_json_(void* object)
                         {
                             wstring ucs2 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(arrItem->valuestring);
 
-                            WCHAR *dst = (WCHAR *) field_address + i * field_information.col_;
+                            wchar_t *dst = (wchar_t*) field_address + i * field_information.col_;
 
                             wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
-
-                            *(dst + ucs2.size()) = '\0';
                         }
                     }
 
@@ -790,7 +773,7 @@ bool jstruct_base::from_json_(void* object)
 
                         if (cJSON_IsObject(arrItem))
                         {
-                            bool success = ((jstruct_base*)((byte*)field_address + i * field_information.offset_))->from_json_(arrItem);
+                            bool success = ((jstruct_base*)((char*)field_address + i * field_information.offset_))->from_json_(arrItem);
 
                             if (!success) return false;
                         }
@@ -828,42 +811,13 @@ void jstruct_base::register_field(string field_type, string field_qualifier, str
 jstruct_base::jstruct_base()
     : d(new list<field_info>())
 {
-    static bool init = false;
-
-    if (!init)
-    {
-        init = true;
-
-        static map<int, const char*> field_type_re_str_; // field type regular expression string map
-
-        pfield_type_re_str_                   = &field_type_re_str_;
-
-        field_type_re_str_[enum_bool]         = "bool";
-
-        field_type_re_str_[enum_number]       = "(?:short|unsigned short|int|unsigned int|long|unsigned long|__int64|float|double)";
-        field_type_re_str_[enum_number_array] = "(?:short|unsigned short|int|unsigned int|long|unsigned long|__int64|float|double) \\[(\\d+)\\]";
-
-        field_type_re_str_[enum_wchar_array]  = "wchar_t \\[(\\d+)\\]";
-        field_type_re_str_[enum_wchar_table]  = "wchar_t \\[(\\d+)\\]\\[(\\d+)\\]";
-
-        field_type_re_str_[enum_struct]       = "struct \\w+";
-        field_type_re_str_[enum_struct_array] = "struct \\w+ \\[(\\d+)\\]";
-    }
 }
 
-/****************************************************************************
-** initialize d to nullptr to avoid free bad pointer in the destructor function
-** empty implementation is prevent resource transform from other to this
-*****************************************************************************/
 jstruct_base::jstruct_base(const jstruct_base& other)
     : d(nullptr)
 {
 }
 
-/****************************************************************************
-** empty implementation is avoid resource leak in this object
-** empty implementation is prevent resource transform from other to this
-*****************************************************************************/
 const jstruct_base& jstruct_base::operator=(const jstruct_base& other)
 {
     return *this;
