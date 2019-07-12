@@ -44,6 +44,9 @@
     <ClInclude Include="..\..\cjson\cJSON.h">
       <Filter>cjson</Filter>
     </ClInclude>
+    <ClInclude Include="jfield_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
