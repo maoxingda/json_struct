@@ -13,9 +13,9 @@
 using namespace boost::xpressive;
 
 // common regex expressions
-static const sregex re_bool         = (as_xpr("bool"));
+static const sregex re_bool         = as_xpr("bool");
 
-static const sregex re_array        = (as_xpr("[") >> (s1 = +_d) >> "]");
+static const sregex re_array        = as_xpr("[") >> +_d >> "]";
 
 static const sregex re_number       = (as_xpr("short") | "unsigned short" | "int" | "unsigned int" | "long" | "unsigned long" | "__int64" | "float" | "double");
 static const sregex re_number_array = (re_number >> " " >> re_array);

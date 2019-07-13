@@ -75,7 +75,11 @@ static const sregex re_field_name           = (s1 = re_identifier) >> repeat<0, 
 
 static bool is_user_field(std::string& line)
 {
-    if (regex_search(line, sm, re_user_field))
+    static smatch sm;
+
+    static const sregex re = bos >> +_s >> (s1 = _b >> ESTR(USER_T) >> _b >> +_s) >> +_w;
+
+    if (regex_search(line, sm, re))
     {
         replace_first(line, sm[s1], "");
 
@@ -87,6 +91,8 @@ static bool is_user_field(std::string& line)
 
 static bool is_field(std::string& line)
 {
+    static const sregex re_field = bos >> *_s >> repeat<2, 3>(re_qualifier) >> re_identifier >> +_s >> re_identifier >> repeat<0, 2>(re_array) >> *_s >> ';';
+
     return regex_search(line, re_field);
 }
 
@@ -94,9 +100,9 @@ static std::string field_qualifier(const std::string& line)
 {
     std::string qualifier;
 
-    static const sregex re1 = re_qualifier_required >> +_s >> +_w;
-    static const sregex re2 = re_qualifier_type     >> +_s >> +_w;
-    static const sregex re3 = re_qualifier_alias    >> +_s >> +_w;
+    static const sregex re1 = (s1 = re_qualifier_required)  >> +_s >> +_w;
+    static const sregex re2 = (s1 = re_qualifier_type)      >> +_s >> +_w;
+    static const sregex re3 = (s1 = re_qualifier_alias)     >> +_s >> +_w;
 
     if (regex_search(line, sm, re1))
     {
@@ -142,7 +148,6 @@ static std::string qualifier_type(const std::string& full_qualifier)
     {
         ret = sm[s1];
 
-        // if repeated
         if (regex_search(full_qualifier.substr(sm[s1].second - full_qualifier.begin()), sm, re_qualifier_type))
         {
             ret = "";
@@ -186,8 +191,6 @@ static std::string struct_name(const std::string& declaration)
 
 static void remove_qualifiers(std::string& line)
 {
-    static const sregex re_qualifier = re_qualifier_required | re_qualifier_type | re_qualifier_alias;
-
     line = regex_replace(line, re_qualifier, "");
 }
 
