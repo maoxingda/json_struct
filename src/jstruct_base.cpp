@@ -15,16 +15,16 @@ using namespace boost::xpressive;
 // common regex expressions
 static const sregex re_bool         = as_xpr("bool");
 
-static const sregex re_array        = as_xpr("[") >> +_d >> "]";
+static const sregex re_array        = as_xpr("[") >> (s1 = +_d) >> "]";
 
 static const sregex re_number       = (as_xpr("short") | "unsigned short" | "int" | "unsigned int" | "long" | "unsigned long" | "__int64" | "float" | "double");
-static const sregex re_number_array = (re_number >> " " >> re_array);
+static const sregex re_number_array = (re_number >> " " >> "[" >> (s1 = +_d) >> "]");
 
-static const sregex re_wchar_array  = (as_xpr("wchar_t ") >> re_array);
+static const sregex re_wchar_array  = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
 static const sregex re_wchar_table  = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) >> "]") >> ("[" >> (s2 = +_d) >> "]"));
 
 static const sregex re_struct       = (as_xpr("struct ") >> +_w);
-static const sregex re_struct_array = (as_xpr("struct ") >> +_w >> " " >> re_array);
+static const sregex re_struct_array = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
 
 static int array_size(const string& field_type)
 {
@@ -654,19 +654,44 @@ bool jstruct_base::from_json_(void* object)
         if (nullptr == item)
         {
             if (ESTR(OPTIONAL) == field_information.qualifier_) continue;
-            if (ESTR(REQUIRED) == field_information.qualifier_) return false;
+            if (ESTR(REQUIRED) == field_information.qualifier_)
+            {
+#ifdef _DEBUG
+                throw logic_error(field_information.name_);
+#endif // _DEBUG
+
+                return false;
+            }
         }
 
         switch (field_information.type_)
         {
         case enum_bool:
             {
-                if (cJSON_IsBool(item)) *(bool*)field_address = 1 == item->valueint ? true : false;
+                if (cJSON_IsBool(item))
+                {
+                    *(bool*)field_address = 1 == item->valueint ? true : false;
+                }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         case enum_number:
             {
-                if (cJSON_IsNumber(item)) from_number(field_information.type_name_, field_address, item);
+                if (cJSON_IsNumber(item))
+                {
+                    from_number(field_information.type_name_, field_address, item);
+                }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         case enum_number_array:
@@ -684,6 +709,12 @@ bool jstruct_base::from_json_(void* object)
 
                     *((int*)field_information.address_size_) = min(size, field_information.col_);
                 }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         case enum_wchar_array:
@@ -696,6 +727,12 @@ bool jstruct_base::from_json_(void* object)
 
                     wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
                 }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         case enum_wchar_table:
@@ -720,6 +757,12 @@ bool jstruct_base::from_json_(void* object)
 
                     *((int*)field_information.address_size_) = min(size, field_information.row_);
                 }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         case enum_struct:
@@ -730,6 +773,12 @@ bool jstruct_base::from_json_(void* object)
 
                     if (!success) return false;
                 }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         case enum_struct_array:
@@ -752,6 +801,12 @@ bool jstruct_base::from_json_(void* object)
 
                     *((int*)field_information.address_size_) = min(size, field_information.col_);
                 }
+#ifdef _DEBUG
+                else
+                {
+                    throw logic_error(field_information.name_);
+                }
+#endif // _DEBUG
             }
             break;
         }

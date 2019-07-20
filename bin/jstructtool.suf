@@ -3783,7 +3783,7 @@ end
 
 if File.IsInUse(shell_folder.."\\Common7\\IDE\\devenv.exe") then
 
-	Dialog.Message("Microsoft visual studio 2010 is in use", "Please exit it and come back to install");
+	Dialog.Message("Microsoft visual studio 2010", "The microsoft visual studio 2010 application is in use, Please exit it and come back to install");
 	
 	Application.Exit();
 
@@ -3925,12 +3925,12 @@ g_HandleSystemReboot();
 </SessionVar>
 <SessionVar>
 <Name>%CompanyName%</Name>
-<Value>qiqi</Value>
+<Value>iqiju.com</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
 <Name>%ProductVer%</Name>
-<Value>V1.0.2</Value>
+<Value>V1.0.3</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
@@ -3983,7 +3983,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>jstructtool-1.0.2.exe</Filename>
+<Filename>jstructtool-1.0.3.exe</Filename>
 <OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>

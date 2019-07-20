@@ -19,7 +19,7 @@
 #include <boost/program_options/options_description.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#define compiler_version "V1.0.1"
+#define compiler_version "V1.0.3"
 
 // {F960C1BA-33DE-485A-A6F7-5BBB3FB5C4DC}
 DEFINE_GUID(VSIX_ID,
@@ -60,26 +60,30 @@ static boost::optional<std::string> input_file;
 static boost::optional<std::string> output_file;
 po::options_description             odesc("usage");
 
-static smatch sm;
+// sub group
+mark_tag alias_name(1);
+mark_tag field_name(1);
+mark_tag struct_name(1);
+mark_tag qualifier_name(1);
+
 // common regex expressions
-static const sregex re_alunderscore         = (alpha | '_');
-static const sregex re_identifier           = (re_alunderscore >> *(_d | re_alunderscore));
-static const sregex re_qualifier_required   = (s1 = as_xpr(ESTR(REQUIRED)) | ESTR(OPTIONAL));
-static const sregex re_qualifier_type       = (s1 = as_xpr(ESTR(REQUIRED)) | ESTR(BOOL_T) | ESTR(NUMBER_T) | ESTR(NUMBER_ARRAY_T) | ESTR(WCHAR_ARRAY_T) | ESTR(WCHAR_TABLE_T) | ESTR(STRUCT_T) | ESTR(STRUCT_ARRAY_T));
-static const sregex re_qualifier_alias      = (as_xpr(ESTR(ALIAS)) >> '(' >> (s1 = re_identifier) >> ')');
-static const sregex re_user_field           = (bos >> +_s >> (s1 = _b >> ESTR(USER_T) >> _b >> +_s) >> +_w);
-static const sregex re_array                = (as_xpr("[") >> +_w >> "]");
-static const sregex re_qualifier            = (re_qualifier_required | re_qualifier_type | re_qualifier_alias);
-static const sregex re_field                = (bos >> *_s >> repeat<2, 3>(re_qualifier) >> re_identifier >> +_s >> re_identifier >> repeat<0, 2>(re_array) >> *_s >> ';');
-static const sregex re_field_name           = (s1 = re_identifier) >> repeat<0, 2>(re_array) >> *_s >> ';';
+static const sregex alpha_underscore        = (alpha | '_');
+static const sregex identifier              = (alpha_underscore >> *(_d | alpha_underscore));
+
+static const sregex qualifier_col1          = (as_xpr(ESTR(REQUIRED)) | ESTR(OPTIONAL));
+static const sregex qualifier_col2          = (as_xpr(ESTR(BOOL_T)) | ESTR(NUMBER_T) | ESTR(NUMBER_ARRAY_T) | ESTR(WCHAR_ARRAY_T) | ESTR(WCHAR_TABLE_T) | ESTR(STRUCT_T) | ESTR(STRUCT_ARRAY_T));
+static const sregex qualifier_col3          = (as_xpr(ESTR(ALIAS)) >> '(' >> (alias_name = identifier) >> ')');
+
+static const sregex array                   = (as_xpr("[") >> +_w >> "]");
+static const sregex qualifier               = (qualifier_col1 | qualifier_col2 | qualifier_col3);
+static const sregex field                   = (bos >> *_s >> repeat<2, 3>(qualifier >> +_s) >> identifier >> +_s >> (field_name = identifier) >> repeat<0, 2>(array) >> *_s >> ';');
+static const sregex user_field              = (bos >> +_s >> (s1 = ESTR(USER_T) >> +_s) >> +_w);
 
 static bool is_user_field(std::string& line)
 {
-    static smatch sm;
+    smatch sm;
 
-    static const sregex re = bos >> +_s >> (s1 = _b >> ESTR(USER_T) >> _b >> +_s) >> +_w;
-
-    if (regex_search(line, sm, re))
+    if (regex_search(line, sm, user_field))
     {
         replace_first(line, sm[s1], "");
 
@@ -91,46 +95,40 @@ static bool is_user_field(std::string& line)
 
 static bool is_field(std::string& line)
 {
-    static const sregex re_field = bos >> *_s >> repeat<2, 3>(re_qualifier) >> re_identifier >> +_s >> re_identifier >> repeat<0, 2>(re_array) >> *_s >> ';';
+    auto len = line.length();
 
-    return regex_search(line, re_field);
+    auto success = regex_search(line, field);
+
+    return success;
 }
 
 static std::string field_qualifier(const std::string& line)
 {
+    smatch sm;
+
     std::string qualifier;
 
-    static const sregex re1 = (s1 = re_qualifier_required)  >> +_s >> +_w;
-    static const sregex re2 = (s1 = re_qualifier_type)      >> +_s >> +_w;
-    static const sregex re3 = (s1 = re_qualifier_alias)     >> +_s >> +_w;
+    static const sregex re_qualifier = (qualifier_name = repeat<2, 3>(::qualifier >> +_s));
 
-    if (regex_search(line, sm, re1))
-    {
-        qualifier += sm[s1];
-    }
-    if (regex_search(line, sm, re2))
-    {
-        qualifier += sm[s1];
-    }
-    if (regex_search(line, sm, re3))
-    {
-        qualifier += sm[s1];
-    }
+    regex_search(line, sm, re_qualifier) ? qualifier += sm[qualifier_name] : 0;
 
     return qualifier;
 }
 
 static std::string qualifier_required(const std::string& full_qualifier)
 {
+    smatch sm;
     std::string ret;
 
+    static const sregex re_qualifier_col1 = (s1 = qualifier_col1);
+
     // if missing
-    if (regex_search(full_qualifier, sm, re_qualifier_required))
+    if (regex_search(full_qualifier, sm, re_qualifier_col1))
     {
         ret = sm[s1];
 
         // if repeated
-        if (regex_search(full_qualifier.substr(sm[s1].second - full_qualifier.begin()), sm, re_qualifier_required))
+        if (regex_search(full_qualifier.substr(sm[s1].second - full_qualifier.begin()), sm, re_qualifier_col1))
         {
             ret = "";
         }
@@ -141,14 +139,17 @@ static std::string qualifier_required(const std::string& full_qualifier)
 
 static std::string qualifier_type(const std::string& full_qualifier)
 {
+    smatch sm;
     std::string ret;
 
+    static const sregex re_qualifier_col2 = (s1 = qualifier_col2);
+
     // if missing
-    if (regex_search(full_qualifier, sm, re_qualifier_type))
+    if (regex_search(full_qualifier, sm, re_qualifier_col2))
     {
         ret = sm[s1];
 
-        if (regex_search(full_qualifier.substr(sm[s1].second - full_qualifier.begin()), sm, re_qualifier_type))
+        if (regex_search(full_qualifier.substr(sm[s1].second - full_qualifier.begin()), sm, re_qualifier_col2))
         {
             ret = "";
         }
@@ -159,31 +160,37 @@ static std::string qualifier_type(const std::string& full_qualifier)
 
 static std::string qualifier_alias(const std::string& line)
 {
-    if (regex_search(line, sm, re_qualifier_alias))
+    smatch sm;
+
+    if (regex_search(line, sm, qualifier_col3))
     {
-        return sm[s1];
+        return sm[alias_name];
     }
 
     return "";
 }
 
-static std::string field_name(const std::string& line)
+static std::string parse_field_name(const std::string& line)
 {
-    if (regex_search(line, sm, re_field_name))
+    smatch sm;
+
+    if (regex_search(line, sm, field))
     {
-        return sm[s1];
+        return sm[field_name];
     }
 
     return "";
 }
 
-static std::string struct_name(const std::string& declaration)
+static std::string parse_struct_name(const std::string& declaration)
 {
-    static const sregex re_struct = as_xpr("struct") >> +_s >> (s1 = re_identifier);
+    smatch sm;
+
+    static const sregex re_struct = as_xpr("struct") >> +_s >> (struct_name = identifier);
 
     if (regex_search(declaration, sm, re_struct))
     {
-        return sm[s1];
+        return sm[struct_name];
     }
 
     return "";
@@ -191,13 +198,15 @@ static std::string struct_name(const std::string& declaration)
 
 static void remove_qualifiers(std::string& line)
 {
-    line = regex_replace(line, re_qualifier, "");
+    static const sregex qualifier_space = repeat<2, 3>(qualifier >> +_s);
+
+    line = regex_replace(line, qualifier_space, "");
 }
 
 static int is_single_line_comment(std::string line)
 {
-    static const sregex re1 = as_xpr('^') >> *_s >> "//" >> *_ >> eos;
-    static const sregex re2 = as_xpr('^') >> *_s >> "/*" >> *_ >> "*/" >> eos;
+    static const sregex re1 = bos >> *_s >> "//" >> *_ >> eos;
+    static const sregex re2 = bos >> *_s >> "/*" >> *_ >> "*/" >> eos;
 
     if (regex_search(line, re1)) return 1;
     if (regex_search(line, re2)) return 2;
@@ -207,14 +216,14 @@ static int is_single_line_comment(std::string line)
 
 static bool is_multiline_comment_beg(std::string line)
 {
-    static const sregex re = as_xpr('^') >> *_s >> "/*";
+    static const sregex re = bos >> *_s >> "/*";
 
     return regex_search(line, re);
 }
 
 static bool is_multiline_comment_end(std::string line)
 {
-    static const sregex re = ((as_xpr('^') >> *_s >> "*/") | (*_ >> "*/" >> *_s)) >> eos;
+    static const sregex re = ((bos >> *_s >> "*/") | (*_ >> "*/" >> *_s)) >> eos;
 
     return regex_search(line, re);
 }
@@ -253,23 +262,23 @@ static bool is_in_comment(const std::string& line)
     return false;
 }
 
-static void align(std::string& line1, std::string& line2, const sregex& re, unsigned int call_depth)
+static void align(std::string& line1, std::string& line2, const sregex& re1, const sregex& re2, unsigned recursive_call_depth)
 {
-    if (64 < call_depth) return; // avoid stack overflow
+    if (64 < recursive_call_depth) return; // avoid stack overflow
 
     smatch sm1;
     smatch sm2;
 
-    if (regex_search(line1, sm1, re) && regex_search(line2, sm2, re))
+    if (regex_search(line1, sm1, re1) && regex_search(line2, sm2, re2))
     {
-        auto offset1 = sm1[1].second - line1.begin();
-        auto offset2 = sm2[1].second - line2.begin();
+        auto offset1 = sm1[s1].second - line1.begin();
+        auto offset2 = sm2[s1].second - line2.begin();
 
         if (offset1 != offset2)
         {
-            line1.insert(sm1[2].first - line1.begin(), " ");
+            line1.insert(sm1[s1].first - line1.begin(), " ");
 
-            align(line1, line2, re, call_depth + 1);
+            align(line1, line2, re1, re2, recursive_call_depth + 1);
         }
     }
 }
@@ -300,25 +309,25 @@ static void read_file(const std::string& file_name)
     }
 }
 
-static void read_struct(const std::string& file_name)
+static void parse_structs(const std::string& file_name)
 {
     smatch              sm;
     struct_info         st_info;
     std::string         jst_base = " : public jstruct_base";
-    static const sregex struct_end_re = as_xpr('^') >> *_s >> '}' >> *_s >> ';';
-    static const sregex struct_beg_re = as_xpr("struct") >> +_s >> (s1 = re_identifier);
+    static const sregex re_struct_end = bos >> *_s >> '}' >> *_s >> ';';
+    static const sregex re_struct_beg = as_xpr("struct") >> +_s >> (struct_name = identifier);
 
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
         if (iter->empty() || is_in_comment(*iter)) continue; // skip empty line and comment
 
-        if (regex_search(*iter, sm, struct_beg_re))
+        if (regex_search(*iter, sm, re_struct_beg))
         {
             st_info.iter_struct_beg_ = iter;
 
-            iter->insert(sm[s1].second, jst_base.begin(), jst_base.end());
+            iter->insert(sm[struct_name].second, jst_base.begin(), jst_base.end());
         }
-        else if (regex_search(*iter, struct_end_re))
+        else if (regex_search(*iter, re_struct_end))
         {
             st_info.iter_struct_end_ = iter;
 
@@ -348,11 +357,11 @@ size_t single_line_comment_offset(const std::string& line)
     }
 }
 
-static void read_fields()
+static void parse_fields()
 {
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
     {
-        iter1->stname_ = struct_name(*iter1->iter_struct_beg_);
+        iter1->stname_ = parse_struct_name(*iter1->iter_struct_beg_);
 
         for (auto iter2 = iter1->iter_struct_beg_; iter2 != iter1->iter_struct_end_; ++iter2)
         {
@@ -365,7 +374,7 @@ static void read_fields()
 
             field_info f_info;
 
-            f_info.name_            = field_name(line);
+            f_info.name_            = parse_field_name(line);
             f_info.alias_           = qualifier_alias(line);
             f_info.qualifier_       = field_qualifier(line);
             f_info.qualifier_error_ = false;
@@ -404,7 +413,7 @@ static void read_fields()
             }
             else if (std::string::npos != f_info.qualifier_.find(ESTR(BOOL_T)))
             {
-                static const sregex re = as_xpr("bool") >> +_s >> re_identifier >> *_s >> ';';
+                static const sregex re = as_xpr("bool") >> +_s >> identifier >> *_s >> ';';
 
                 if (!regex_search(line, re))
                 {
@@ -441,7 +450,8 @@ static void read_fields()
 
                 iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
-                align(*iter3, line, sregex::compile((boost::format("([a-zA-Z_$][a-zA-Z0-9_$]*\\s+(%1%))") % f_info.name_).str()), 1);
+                sregex re = sregex::compile(f_info.name_);
+                align(*iter3, line, (s1 = re) >> before("_size"), (s1 = re), 1);
             }
         }
     }
@@ -534,10 +544,11 @@ static void align_reg_fields_code(std::list<std::string>& reg_fields_code)
 {
     smatch sm;
     int max_qualifier_index = 0;
-    std::list<std::string>::iterator max_qualifier_iter; const sregex qualifier_req_regex = sregex::compile((boost::format("(%1%|%2%)") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str());
+    std::list<std::string>::iterator max_qualifier_iter;
+    static const sregex re_qualifier_col1 = (s1 = qualifier_col1);
     for (auto iter2 = reg_fields_code.begin(); iter2 != reg_fields_code.end(); ++iter2)
     {
-        if (!regex_search(*iter2, sm, qualifier_req_regex))
+        if (!regex_search(*iter2, sm, re_qualifier_col1))
         {
             static boost::format fmt("#error \"missing or error qualifier, only support %1% and %2%\";");
 
@@ -548,7 +559,7 @@ static void align_reg_fields_code(std::list<std::string>& reg_fields_code)
             continue;
         }
 
-        auto offset = sm[1].first - iter2->begin();
+        auto offset = sm[s1].first - iter2->begin();
 
         if (max_qualifier_index < offset)
         {
@@ -560,7 +571,7 @@ static void align_reg_fields_code(std::list<std::string>& reg_fields_code)
     {
         if (iter2 != max_qualifier_iter)
         {
-            align(*iter2, *max_qualifier_iter, sregex::compile((boost::format("((%1%|%2%))") % ESTR(REQUIRED) % ESTR(OPTIONAL)).str()), 1);
+            align(*iter2, *max_qualifier_iter, re_qualifier_col1, re_qualifier_col1, 1);
         }
     }
 }
@@ -623,8 +634,11 @@ static void write_decl_file(const std::string& o_file_name)
 
     // save
     gen_warning_code(out);
+
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
+        replace_first(*iter, ".jst", ".h");
+
         out << *iter << "\n";
     }
     out.close();
@@ -672,8 +686,8 @@ static void parse(std::string i_file_name, std::string o_file_name, std::string 
     //}
 
     read_file(i_file_name);
-    read_struct(i_file_name);
-    read_fields();
+    parse_structs(i_file_name);
+    parse_fields();
 
     if (".h" == file_ext)
     {

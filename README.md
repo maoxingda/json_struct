@@ -57,3 +57,5 @@ int main(int argc, char** argv)
 * delete intermediate files
 * if the optional field has a value
 * get name and location field value in vs add new item wizard
+* xpath
+* inline comment
