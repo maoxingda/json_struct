@@ -31,7 +31,7 @@ struct field_info
     void*       address_size_;  // save derived struct array size field address
 
     string      type_name_;     // int float double etc.
-    string      qualifier_;     // REQUIRED and OPTIONAL
+    string      qualifier_;     // REQUIRED or OPTIONAL
     string      name_;          // c++ identifier
     string      alias_;         // use when name_ is not similar to json key name
 };

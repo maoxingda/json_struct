@@ -14,6 +14,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/xpressive/xpressive.hpp>
+#include <boost/xpressive/regex_actions.hpp>
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/options_description.hpp>
@@ -67,17 +68,19 @@ mark_tag struct_name(1);
 mark_tag qualifier_name(1);
 
 // common regex expressions
-static const sregex alpha_underscore        = (alpha | '_');
-static const sregex identifier              = (alpha_underscore >> *(_d | alpha_underscore));
+static const sregex alpha_underscore = (alpha | '_');
+static const sregex identifier       = (alpha_underscore >> *(_d | alpha_underscore));
 
-static const sregex qualifier_col1          = (as_xpr(ESTR(REQUIRED)) | ESTR(OPTIONAL));
-static const sregex qualifier_col2          = (as_xpr(ESTR(BOOL_T)) | ESTR(NUMBER_T) | ESTR(NUMBER_ARRAY_T) | ESTR(WCHAR_ARRAY_T) | ESTR(WCHAR_TABLE_T) | ESTR(STRUCT_T) | ESTR(STRUCT_ARRAY_T));
-static const sregex qualifier_col3          = (as_xpr(ESTR(ALIAS)) >> '(' >> (alias_name = identifier) >> ')');
+static const sregex qualifier_col1   = (as_xpr(ESTR(REQUIRED)) | ESTR(OPTIONAL));
+static const sregex qualifier_col2   = (as_xpr(ESTR(BOOL_T)) | ESTR(NUMBER_T) | ESTR(NUMBER_ARRAY_T) | ESTR(WCHAR_ARRAY_T) | ESTR(WCHAR_TABLE_T) | ESTR(STRUCT_T) | ESTR(STRUCT_ARRAY_T));
+static const sregex qualifier_col3   = (as_xpr(ESTR(ALIAS)) >> '(' >> (alias_name = identifier) >> ')');
 
-static const sregex array                   = (as_xpr("[") >> +_w >> "]");
-static const sregex qualifier               = (qualifier_col1 | qualifier_col2 | qualifier_col3);
-static const sregex field                   = (bos >> *_s >> repeat<2, 3>(qualifier >> +_s) >> identifier >> +_s >> (field_name = identifier) >> repeat<0, 2>(array) >> *_s >> ';');
-static const sregex user_field              = (bos >> +_s >> (s1 = ESTR(USER_T) >> +_s) >> +_w);
+static const sregex array            = (as_xpr("[") >> +_w >> "]");
+static const sregex qualifier        = (qualifier_col1 | qualifier_col2 | qualifier_col3);
+static const sregex field            = (bos >> *_s >> repeat<2, 3>(qualifier >> +_s) >> identifier >> +_s >> (field_name = identifier) >> repeat<0, 2>(array) >> *_s >> ';');
+static const sregex user_field       = (bos >> +_s >> (s1 = ESTR(USER_T) >> +_s) >> +_w);
+
+static const sregex other_jst        = bos >> (s1 = "#include" >> +_s >> '"' >> +_w) >> ".jst" >> before('"' >> *_s >> eos);
 
 static bool is_user_field(std::string& line)
 {
@@ -451,6 +454,7 @@ static void parse_fields()
                 iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
                 sregex re = sregex::compile(f_info.name_);
+
                 align(*iter3, line, (s1 = re) >> before("_size"), (s1 = re), 1);
             }
         }
@@ -637,7 +641,9 @@ static void write_decl_file(const std::string& o_file_name)
 
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {
-        replace_first(*iter, ".jst", ".h");
+        //replace_first(*iter, ".jst", ".h");
+
+        *iter = regex_replace(*iter, other_jst, s1 + ".h"); // execute more quikly
 
         out << *iter << "\n";
     }

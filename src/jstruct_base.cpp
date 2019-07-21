@@ -424,6 +424,13 @@ static void from_number_array(const string& field_type, void* field_address, cJS
     }
 }
 
+static void report_error(string msg)
+{
+#ifdef _DEBUG
+    throw logic_error(msg);
+#endif // _DEBUG
+}
+
 string jstruct_base::to_json()
 {
     string json;
@@ -656,9 +663,7 @@ bool jstruct_base::from_json_(void* object)
             if (ESTR(OPTIONAL) == field_information.qualifier_) continue;
             if (ESTR(REQUIRED) == field_information.qualifier_)
             {
-#ifdef _DEBUG
-                throw logic_error(field_information.name_);
-#endif // _DEBUG
+                report_error("missing required field ---> " + field_information.name_);
 
                 return false;
             }
@@ -672,12 +677,10 @@ bool jstruct_base::from_json_(void* object)
                 {
                     *(bool*)field_address = 1 == item->valueint ? true : false;
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect bool type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         case enum_number:
@@ -686,12 +689,10 @@ bool jstruct_base::from_json_(void* object)
                 {
                     from_number(field_information.type_name_, field_address, item);
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect number type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         case enum_number_array:
@@ -704,17 +705,22 @@ bool jstruct_base::from_json_(void* object)
                     {
                         cJSON* arrItem = cJSON_GetArrayItem(item, i);
 
-                        if (cJSON_IsNumber(arrItem)) from_number_array(field_information.type_name_, field_address, arrItem, i);
+                        if (cJSON_IsNumber(arrItem))
+                        {
+                            from_number_array(field_information.type_name_, field_address, arrItem, i);
+                        }
+                        else
+                        {
+                            report_error("expect number type ---> " + field_information.name_);
+                        }
                     }
 
                     *((int*)field_information.address_size_) = min(size, field_information.col_);
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect array type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         case enum_wchar_array:
@@ -727,12 +733,10 @@ bool jstruct_base::from_json_(void* object)
 
                     wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect string type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         case enum_wchar_table:
@@ -753,16 +757,18 @@ bool jstruct_base::from_json_(void* object)
 
                             wcsncpy_s(dst, field_information.col_ - 1, ucs2.c_str(), ucs2.size());
                         }
+                        else
+                        {
+                            report_error("expect string type ---> " + field_information.name_);
+                        }
                     }
 
                     *((int*)field_information.address_size_) = min(size, field_information.row_);
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect array type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         case enum_struct:
@@ -773,12 +779,10 @@ bool jstruct_base::from_json_(void* object)
 
                     if (!success) return false;
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect struct type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         case enum_struct_array:
@@ -797,16 +801,18 @@ bool jstruct_base::from_json_(void* object)
 
                             if (!success) return false;
                         }
+                        else
+                        {
+                            report_error("expect object type ---> " + field_information.name_);
+                        }
                     }
 
                     *((int*)field_information.address_size_) = min(size, field_information.col_);
                 }
-#ifdef _DEBUG
                 else
                 {
-                    throw logic_error(field_information.name_);
+                    report_error("expect array type ---> " + field_information.name_);
                 }
-#endif // _DEBUG
             }
             break;
         }
@@ -815,7 +821,15 @@ bool jstruct_base::from_json_(void* object)
     return true;
 }
 
-void jstruct_base::register_field(string field_type, string field_qualifier, string field_name, string field_name_alias, void* field_address, void* array_size_field_address, int offset)
+void jstruct_base::register_field
+    ( string field_type
+    , string field_qualifier
+    , string field_name
+    , string field_name_alias
+    , void*  field_address
+    , void*  field_address_array_size
+    , int    offset
+    )
 {
     field_info f_info;
     size_t row = 0, col = 0;
@@ -825,7 +839,7 @@ void jstruct_base::register_field(string field_type, string field_qualifier, str
     f_info.name_         = field_name;
     f_info.alias_        = field_name_alias;
     f_info.address_      = field_address;
-    f_info.address_size_ = array_size_field_address;
+    f_info.address_size_ = field_address_array_size;
     f_info.type_         = data_type(field_type, row, col);
     f_info.offset_       = offset;
     f_info.row_          = row;
