@@ -30,6 +30,9 @@ namespace jstructtool
 
                 if (!file.Name.EndsWith(".jst")) return;
 
+                //// open added file
+                //projectItem.Open();
+
                 foreach (VCFileConfiguration fc in (IVCCollection)file.FileConfigurations)
                 {
                     VCCustomBuildTool cbt = fc.Tool as VCCustomBuildTool;

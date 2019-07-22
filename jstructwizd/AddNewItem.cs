@@ -27,13 +27,6 @@ namespace jstructwizd
             {
                 _applicationObject = Application as DTE2;
 
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-
-                saveFileDialog.Title = "Add json struct file";
-                saveFileDialog.Filter = "json struct file (*.jst)|All files (*.*)";
-                saveFileDialog.RestoreDirectory = true;
-                saveFileDialog.DefaultExt = ".jst";
-
                 if (null == template_file_name_src)
                 {
                     RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("software\\jstructtool");
@@ -48,22 +41,21 @@ namespace jstructwizd
                     VCFilter filter = si.ProjectItem.Object as VCFilter;
                     VCProject proj = filter.project as VCProject;
 
-                    saveFileDialog.InitialDirectory = Path.GetDirectoryName(proj.ProjectFile);
+                    template_file_name_dst = contextParams[4] as string;
 
-                    if (DialogResult.OK == saveFileDialog.ShowDialog() && saveFileDialog.FileName.Length > 0)
-                    {
-                        template_file_name_dst = saveFileDialog.FileName;
+                    template_file_name_dst += ".jst";
 
-                        File.Copy(template_file_name_src, template_file_name_dst);
+                    File.Copy(template_file_name_src, template_file_name_dst);
 
-                        if (filter.CanAddFile(template_file_name_dst)) filter.AddFile(template_file_name_dst);
+                    if (filter.CanAddFile(template_file_name_dst)) filter.AddFile(template_file_name_dst);
 
-                        // open added file
-                        _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
-
-                        break;
-                    }
+                    // open added file
+                    _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
                 }
+            }
+            catch (IOException e)
+            {
+                MessageBox.Show(template_file_name_dst + " existed!");
             }
             catch (Exception e)
             {

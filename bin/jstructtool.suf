@@ -3566,8 +3566,9 @@ end
 
 -- delete vs add new item wizard files
 
-File.Delete(shell_folder.."VC\\vcprojectitems\\jstruct\\*.*");
-Folder.Delete(shell_folder.."VC\\vcprojectitems\\jstruct");
+--File.Delete(shell_folder.."VC\\vcprojectitems\\jstruct\\*.*");
+--Folder.Delete(shell_folder.."VC\\vcprojectitems\\jstruct");
+File.Delete(shell_folder.."VC\\vcprojectitems\\jstructwizd.*");
 </Script>
 <BookMarks count="0">
 </BookMarks>
@@ -3821,6 +3822,8 @@ end
 --wizard_file_table_dir = {};
 --wiz_folder = {};
 
+--[[
+
 result = Folder.DoesExist(shell_folder.."VC\\vcprojectitems\\jstruct");
 
 if (false == result) then
@@ -3830,6 +3833,10 @@ if (false == result) then
 end
 
 File.Copy(SessionVar.Expand("%AppFolder%\\jstwiz\\*.*"), shell_folder.."VC\\vcprojectitems\\jstruct");
+     
+]]
+     
+File.Copy(SessionVar.Expand("%AppFolder%\\jstwiz\\*.*"), shell_folder.."VC\\vcprojectitems");
 
 --wiz_folder.FolderPath = shell_folder.."VC\\vcprojectitems\\jstruct";
 
