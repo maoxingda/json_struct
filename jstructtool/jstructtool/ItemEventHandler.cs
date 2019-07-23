@@ -37,7 +37,7 @@ namespace jstructtool
                 {
                     VCCustomBuildTool cbt = fc.Tool as VCCustomBuildTool;
 
-                    cbt.CommandLine = "jstructcompiler --multi_build=off --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
+                    cbt.CommandLine = "jstructcompiler --multi_build=off --my_doc_path=\"$(VisualStudioDir)\" --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
                     cbt.Description = "jstructcompiler%27ing %(Identity)...";
                     cbt.Outputs     = "$(ProjectDir)mjst\\%(Filename).h";
                 }

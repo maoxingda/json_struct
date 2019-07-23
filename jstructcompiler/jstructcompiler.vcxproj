@@ -78,6 +78,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="version.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="jsterror.h" />

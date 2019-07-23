@@ -19,8 +19,8 @@
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-
-#define compiler_version "V1.0.3"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
 
 // {F960C1BA-33DE-485A-A6F7-5BBB3FB5C4DC}
 DEFINE_GUID(VSIX_ID,
@@ -31,8 +31,8 @@ using namespace boost::xpressive;
 using namespace boost::filesystem;
 using namespace boost::posix_time;
 namespace po = boost::program_options;
+namespace pt = boost::property_tree;
 using namespace po::command_line_style;
-
 
 struct field_info
 {
@@ -51,15 +51,30 @@ struct struct_info
     std::list<std::string>::iterator iter_struct_end_;
 };
 
+struct version_info
+{
+    std::string version_;
+
+    void load(const std::string &filename)
+    {
+        pt::ptree tree;
+
+        pt::read_xml(filename, tree);
+
+        version_ = tree.get<std::string>("compiler.version");
+    }
+};
+
 static std::list<std::string>       lines;
 static std::list<struct_info>       structs;
-static std::map<int, const char*>*  perror_msg = nullptr;
 static po::variables_map            options;
 static boost::optional<bool>        multi_build(false);    // concurrent build, use multi-thread
 static boost::optional<bool>        always_build(false);   // ignore file last write time
 static boost::optional<std::string> input_file;
 static boost::optional<std::string> output_file;
+static boost::optional<std::string> my_doc_path;
 po::options_description             odesc("usage");
+version_info                        verinfo;
 
 // sub group
 mark_tag alias_name(1);
@@ -467,7 +482,7 @@ static void gen_warning_code(std::ofstream& out)
     out << "** register struct field code from reading C++ file '" << file_name(*input_file) << "'\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
-    out << "**      by: the json struct compiler version " << compiler_version << "\n";
+    out << "**      by: the json struct compiler version " << verinfo.version_ << "\n";
     out << "**" << "\n";
     out << "** warning! all changes made in this file will be lost!" << "\n";
     out << "*****************************************************************************/" << "\n";
@@ -726,6 +741,7 @@ void read_command_line_argument(int argc, char* argv[])
     std::string onof = cosn(ESTR(output_file), 'o');
     std::string onab = cosn(ESTR(always_build), 'a');
     std::string onmb = cosn(ESTR(multi_build), 'm');
+    std::string mydp = cosn(ESTR(my_doc_path), 'd');
 
     odesc.add_options()
         ("help,h",                               "show this text and exit")
@@ -735,6 +751,7 @@ void read_command_line_argument(int argc, char* argv[])
         (onof.c_str(), po::value(&output_file),  "generate c++ header or source file name")
         (onab.c_str(), po::value(&always_build), "is it always build the input file, 1 or 0")
         (onmb.c_str(), po::value(&multi_build),  "is it build the input file concurrently, 1 or 0")
+        (mydp.c_str(), po::value(&my_doc_path),  "my documents path")
         ;
 
     store(po::parse_command_line(argc, argv, odesc), options);
@@ -757,6 +774,7 @@ int main(int argc, char *argv[])
 
         if (!input_file)  throw std::logic_error("the required option '--input_file' is missing");
         if (!output_file) throw std::logic_error("the required option '--output_file' is missing");
+        if (!my_doc_path) throw std::logic_error("the required option '--my_doc_path' is missing");
 
         if (!options.count("h_out") && !options.count("cpp_out"))
         {
@@ -767,6 +785,8 @@ int main(int argc, char *argv[])
         {
             throw std::logic_error("the option '--h_out and --cpp_out' must be given only one");
         }
+
+        verinfo.load(*my_doc_path + "\\Addins\\version.xml");
 
         if (options.count("h_out"))
         {
