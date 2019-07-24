@@ -69,10 +69,8 @@ static std::list<std::string>       lines;
 static std::list<struct_info>       structs;
 static po::variables_map            options;
 static boost::optional<bool>        multi_build(false);    // concurrent build, use multi-thread
-static boost::optional<bool>        always_build(false);   // ignore file last write time
 static boost::optional<std::string> input_file;
 static boost::optional<std::string> output_file;
-static boost::optional<std::string> my_doc_path;
 po::options_description             odesc("usage");
 version_info                        verinfo;
 
@@ -683,7 +681,7 @@ static bool is_out_of_date(const std::string& i_file_name, const std::string& o_
     return !exists(pof) || last_write_time(pif) > last_write_time(pof);
 }
 
-static void parse(std::string i_file_name, std::string o_file_name, std::string file_ext, bool always)
+static void parse(std::string i_file_name, std::string o_file_name, std::string file_ext)
 {
     //if ("." == o_file_name || "./" == o_file_name || ".\\" == o_file_name) o_file_name = path(i_file_name).parent_path().string();
 
@@ -720,7 +718,7 @@ static void parse(std::string i_file_name, std::string o_file_name, std::string 
     }
 }
 
-static void concurrent_parse(const std::vector<std::string>& files, std::string out_path, std::string file_ext, bool always)
+static void concurrent_parse(const std::vector<std::string>& files, std::string out_path, std::string file_ext)
 {
     throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
 }
@@ -739,9 +737,7 @@ void read_command_line_argument(int argc, char* argv[])
 {
     std::string onif = cosn(ESTR(input_file), 'i');
     std::string onof = cosn(ESTR(output_file), 'o');
-    std::string onab = cosn(ESTR(always_build), 'a');
     std::string onmb = cosn(ESTR(multi_build), 'm');
-    std::string mydp = cosn(ESTR(my_doc_path), 'd');
 
     odesc.add_options()
         ("help,h",                               "show this text and exit")
@@ -749,15 +745,16 @@ void read_command_line_argument(int argc, char* argv[])
         ("cpp_out",                              "generate c++ source file")
         (onif.c_str(), po::value(&input_file),   "the input file that will be build")
         (onof.c_str(), po::value(&output_file),  "generate c++ header or source file name")
-        (onab.c_str(), po::value(&always_build), "is it always build the input file, 1 or 0")
         (onmb.c_str(), po::value(&multi_build),  "is it build the input file concurrently, 1 or 0")
-        (mydp.c_str(), po::value(&my_doc_path),  "my documents path")
         ;
 
     store(po::parse_command_line(argc, argv, odesc), options);
 
     notify(options);
 }
+
+#include <shlobj.h>
+#pragma comment(lib, "shell32.lib")
 
 int main(int argc, char *argv[])
 {
@@ -774,7 +771,6 @@ int main(int argc, char *argv[])
 
         if (!input_file)  throw std::logic_error("the required option '--input_file' is missing");
         if (!output_file) throw std::logic_error("the required option '--output_file' is missing");
-        if (!my_doc_path) throw std::logic_error("the required option '--my_doc_path' is missing");
 
         if (!options.count("h_out") && !options.count("cpp_out"))
         {
@@ -786,15 +782,19 @@ int main(int argc, char *argv[])
             throw std::logic_error("the option '--h_out and --cpp_out' must be given only one");
         }
 
-        verinfo.load(*my_doc_path + "\\Addins\\version.xml");
+        char my_documents[MAX_PATH] = { 0 };
+
+        SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, my_documents);
+
+        verinfo.load(my_documents + std::string("\\Visual Studio 2010\\Addins\\version.xml"));
 
         if (options.count("h_out"))
         {
-            parse(*input_file, *output_file, ".h", *always_build);
+            parse(*input_file, *output_file, ".h");
         }
         else if (options.count("cpp_out"))
         {
-            parse(*input_file, *output_file, ".cpp", *always_build);
+            parse(*input_file, *output_file, ".cpp");
         }
 
         return 0;

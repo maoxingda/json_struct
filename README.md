@@ -59,3 +59,4 @@ int main(int argc, char** argv)
 * get name and location field value in vs add new item wizard
 * xpath
 * inline comment
+* use jsoncpp substitute cjson

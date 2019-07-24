@@ -80,6 +80,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="debugconf.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cjson\cJSON.h" />

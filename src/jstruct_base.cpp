@@ -424,10 +424,46 @@ static void from_number_array(const string& field_type, void* field_address, cJS
     }
 }
 
+#ifdef _DEBUG
+#include <shlobj.h>
+#include <fstream>
+
+#pragma comment(lib, "shell32.lib")
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
+namespace pt = boost::property_tree;
+
+
+struct debug_conf
+{
+    bool throw_;
+
+    void load(const std::string &filename)
+    {
+        pt::ptree tree;
+
+        pt::read_xml(filename, tree);
+
+        throw_ = tree.get<bool>("debug.throw");
+    }
+};
+
+#endif // _DEBUG
+
 static void report_error(string msg)
 {
 #ifdef _DEBUG
-    throw logic_error(msg);
+    char my_documents[MAX_PATH] = { 0 };
+
+    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, my_documents);
+
+    debug_conf conf;
+
+    conf.load(my_documents + std::string("\\Visual Studio 2010\\Addins\\debugconf.xml"));
+
+    conf.throw_ ? throw logic_error(msg) : 0;
 #endif // _DEBUG
 }
 
