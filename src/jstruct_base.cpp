@@ -15,9 +15,7 @@ using namespace boost::xpressive;
 // common regex expressions
 static const sregex re_bool         = as_xpr("bool");
 
-static const sregex re_array        = as_xpr("[") >> (s1 = +_d) >> "]";
-
-static const sregex re_number       = (as_xpr("short") | "unsigned short" | "int" | "unsigned int" | "long" | "unsigned long" | "__int64" | "float" | "double");
+static const sregex re_number       = (as_xpr("int") | "unsigned" | "__int64" | "unsigned __int64" | "float" | "double");
 static const sregex re_number_array = (re_number >> " " >> "[" >> (s1 = +_d) >> "]");
 
 static const sregex re_wchar_array  = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
@@ -25,6 +23,23 @@ static const sregex re_wchar_table  = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) 
 
 static const sregex re_struct       = (as_xpr("struct ") >> +_w);
 static const sregex re_struct_array = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
+
+
+struct field_info
+{
+    size_t      type_   : 4;    // 15
+    size_t      row_    : 16;   // 65535
+    size_t      col_    : 16;   // 65535
+    size_t      offset_ : 16;   // 65535
+
+    void*       address_;       // save derived struct field address
+    void*       address_size_;  // save derived struct array size field address
+
+    string      type_name_;     // int float double etc.
+    string      qualifier_;     // REQUIRED or OPTIONAL
+    string      name_;          // c++ identifier
+    string      alias_;         // use when name_ is not similar to json key name
+};
 
 static int array_size(const string& field_type)
 {
