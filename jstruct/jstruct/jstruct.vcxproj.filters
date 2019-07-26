@@ -18,6 +18,9 @@
     <Filter Include="src">
       <UniqueIdentifier>{f1abd599-d79e-415c-ae74-62da4fa31f98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{f95491e6-45d2-4bed-a35d-66fa82a2ddc1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -47,6 +50,36 @@
     </ClInclude>
     <ClInclude Include="jfield_info.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\allocator.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\assertions.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\config.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\features.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\forwards.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\json.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\reader.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\value.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\version.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\writer.h">
+      <Filter>json</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
