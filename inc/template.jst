@@ -8,19 +8,22 @@
 template <typename user_t
     , typename number_t
     , typename struct_t>
-struct struct_name
+jstruct struct_name
 {
-    USER_T                  user_t      user_field;                 // user data, serialize and vice-versal unrelated
-    REQUIRED BOOL_T         bool        bool_field;                 // not support BOOL, because of typeid(int) == typeid(BOOL)
+    user_t      user_field;                 // user data, serialize and vice-versal unrelated
 
-    REQUIRED NUMBER_T       number_t    number_field;               // now support short|unsigned short|int|unsigned int|long|unsigned long|__int64|float|double
-    REQUIRED NUMBER_ARRAY_T number_t    number_array_field[2];
+public jrequired:
+    jbool       bool_field;
 
-    REQUIRED WCHAR_ARRAY_T  wchar_t     wchar_array_field[1024];    // now support wchar_t only, because of the conversion from utf8 to utf16 was done internally
-    REQUIRED WCHAR_TABLE_T  wchar_t     wchar_table_field[2][1024];
+    number_t    number_field;               // now support int, unsigned, __int64, unsigned __int64, float, double
+    number_t    number_array_field[2];
 
-    REQUIRED STRUCT_T       struct_t    struct_field;               // user custom defined struct
-    REQUIRED STRUCT_ARRAY_T struct_t    struct_array_field[2];
+    jwchar      wchar_array_field[1024];    // now support wchar_t only, because of the conversion from utf8 to utf16 was done internally
+    jwchar      wchar_table_field[2][1024];
+
+public joptional:
+    struct_t    struct_field;               // user custom defined struct
+    struct_t    struct_array_field[2];
 };
 
 // TODO: Add your struct declaration code here

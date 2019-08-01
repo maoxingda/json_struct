@@ -282,7 +282,10 @@ static void parse_structs(const std::string& file_name)
             st_info.stname_             = sm[struct_name];
             st_info.iter_struct_beg_    = iter;
 
-            iter->insert(sm[struct_name].second, jst_base.begin(), jst_base.end());
+            if ("struct_name" != sm[struct_name])
+            {
+                iter->insert(sm[struct_name].second, jst_base.begin(), jst_base.end());
+            }
         }
         else if (regex_search(*iter, re_struct_end))
         {
@@ -308,6 +311,8 @@ static void parse_fields()
 {
     for (auto iter1 = structs.begin(); iter1 != structs.end(); ++iter1)
     {
+        if ("struct_name" == iter1->stname_) continue;
+
         auto size = 0u;
 
         for (auto iter2 = iter1->field_qualifiers.begin(); size < iter1->field_qualifiers.size() - 1; ++iter2, ++size)
@@ -522,6 +527,8 @@ static void write_decl_file(const std::string& o_file_name)
     {
         auto& st_info  = *iter1;
         auto& position = iter1->iter_struct_end_;
+
+        if (!st_info.fields_.size()) continue;
 
         // generate register field code in construct function
         lines.insert(position, (boost::format("\n    %1%()") % st_info.stname_).str());
