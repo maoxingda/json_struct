@@ -21,6 +21,9 @@
     <Filter Include="json">
       <UniqueIdentifier>{f95491e6-45d2-4bed-a35d-66fa82a2ddc1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{4ad0a667-67ca-4005-aa35-4c9ccbfe24b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -81,6 +84,9 @@
     <ClInclude Include="..\..\json\writer.h">
       <Filter>json</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\util\UtilCommonPath.h">
+      <Filter>util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -91,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\..\cjson\cJSON.c">
       <Filter>cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\util\UtilCommonPath.cpp">
+      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

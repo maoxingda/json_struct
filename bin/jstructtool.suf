@@ -4051,7 +4051,7 @@ g_HandleSystemReboot();
 </SessionVar>
 <SessionVar>
 <Name>%ProductVer%</Name>
-<Value>V1.0.3</Value>
+<Value>V1.0.4</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
@@ -4104,7 +4104,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>jstructtool-1.0.3.exe</Filename>
+<Filename>jstructtool-1.0.4.exe</Filename>
 <OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>

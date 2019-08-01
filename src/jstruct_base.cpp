@@ -3,6 +3,7 @@
 #include "jqualifier.h"
 #include "jstruct_base.h"
 #include "jfield_info.h"
+#include "UtilCommonPath.h"
 
 #include <list>
 #include <codecvt>
@@ -440,10 +441,7 @@ static void from_number_array(const string& field_type, void* field_address, cJS
 }
 
 #ifdef _DEBUG
-#include <shlobj.h>
 #include <fstream>
-
-#pragma comment(lib, "shell32.lib")
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -470,13 +468,9 @@ struct debug_conf
 static void report_error(string msg)
 {
 #ifdef _DEBUG
-    char my_documents[MAX_PATH] = { 0 };
-
-    SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, my_documents);
-
     debug_conf conf;
 
-    conf.load(my_documents + std::string("\\Visual Studio 2010\\Addins\\debugconf.xml"));
+    conf.load(UtilCommonPath().MyDocuments() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
 
     conf.throw_ ? throw logic_error(msg) : 0;
 #endif // _DEBUG
@@ -703,16 +697,16 @@ bool jstruct_base::from_json_(void* object)
     {
         auto&               field_information   = *iter;
         void*               field_address       = field_information.address_;
-        string              alias               = field_information.alias_;
+        //string              alias               = field_information.alias_;
 
         cJSON*              item                = nullptr;
-        if (!alias.empty()) item                = cJSON_GetObjectItem((cJSON*)object, alias.c_str());
+        //if (!alias.empty()) item                = cJSON_GetObjectItem((cJSON*)object, alias.c_str());
         if (!item)          item                = cJSON_GetObjectItem((cJSON*)object, field_information.name_.c_str());
 
         if (nullptr == item)
         {
-            if (ESTR(OPTIONAL) == field_information.qualifier_) continue;
-            if (ESTR(REQUIRED) == field_information.qualifier_)
+            if (ESTR(joptional) == field_information.qualifier_) continue;
+            if (ESTR(jrequired) == field_information.qualifier_)
             {
                 report_error("missing required field ---> " + field_information.name_);
 

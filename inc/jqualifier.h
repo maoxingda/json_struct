@@ -1,25 +1,24 @@
 #pragma once
 
 
-// mandatory qualifier, specify one of them
-#define OPTIONAL
-#define REQUIRED
+// keywords
+#define joptional
+#define jrequired
 
-// mandatory qualifier, specify one of them
-#define USER_T
-#define BOOL_T          bool
+// supported types
+typedef bool             jbool;
 
-#define INT_T           int
-#define UINT_T          unsigned
-#define INT64_T         __int64
-#define UINT64_T        unsigned __int64
+typedef int              jint;
+typedef unsigned         juint;
+typedef __int64          jint64;
+typedef unsigned __int64 juint64;
 
-#define FLOAT_T         float
-#define DOUBLE_T        double
+typedef float            jfloat;
+typedef double           jdouble;
 
-#define WCHAR_T         wchar_t
+typedef wchar_t          jwchar;
 
-#define STRUCT_T        struct
+#define jstruct          struct
 
 // optional qualifier
-#define ALIAS(name)
+#define alias(name)
