@@ -87,7 +87,7 @@ void JReader::parse_structs()
     struct_info         st_info;
     std::string         jst_base = " : public jstruct_base";
     static const sregex re_struct_end = bos >> *_s >> '}' >> *_s >> ';';
-    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = 'J' >> identifier);
+    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = icase('j') >> identifier);
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
@@ -98,7 +98,7 @@ void JReader::parse_structs()
             st_info.stname_             = what[struct_name];
             st_info.iter_struct_beg_    = iter;
 
-            if ("struct_name" != what[struct_name])
+            if ("jstruct_name" != what[struct_name])
             {
                 iter->insert(what[struct_name].second, jst_base.begin(), jst_base.end());
             }
@@ -127,7 +127,7 @@ void JReader::parse_fields()
 {
     for (auto iter1 = structs_.begin(); iter1 != structs_.end(); ++iter1)
     {
-        if ("struct_name" == iter1->stname_) continue;
+        if ("jstruct_name" == iter1->stname_) continue;
 
         auto size = 0u;
 
@@ -135,13 +135,12 @@ void JReader::parse_fields()
         {
             std::string section_flag = field_qualifier(**iter2);
 
-            auto iter3 = *iter2; ++iter3;
-            auto iter4 =  iter2; ++iter4;
-            auto iter5 = *iter4;
+            auto beg = *iter2; ++beg;
+            auto end = *(++iter2); --iter2;
 
-            for (; iter3 != iter5; ++iter3)
+            for (auto cur = beg; cur != end; ++cur)
             {
-                auto& line = *iter3;
+                auto& line = *cur;
 
                 if (line.empty()) continue; // skip empty line
 
@@ -149,9 +148,7 @@ void JReader::parse_fields()
 
                 if (enum_none == t)
                 {
-                    std::string error = "#error unknown type --->";
-
-                    iter3->insert(iter3->begin(), error.begin(), error.end());
+                    cur->insert(4, "#error unknown type ---> ");
 
                     continue;
                 }
@@ -160,7 +157,6 @@ void JReader::parse_fields()
 
                 f_info.type_      = t;
                 f_info.name_      = parse_field_name(line);
-                //f_info.alias_     = qualifier_alias(line);
                 f_info.qualifier_ = section_flag;
 
                 iter1->fields_.push_back(f_info);
@@ -168,9 +164,9 @@ void JReader::parse_fields()
                 // define array size variable
                 if (enum_number_array == f_info.type_ || enum_wchar_table == f_info.type_ || enum_struct_array == f_info.type_)
                 {
-                    auto iter6 = lines_.insert(++iter3, (boost::format("    int %1%_size;") % f_info.name_).str());
+                    auto iter6 = lines_.insert(++cur, (boost::format("    int %1%_size;") % f_info.name_).str());
 
-                    --iter3, iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
+                    --cur, iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
                     sregex re = sregex::compile(f_info.name_);
 

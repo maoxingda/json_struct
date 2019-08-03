@@ -589,7 +589,7 @@ void* jstruct_base::to_json_(bool& success)
 
                 for (auto i = 0; i < size; ++i)
                 {
-                    string utf8 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().to_bytes((wchar_t*)field_address + i * field_information.offset_);
+                    string utf8 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().to_bytes((wchar_t*)field_address + i * field_information.offset_ / 2);
 
                     cJSON* item = cJSON_CreateString(utf8.c_str());
 
@@ -602,6 +602,8 @@ void* jstruct_base::to_json_(bool& success)
 
                     cJSON_AddItemToArray(array, item);
                 }
+
+                cJSON_AddItemToObject(object, field_name.c_str(), array);
             }
             break;
         case enum_struct:
