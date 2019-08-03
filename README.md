@@ -15,7 +15,7 @@
 ```
 jstruct JDate
 {
-public jrequired:
+public jreq:
     jwchar year[6];
     jwchar month[4];
     jwchar day[4];
@@ -23,7 +23,7 @@ public jrequired:
 
 jstruct JPerson
 {
-public jrequired:
+public jreq:
     jint     identifier;
     jwchar   name[32];
     jint     qq[2];
