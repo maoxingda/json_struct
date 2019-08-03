@@ -3,7 +3,7 @@
 #include "jqualifier.h"
 #include "jstruct_base.h"
 #include "jfield_info.h"
-#include "UtilCommonPath.h"
+#include "JUtilCommonPath.h"
 
 #include <list>
 #include <codecvt>
@@ -25,22 +25,6 @@ static const sregex re_wchar_table  = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) 
 static const sregex re_struct       = (as_xpr("struct ") >> +_w);
 static const sregex re_struct_array = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
 
-
-struct field_info
-{
-    size_t      type_   : 4;    // 15
-    size_t      row_    : 16;   // 65535
-    size_t      col_    : 16;   // 65535
-    size_t      offset_ : 16;   // 65535
-
-    void*       address_;       // save derived struct field address
-    void*       address_size_;  // save derived struct array size field address
-
-    string      type_name_;     // int float double etc.
-    string      qualifier_;     // REQUIRED or OPTIONAL
-    string      name_;          // c++ identifier
-    string      alias_;         // use when name_ is not similar to json key name
-};
 
 static int array_size(const string& field_type)
 {
@@ -470,7 +454,7 @@ static void report_error(string msg)
 #ifdef _DEBUG
     debug_conf conf;
 
-    conf.load(UtilCommonPath().MyDocuments() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
+    conf.load(JUtilCommonPath().MyDocuments() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
 
     conf.throw_ ? throw logic_error(msg) : 0;
 #endif // _DEBUG
@@ -697,16 +681,13 @@ bool jstruct_base::from_json_(void* object)
     {
         auto&               field_information   = *iter;
         void*               field_address       = field_information.address_;
-        //string              alias               = field_information.alias_;
 
-        cJSON*              item                = nullptr;
-        //if (!alias.empty()) item                = cJSON_GetObjectItem((cJSON*)object, alias.c_str());
-        if (!item)          item                = cJSON_GetObjectItem((cJSON*)object, field_information.name_.c_str());
+        cJSON*              item                = cJSON_GetObjectItem((cJSON*)object, field_information.name_.c_str());
 
         if (nullptr == item)
         {
-            if (ESTR(joptional) == field_information.qualifier_) continue;
-            if (ESTR(jrequired) == field_information.qualifier_)
+            if (ESTR(jopt) == field_information.qualifier_) continue;
+            if (ESTR(jreq) == field_information.qualifier_)
             {
                 report_error("missing required field ---> " + field_information.name_);
 

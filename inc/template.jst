@@ -6,22 +6,22 @@
 /* this is an example struct, you can delete
 /************************************************************************/
 template <typename user_t
-    , typename number_t
+    , typename jnumber_t
     , typename struct_t>
-jstruct struct_name
+jstruct jstruct_name
 {
     user_t      user_field;                 // user data, serialize and vice-versal unrelated
 
-public jrequired:
+public jreq:
     jbool       bool_field;
 
-    number_t    number_field;               // now support int, unsigned, __int64, unsigned __int64, float, double
-    number_t    number_array_field[2];
+    jnumber_t   number_field;               // now support int, unsigned, __int64, unsigned __int64, float, double
+    jnumber_t   number_array_field[2];
 
     jwchar      wchar_array_field[1024];    // now support wchar_t only, because of the conversion from utf8 to utf16 was done internally
     jwchar      wchar_table_field[2][1024];
 
-public joptional:
+public jopt:
     struct_t    struct_field;               // user custom defined struct
     struct_t    struct_array_field[2];
 };

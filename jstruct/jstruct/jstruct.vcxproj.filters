@@ -84,7 +84,7 @@
     <ClInclude Include="..\..\json\writer.h">
       <Filter>json</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\util\UtilCommonPath.h">
+    <ClInclude Include="..\..\util\JUtilCommonPath.h">
       <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
@@ -98,7 +98,7 @@
     <ClCompile Include="..\..\cjson\cJSON.c">
       <Filter>cjson</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\util\UtilCommonPath.cpp">
+    <ClCompile Include="..\..\util\JUtilCommonPath.cpp">
       <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>

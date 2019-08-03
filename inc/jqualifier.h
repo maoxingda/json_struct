@@ -2,8 +2,8 @@
 
 
 // keywords
-#define joptional
-#define jrequired
+#define jopt
+#define jreq
 
 // supported types
 typedef bool             jbool;
@@ -19,6 +19,3 @@ typedef double           jdouble;
 typedef wchar_t          jwchar;
 
 #define jstruct          struct
-
-// optional qualifier
-#define alias(name)

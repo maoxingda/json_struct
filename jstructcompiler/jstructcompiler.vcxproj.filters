@@ -15,7 +15,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="version.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -24,10 +23,28 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jsterror.h">
+    <ClInclude Include="JReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\util\UtilCommonPath.h">
+    <ClInclude Include="JWriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JAlign.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JComment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JRegexs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JVersionManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="JParseCmdArg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\JUtilCommonPath.h">
       <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
@@ -38,7 +55,25 @@
     <ClCompile Include="jstructcompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\util\UtilCommonPath.cpp">
+    <ClCompile Include="JReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JWriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JAlign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JComment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JVersionManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="JParseCmdArg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\JUtilCommonPath.cpp">
       <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
