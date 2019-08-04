@@ -87,7 +87,7 @@ void JReader::parse_structs()
     struct_info         st_info;
     std::string         jst_base = " : public jstruct_base";
     static const sregex re_struct_end = bos >> *_s >> '}' >> *_s >> ';';
-    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = icase('j') >> identifier);
+    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = icase("jst_") >> identifier);
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
@@ -98,7 +98,7 @@ void JReader::parse_structs()
             st_info.stname_             = what[struct_name];
             st_info.iter_struct_beg_    = iter;
 
-            if ("jstruct_name" != what[struct_name])
+            if ("jst_name" != what[struct_name])
             {
                 iter->insert(what[struct_name].second, jst_base.begin(), jst_base.end());
             }
@@ -127,7 +127,7 @@ void JReader::parse_fields()
 {
     for (auto iter1 = structs_.begin(); iter1 != structs_.end(); ++iter1)
     {
-        if ("jstruct_name" == iter1->stname_) continue;
+        if ("jst_name" == iter1->stname_) continue;
 
         auto size = 0u;
 
@@ -148,7 +148,7 @@ void JReader::parse_fields()
 
                 if (enum_none == t)
                 {
-                    cur->insert(4, "#error unknown type ---> ");
+                    cur->insert(4, "#error unknown field ---> ");
 
                     continue;
                 }

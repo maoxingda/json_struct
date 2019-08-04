@@ -7,8 +7,8 @@
 /************************************************************************/
 template <typename user_t
     , typename jnumber_t
-    , typename jstruct_t>
-jstruct jstruct_name
+    , typename jst_t>
+jstruct jst_name
 {
     user_t      user_field;                 // user data, serialize and vice-versal unrelated
 
@@ -22,8 +22,8 @@ public jreq:
     jwchar      wchar_table_field[2][1024];
 
 public jopt:
-    jstruct_t   struct_field;               // user custom defined struct
-    jstruct_t   struct_array_field[2];
+    jst_t       struct_field;               // user custom defined struct
+    jst_t       struct_array_field[2];
 };
 
 // TODO: Add your struct declaration code here
