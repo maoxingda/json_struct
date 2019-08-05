@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "cJSON.h"
 #include "jmacro.h"
 #include "jqualifier.h"
