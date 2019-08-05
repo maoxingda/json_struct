@@ -20,7 +20,7 @@ static const sregex number              = (as_xpr(ESTR(jint)) | ESTR(juint) | ES
 
 static const sregex qualifier           = (bos >> *_s >> "public" >> +_s >> (qualifier_name = (as_xpr("jreq") | "jopt")) >> *_s >> ':');
 
-static const sregex field               = (bos >> *_s >> icase('j') >> identifier >> +_s >> (field_name = identifier) >> repeat<0, 2>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');
+static const sregex field               = (bos >> *_s >> identifier >> +_s >> (field_name = identifier) >> repeat<0, 2>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');
 
 static const sregex bool_field          = (bos >> *_s >> ESTR(jbool) >> +_s >> identifier >> *_s >> ';');
 
@@ -30,5 +30,5 @@ static const sregex number_array_field  = (bos >> *_s >> number >> +_s >> identi
 static const sregex wchar_array_field   = (bos >> *_s >> ESTR(jwchar) >> +_s >> identifier >> repeat<1, 1>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');
 static const sregex wchar_table_field   = (bos >> *_s >> ESTR(jwchar) >> +_s >> identifier >> repeat<2, 2>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');
 
-static const sregex struct_field        = (bos >> *_s >> icase("jst_") >> identifier >> +_s >> identifier >> *_s >> ';');
-static const sregex struct_array_field  = (bos >> *_s >> icase("jst_") >> identifier >> +_s >> identifier >> repeat<1, 1>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');
+static const sregex struct_field        = (bos >> *_s >> (struct_name = identifier) >> +_s >> identifier >> *_s >> ';');
+static const sregex struct_array_field  = (bos >> *_s >> (struct_name = identifier) >> +_s >> identifier >> repeat<1, 1>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');

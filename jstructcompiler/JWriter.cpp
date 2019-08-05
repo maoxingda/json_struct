@@ -6,7 +6,7 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <JVersionManager.h>
+#include <JVersion.h>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/xpressive/regex_actions.hpp>
 #include "../inc/jmacro.h"
@@ -24,7 +24,7 @@ using namespace boost::posix_time;
 // common regex expressions
 static const sregex alpha_underscore    = (alpha | '_');
 static const sregex identifier          = (alpha_underscore >> *(_d | alpha_underscore));
-static const sregex other_jst           = (bos >> (s1 = "#include" >> +_s >> '"' >> identifier) >> ".jst" >> before('"' >> *_s >> eos));
+static const sregex inc_jst             = (bos >> (s1 = "#include" >> +_s >> '"' >> +_w) >> ".jst" >> before('"'));
 
 
 void JWriter::gen_warning_code(std::ofstream& out)
@@ -33,7 +33,7 @@ void JWriter::gen_warning_code(std::ofstream& out)
     out << "** register struct field code from reading file '" << path(*argument_.input_file).filename().string() << "'\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
-    out << "**      by: the json struct compiler version " << VersionManager().version_ << "\n";
+    out << "**      by: the json struct compiler version " << JVersion().version_ << "\n";
     out << "**" << "\n";
     out << "** warning! all changes made in this file will be lost!" << "\n";
     out << "*****************************************************************************/" << "\n";
@@ -218,7 +218,7 @@ void JWriter::write_decl_file()
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
-        *iter = regex_replace(*iter, other_jst, s1 + ".h");
+        *iter = regex_replace(*iter, inc_jst, s1 + ".h");
 
         out << *iter << "\n";
     }

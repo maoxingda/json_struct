@@ -20,7 +20,7 @@ public:
     void save();
 
 public:
-    JParseCmdArg&            argument_;
+    JParseCmdArg&           argument_;
     std::list<std::string>& lines_;
     std::list<struct_info>& structs_;
 };

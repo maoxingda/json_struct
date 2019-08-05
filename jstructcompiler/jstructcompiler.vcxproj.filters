@@ -38,14 +38,14 @@
     <ClInclude Include="JRegexs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JVersionManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="JParseCmdArg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\util\JUtilCommonPath.h">
       <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="JVersion.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -67,14 +67,14 @@
     <ClCompile Include="JComment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JVersionManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="JParseCmdArg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\util\JUtilCommonPath.cpp">
       <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="JVersion.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

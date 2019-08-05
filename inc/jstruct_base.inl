@@ -25,7 +25,7 @@ static cJSON* resolve_path(cJSON* object, string path)
 template <typename T>
 T jstruct_base::xpath(string json, string path)
 {
-    //static_assert(typeid(int) == typeid(T) || typeid(string) == typeid(T));
+    static_assert(typeid(int) == typeid(T) || typeid(string) == typeid(T));
 
     if (json.empty())
     {
