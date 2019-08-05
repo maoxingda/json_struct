@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "JVersionManager.h"
+#include "JVersion.h"
 #include "../util/JUtilCommonPath.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -8,7 +8,7 @@
 using namespace boost::property_tree;
 
 
-VersionManager::VersionManager()
+JVersion::JVersion()
 {
     ptree tree;
 

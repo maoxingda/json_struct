@@ -20,6 +20,8 @@ public:
     boost::optional<bool>   multi_build;    // concurrent build, use multi-thread
     boost::optional<string> input_file;
     boost::optional<string> output_file;
-    options_description     odesc;
+    boost::optional<string> include_path;
+    vector<string>          incs_;
+    options_description     odesc_;
 };
 

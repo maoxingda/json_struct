@@ -5,41 +5,13 @@
 #include <fstream>
 #include "JParseCmdArg.h"
 #include <JAlign.h>
+#include <boost/filesystem.hpp>
+#include <algorithm>
+#include <boost/foreach.hpp>
 
 
-static type field_type(const string& line)
-{
-    if (regex_search(line, bool_field))
-    {
-        return enum_bool;
-    }
-    else if (regex_search(line, number_field))
-    {
-        return enum_number;
-    }
-    else if (regex_search(line, number_array_field))
-    {
-        return enum_number_array;
-    }
-    else if (regex_search(line, wchar_array_field))
-    {
-        return enum_wchar_array;
-    }
-    else if (regex_search(line, wchar_table_field))
-    {
-        return enum_wchar_table;
-    }
-    else if (regex_search(line, struct_field))
-    {
-        return enum_struct;
-    }
-    else if (regex_search(line, struct_array_field))
-    {
-        return enum_struct_array;
-    }
+using namespace boost::filesystem;
 
-    return enum_none;
-}
 
 static std::string field_qualifier(const std::string& line)
 {
@@ -62,9 +34,88 @@ static std::string parse_field_name(const std::string& line)
     return "";
 }
 
-void JReader::read_file()
+type JReader::field_type(const string& line)
 {
-    std::ifstream in(*arg_.input_file);
+    smatch what;
+
+    if (regex_search(line, what, bool_field))
+    {
+        return enum_bool;
+    }
+    else if (regex_search(line, what, number_field))
+    {
+        return enum_number;
+    }
+    else if (regex_search(line, what, number_array_field))
+    {
+        return enum_number_array;
+    }
+    else if (regex_search(line, what, wchar_array_field))
+    {
+        return enum_wchar_array;
+    }
+    else if (regex_search(line, what, wchar_table_field))
+    {
+        return enum_wchar_table;
+    }
+    else if (regex_search(line, what, struct_field))
+    {
+        if (is_jstruct(what[struct_name]))
+        {
+            return enum_struct;
+        }
+    }
+    else if (regex_search(line, what, struct_array_field))
+    {
+        if (is_jstruct(what[struct_name]))
+        {
+            return enum_struct_array;
+        }
+    }
+
+    return enum_none;
+}
+
+bool JReader::is_jstruct(const std::string& struct_name)
+{
+    BOOST_FOREACH(auto name, inc_structs_)
+    {
+        if (name == struct_name)
+        {
+            return true;
+        }
+    }
+
+    BOOST_FOREACH(auto st, structs_)
+    {
+        if (st.stname_ == struct_name)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+std::string JReader::search_inc_jst(std::string file_name)
+{
+    BOOST_FOREACH(auto p, arg_.incs_)
+    {
+        path file(p + "\\" + file_name);
+
+        if (exists(file))
+        {
+            return file.string();
+        }
+    }
+
+    return "";
+}
+
+void JReader::read_file(std::string file_name, slist& lines)
+{
+    std::ifstream in(file_name);
 
     if (in)
     {
@@ -72,12 +123,12 @@ void JReader::read_file()
 
         while (getline(in, line))
         {
-            lines_.push_back(line);
+            lines.push_back(line);
         }
     }
     else
     {
-        throw std::logic_error("open '" + *arg_.input_file + "' failed");
+        throw std::logic_error("open '" + file_name + "' failed");
     }
 }
 
@@ -85,20 +136,38 @@ void JReader::parse_structs()
 {
     smatch              what;
     struct_info         st_info;
-    std::string         jst_base = " : public jstruct_base";
+    std::string         jst_base      = " : public jstruct_base";
     static const sregex re_struct_end = bos >> *_s >> '}' >> *_s >> ';';
-    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = icase("jst_") >> identifier);
+    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = identifier);
+    static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = +_w >> ".jst") >> before('"');
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
         if (iter->empty()/* || is_in_comment(*iter)*/) continue; // skip empty line and comment
 
-        if (regex_search(*iter, what, re_struct_beg))
+        if (regex_search(*iter, what, re_inc_jst))
+        {
+            slist inc_lines;
+
+            std::string file_name = search_inc_jst(what[s1]);
+
+            if (file_name.empty())
+            {
+                throw std::logic_error("can not find file " + what[s1]);
+            }
+
+            read_file(file_name, inc_lines);
+
+            parse_inc_structs(inc_lines);
+
+            continue;
+        }
+        else if (regex_search(*iter, what, re_struct_beg))
         {
             st_info.stname_             = what[struct_name];
             st_info.iter_struct_beg_    = iter;
 
-            if ("jst_name" != what[struct_name])
+            if ("struct_name" != what[struct_name])
             {
                 iter->insert(what[struct_name].second, jst_base.begin(), jst_base.end());
             }
@@ -123,11 +192,49 @@ void JReader::parse_structs()
     if (!structs_.size()) throw std::logic_error("not find struct in '" + *arg_.input_file + "'");
 }
 
+void JReader::parse_inc_structs(slist& lines)
+{
+    smatch what;
+
+    static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = identifier);
+    static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = +_w >> ".jst") >> before('"');
+
+    for (auto iter = lines.begin(); iter != lines.end(); ++iter)
+    {
+        if (iter->empty()) continue;
+
+        if (regex_search(*iter, what, re_inc_jst))
+        {
+            slist inc_lines;
+
+            std::string file_name = search_inc_jst(what[s1]);
+
+            if (file_name.empty())
+            {
+                throw std::logic_error("can not find file " + what[s1]);
+            }
+
+            read_file(file_name, inc_lines);
+
+            parse_inc_structs(inc_lines);
+
+            continue;
+        }
+
+        if (!regex_search(*iter, what, re_struct_beg)) continue;
+
+        if ("" != what[struct_name] && "struct_name" != what[struct_name])
+        {
+            inc_structs_.push_back(what[struct_name]);
+        }
+    }
+};
+
 void JReader::parse_fields()
 {
     for (auto iter1 = structs_.begin(); iter1 != structs_.end(); ++iter1)
     {
-        if ("jst_name" == iter1->stname_) continue;
+        if ("struct_name" == iter1->stname_) continue;
 
         auto size = 0u;
 
@@ -188,7 +295,7 @@ void JReader::concurrent_parse(const std::vector<std::string>& files, std::strin
     throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
 }
 
-JReader::JReader(std::list<std::string>& lines
+JReader::JReader(slist& lines
     , std::list<struct_info>& structs
     , JParseCmdArg& arg)
 
@@ -196,6 +303,6 @@ JReader::JReader(std::list<std::string>& lines
     , structs_(structs)
     , arg_(arg)
 {
-    read_file();
+    read_file(*arg_.input_file, lines_);
     parse();
 }

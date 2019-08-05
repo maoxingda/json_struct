@@ -9,18 +9,27 @@ class JParseCmdArg;
 
 class JReader
 {
-public:
-    JReader(std::list<std::string>& lines , std::list<struct_info>& structs , JParseCmdArg& arg);
+    typedef std::list<std::string> slist;
 
-    void read_file();
+public:
+    JReader(slist& lines , std::list<struct_info>& structs , JParseCmdArg& arg);
+
+    type field_type(const string& line);
+    bool is_jstruct(const std::string& struct_name);
+    std::string search_inc_jst(std::string file_name);
+    void read_file(std::string file_name, slist& lines);
     void parse_structs();
+    void parse_inc_structs(slist& lines);
     void parse_fields();
     void parse();
     void concurrent_parse(const std::vector<std::string>& files, std::string out_path);
 
 public:
     JParseCmdArg&           arg_;
-    std::list<std::string>& lines_;
+    slist&                  lines_;
     std::list<struct_info>& structs_;
+
+private:
+    slist inc_structs_;
 };
 

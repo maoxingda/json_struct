@@ -30,4 +30,4 @@ private:
     void* d;
 };
 
-#include "jstruct_base.inl"
+//#include "jstruct_base.inl"
