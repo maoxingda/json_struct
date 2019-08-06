@@ -9,7 +9,7 @@
 typedef bool             jbool;
 
 typedef int              jint;
-typedef unsigned         juint;
+typedef unsigned int     juint;
 typedef __int64          jint64;
 typedef unsigned __int64 juint64;
 

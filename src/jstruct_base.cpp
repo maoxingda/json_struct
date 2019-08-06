@@ -17,7 +17,7 @@ using namespace boost::xpressive;
 // common regex expressions
 static const sregex re_bool         = as_xpr("bool");
 
-static const sregex re_number       = (as_xpr("int") | "unsigned" | "__int64" | "unsigned __int64" | "float" | "double");
+static const sregex re_number       = (as_xpr("int") | "unsigned int" | "__int64" | "unsigned __int64" | "float" | "double");
 static const sregex re_number_array = (re_number >> " " >> "[" >> (s1 = +_d) >> "]");
 
 static const sregex re_wchar_array  = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
@@ -640,7 +640,7 @@ void* jstruct_base::to_json_(bool& success)
                 {
                     bool subsuccess = true;
 
-                    cJSON* subobject = (cJSON*)((jstruct_base*)field_address + i * field_information.offset_)->to_json_(subsuccess);
+                    cJSON* subobject = (cJSON*)((jstruct_base*)((char*)field_address + i * field_information.offset_))->to_json_(subsuccess);
 
                     if (!subsuccess)
                     {
