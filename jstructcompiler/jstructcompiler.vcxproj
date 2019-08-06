@@ -81,32 +81,32 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\util\JUtilCommonPath.h" />
-    <ClInclude Include="JAlign.h" />
-    <ClInclude Include="JComment.h" />
-    <ClInclude Include="JReader.h" />
-    <ClInclude Include="JParseCmdArg.h" />
-    <ClInclude Include="JRegexs.h" />
-    <ClInclude Include="JVersion.h" />
+    <ClInclude Include="..\util\jutil_common_path.h" />
+    <ClInclude Include="jalign.h" />
+    <ClInclude Include="jcomment.h" />
+    <ClInclude Include="jreader.h" />
+    <ClInclude Include="jparse_cmd_arg.h" />
+    <ClInclude Include="jregex.h" />
+    <ClInclude Include="jversion.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="JWriter.h" />
+    <ClInclude Include="jwriter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\util\JUtilCommonPath.cpp" />
-    <ClCompile Include="JAlign.cpp" />
-    <ClCompile Include="JComment.cpp" />
+    <ClCompile Include="..\util\jutil_common_path.cpp" />
+    <ClCompile Include="jalign.cpp" />
+    <ClCompile Include="jcomment.cpp" />
     <ClCompile Include="jstructcompiler.cpp">
       <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
     </ClCompile>
-    <ClCompile Include="JReader.cpp" />
-    <ClCompile Include="JParseCmdArg.cpp" />
-    <ClCompile Include="JVersion.cpp" />
+    <ClCompile Include="jreader.cpp" />
+    <ClCompile Include="jparse_cmd_arg.cpp" />
+    <ClCompile Include="jversion.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="JWriter.cpp" />
+    <ClCompile Include="jwriter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

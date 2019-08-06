@@ -2,10 +2,10 @@
 #include <string>
 
 
-class JVersion
+class jversion
 {
 public:
-    JVersion();
+    jversion();
     std::string version_;
 };
 

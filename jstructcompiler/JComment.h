@@ -1,7 +1,7 @@
 #pragma once
 
 
-class JComment
+class jcomment
 {
 public:
 };

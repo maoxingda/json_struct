@@ -2,7 +2,7 @@
 #include <string>
 
 
-class JUtilCommonPath
+class jutil_common_path
 {
 public:
     std::string MyDocuments();

@@ -10,10 +10,10 @@ using namespace std;
 using namespace boost::program_options;
 
 
-class JParseCmdArg
+class jparse_cmd_arg
 {
 public:
-    JParseCmdArg(int argc, char* argv[]);
+    jparse_cmd_arg(int argc, char* argv[]);
 
 public:
     variables_map           args_;

@@ -1,12 +1,12 @@
 #include "StdAfx.h"
 #include <shlobj.h>
-#include "JUtilCommonPath.h"
+#include "jutil_common_path.h"
 
 
 #pragma comment(lib, "shell32.lib")
 
 
-std::string JUtilCommonPath::MyDocuments()
+std::string jutil_common_path::MyDocuments()
 {
     SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, path);
 

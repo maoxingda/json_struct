@@ -1,19 +1,19 @@
 #include "StdAfx.h"
-#include "JWriter.h"
+#include "jwriter.h"
 #include <string>
 #include <iostream>
 #include <boost/format.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <JVersion.h>
+#include <jversion.h>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/xpressive/regex_actions.hpp>
 #include "../inc/jmacro.h"
 #include "../inc/jqualifier.h"
 #include "..\jstruct\jstruct\jfield_info.h"
-#include <JAlign.h>
-#include "JParseCmdArg.h"
+#include <jalign.h>
+#include "jparse_cmd_arg.h"
 
 
 using namespace boost::xpressive;
@@ -27,19 +27,19 @@ static const sregex identifier          = (alpha_underscore >> *(_d | alpha_unde
 static const sregex inc_jst             = (bos >> (s1 = "#include" >> +_s >> '"' >> +_w) >> ".jst" >> before('"'));
 
 
-void JWriter::gen_warning_code(std::ofstream& out)
+void jwriter::gen_warning_code(std::ofstream& out)
 {
     out << "/****************************************************************************" << "\n";
     out << "** register struct field code from reading file '" << path(*argument_.input_file).filename().string() << "'\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
-    out << "**      by: the json struct compiler version " << JVersion().version_ << "\n";
+    out << "**      by: the json struct compiler version " << jversion().version_ << "\n";
     out << "**" << "\n";
     out << "** warning! all changes made in this file will be lost!" << "\n";
     out << "*****************************************************************************/" << "\n";
 }
 
-void JWriter::gen_reg_fields_code(const struct_info& st_info, std::list<std::string>& reg_fields_code)
+void jwriter::gen_reg_fields_code(const struct_info& st_info, std::list<std::string>& reg_fields_code)
 {
     for (auto iter = st_info.fields_.begin(); iter != st_info.fields_.end(); ++iter)
     {
@@ -134,7 +134,7 @@ void JWriter::gen_reg_fields_code(const struct_info& st_info, std::list<std::str
     }
 }
 
-void JWriter::gen_init_fields_code(const struct_info& st_info)
+void jwriter::gen_init_fields_code(const struct_info& st_info)
 {
     for (auto iter2 = st_info.fields_.begin(); iter2 != st_info.fields_.end(); ++iter2)
     {
@@ -150,7 +150,7 @@ void JWriter::gen_init_fields_code(const struct_info& st_info)
     }
 }
 
-void JWriter::align_reg_fields_code(std::list<std::string>& reg_fields_code)
+void jwriter::align_reg_fields_code(std::list<std::string>& reg_fields_code)
 {
     smatch sm;
     int max_qualifier_index = 0;
@@ -175,12 +175,12 @@ void JWriter::align_reg_fields_code(std::list<std::string>& reg_fields_code)
     {
         if (iter != max_qualifier_iter)
         {
-            JAlign().align(*iter, *max_qualifier_iter, re_qualifier, re_qualifier);
+            jalign().align(*iter, *max_qualifier_iter, re_qualifier, re_qualifier);
         }
     }
 }
 
-void JWriter::write_decl_file()
+void jwriter::write_decl_file()
 {
     std::ofstream out(*argument_.output_file);
 
@@ -224,14 +224,14 @@ void JWriter::write_decl_file()
     }
 }
 
-void JWriter::write_impl_file()
+void jwriter::write_impl_file()
 {
     throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
 }
 
-JWriter::JWriter(std::list<std::string>& lines
+jwriter::jwriter(std::list<std::string>& lines
     , std::list<struct_info>& structs
-    , JParseCmdArg& arg)
+    , jparse_cmd_arg& arg)
 
     : lines_(lines)
     , structs_(structs)
@@ -239,7 +239,7 @@ JWriter::JWriter(std::list<std::string>& lines
 {
 }
 
-void JWriter::save()
+void jwriter::save()
 {
     if (argument_.args_.count("h_out"))
     {

@@ -3,13 +3,13 @@
 #include <list>
 
 
-class JParseCmdArg;
+class jparse_cmd_arg;
 struct struct_info;
 
-class JWriter
+class jwriter
 {
 public:
-    JWriter(std::list<std::string>& lines , std::list<struct_info>& structs , JParseCmdArg& arg);
+    jwriter(std::list<std::string>& lines , std::list<struct_info>& structs , jparse_cmd_arg& arg);
 
     void gen_warning_code(std::ofstream& out);
     void gen_reg_fields_code(const struct_info& st_info, std::list<std::string>& reg_fields_code);
@@ -20,7 +20,7 @@ public:
     void save();
 
 public:
-    JParseCmdArg&           argument_;
+    jparse_cmd_arg&           argument_;
     std::list<std::string>& lines_;
     std::list<struct_info>& structs_;
 };

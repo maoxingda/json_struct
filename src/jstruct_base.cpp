@@ -4,7 +4,7 @@
 #include "jqualifier.h"
 #include "jstruct_base.h"
 #include "jfield_info.h"
-#include "JUtilCommonPath.h"
+#include "jutil_common_path.h"
 
 #include <list>
 #include <codecvt>
@@ -455,7 +455,7 @@ static void report_error(string msg)
 #ifdef _DEBUG
     debug_conf conf;
 
-    conf.load(JUtilCommonPath().MyDocuments() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
+    conf.load(jutil_common_path().MyDocuments() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
 
     conf.throw_ ? throw logic_error(msg) : 0;
 #endif // _DEBUG
@@ -857,7 +857,7 @@ void jstruct_base::register_field
     , string field_name_alias
     , void*  field_address
     , void*  field_address_array_size
-    , int    offset
+    , int    array_element_size
     )
 {
     field_info f_info;
@@ -870,7 +870,7 @@ void jstruct_base::register_field
     f_info.address_      = field_address;
     f_info.address_size_ = field_address_array_size;
     f_info.type_         = data_type(field_type, row, col);
-    f_info.offset_       = offset;
+    f_info.offset_       = array_element_size;
     f_info.row_          = row;
     f_info.col_          = col;
 

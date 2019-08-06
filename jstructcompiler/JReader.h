@@ -5,14 +5,14 @@
 #include "../jstruct/jstruct/jfield_info.h"
 
 
-class JParseCmdArg;
+class jparse_cmd_arg;
 
-class JReader
+class jreader
 {
     typedef std::list<std::string> slist;
 
 public:
-    JReader(slist& lines , std::list<struct_info>& structs , JParseCmdArg& arg);
+    jreader(slist& lines , std::list<struct_info>& structs , jparse_cmd_arg& arg);
 
     type field_type(const string& line);
     bool is_jstruct(const std::string& struct_name);
@@ -25,7 +25,7 @@ public:
     void concurrent_parse(const std::vector<std::string>& files, std::string out_path);
 
 public:
-    JParseCmdArg&           arg_;
+    jparse_cmd_arg&           arg_;
     slist&                  lines_;
     std::list<struct_info>& structs_;
 

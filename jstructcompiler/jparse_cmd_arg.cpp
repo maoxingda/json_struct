@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include <iostream>
 #include "..\inc\jmacro.h"
-#include "JParseCmdArg.h"
+#include "jparse_cmd_arg.h"
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -9,7 +9,7 @@
 using namespace boost::filesystem;
 
 
-JParseCmdArg::JParseCmdArg(int argc, char* argv[])
+jparse_cmd_arg::jparse_cmd_arg(int argc, char* argv[])
     : multi_build(false)
     , odesc_("usage")
 {

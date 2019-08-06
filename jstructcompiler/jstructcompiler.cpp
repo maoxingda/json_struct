@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "JReader.h"
-#include "JWriter.h"
+#include "jreader.h"
+#include "jwriter.h"
 #include <iostream>
-#include "JParseCmdArg.h"
+#include "jparse_cmd_arg.h"
 
 
 int main(int argc, char *argv[])
@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
     {
         std::list<std::string> lines;
         std::list<struct_info> structs;
-        JParseCmdArg            args(argc, argv);
+        jparse_cmd_arg            args(argc, argv);
 
-        JReader reader(lines, structs, args);
-        JWriter writer(lines, structs, args);
+        jreader reader(lines, structs, args);
+        jwriter writer(lines, structs, args);
 
         writer.save();
 

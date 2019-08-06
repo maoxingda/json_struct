@@ -1,10 +1,10 @@
 #include "StdAfx.h"
-#include "JReader.h"
-#include "JRegexs.h"
+#include "jreader.h"
+#include "jregex.h"
 #include <boost/format.hpp>
 #include <fstream>
-#include "JParseCmdArg.h"
-#include <JAlign.h>
+#include "jparse_cmd_arg.h"
+#include <jalign.h>
 #include <boost/filesystem.hpp>
 #include <algorithm>
 #include <boost/foreach.hpp>
@@ -34,7 +34,7 @@ static std::string parse_field_name(const std::string& line)
     return "";
 }
 
-type JReader::field_type(const string& line)
+type jreader::field_type(const string& line)
 {
     smatch what;
 
@@ -76,7 +76,7 @@ type JReader::field_type(const string& line)
     return enum_none;
 }
 
-bool JReader::is_jstruct(const std::string& struct_name)
+bool jreader::is_jstruct(const std::string& struct_name)
 {
     BOOST_FOREACH(auto name, inc_structs_)
     {
@@ -98,7 +98,7 @@ bool JReader::is_jstruct(const std::string& struct_name)
 }
 
 
-std::string JReader::search_inc_jst(std::string file_name)
+std::string jreader::search_inc_jst(std::string file_name)
 {
     BOOST_FOREACH(auto p, arg_.incs_)
     {
@@ -113,7 +113,7 @@ std::string JReader::search_inc_jst(std::string file_name)
     return "";
 }
 
-void JReader::read_file(std::string file_name, slist& lines)
+void jreader::read_file(std::string file_name, slist& lines)
 {
     std::ifstream in(file_name);
 
@@ -132,7 +132,7 @@ void JReader::read_file(std::string file_name, slist& lines)
     }
 }
 
-void JReader::parse_structs()
+void jreader::parse_structs()
 {
     smatch              what;
     struct_info         st_info;
@@ -192,7 +192,7 @@ void JReader::parse_structs()
     if (!structs_.size()) throw std::logic_error("not find struct in '" + *arg_.input_file + "'");
 }
 
-void JReader::parse_inc_structs(slist& lines)
+void jreader::parse_inc_structs(slist& lines)
 {
     smatch what;
 
@@ -230,7 +230,7 @@ void JReader::parse_inc_structs(slist& lines)
     }
 };
 
-void JReader::parse_fields()
+void jreader::parse_fields()
 {
     for (auto iter1 = structs_.begin(); iter1 != structs_.end(); ++iter1)
     {
@@ -277,27 +277,27 @@ void JReader::parse_fields()
 
                     sregex re = sregex::compile(f_info.name_);
 
-                    JAlign().align(*iter6, line, (s1 = re) >> before("_size"), (s1 = re));
+                    jalign().align(*iter6, line, (s1 = re) >> before("_size"), (s1 = re));
                 }
             }
         }
     }
 }
 
-void JReader::parse()
+void jreader::parse()
 {
     parse_structs();
     parse_fields();
 }
 
-void JReader::concurrent_parse(const std::vector<std::string>& files, std::string out_path)
+void jreader::concurrent_parse(const std::vector<std::string>& files, std::string out_path)
 {
     throw std::logic_error(std::string(__FUNCTION__) + " not implemented!");
 }
 
-JReader::JReader(slist& lines
+jreader::jreader(slist& lines
     , std::list<struct_info>& structs
-    , JParseCmdArg& arg)
+    , jparse_cmd_arg& arg)
 
     : lines_(lines)
     , structs_(structs)

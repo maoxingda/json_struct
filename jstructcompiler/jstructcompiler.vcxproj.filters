@@ -23,29 +23,29 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JReader.h">
+    <ClInclude Include="jalign.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JWriter.h">
+    <ClInclude Include="jcomment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JAlign.h">
+    <ClInclude Include="jparse_cmd_arg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JComment.h">
+    <ClInclude Include="jreader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JRegexs.h">
+    <ClInclude Include="jregex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="JParseCmdArg.h">
+    <ClInclude Include="jversion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\util\JUtilCommonPath.h">
+    <ClInclude Include="jwriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\jutil_common_path.h">
       <Filter>util</Filter>
-    </ClInclude>
-    <ClInclude Include="JVersion.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,26 +55,26 @@
     <ClCompile Include="jstructcompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JReader.cpp">
+    <ClCompile Include="jalign.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JWriter.cpp">
+    <ClCompile Include="jcomment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JAlign.cpp">
+    <ClCompile Include="jparse_cmd_arg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JComment.cpp">
+    <ClCompile Include="jreader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="JParseCmdArg.cpp">
+    <ClCompile Include="jversion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\util\JUtilCommonPath.cpp">
+    <ClCompile Include="jwriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\jutil_common_path.cpp">
       <Filter>util</Filter>
-    </ClCompile>
-    <ClCompile Include="JVersion.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
