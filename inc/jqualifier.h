@@ -1,22 +1,21 @@
 #pragma once
 
 
-// mandatory qualifier, specify one of them
-#define OPTIONAL
-#define REQUIRED
+// keywords
+#define jopt
+#define jreq
 
-// mandatory qualifier, specify one of them
-#define USER_T
-#define BOOL_T
+// supported types
+typedef bool             jbool;
 
-#define NUMBER_T
-#define NUMBER_ARRAY_T
+typedef int              jint;
+typedef unsigned int     juint;
+typedef __int64          jint64;
+typedef unsigned __int64 juint64;
 
-#define WCHAR_ARRAY_T
-#define WCHAR_TABLE_T
+typedef float            jfloat;
+typedef double           jdouble;
 
-#define STRUCT_T
-#define STRUCT_ARRAY_T
+typedef wchar_t          jwchar;
 
-// optional qualifier
-#define ALIAS(name)
+#define jstruct          struct

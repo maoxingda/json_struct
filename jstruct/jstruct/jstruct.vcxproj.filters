@@ -18,9 +18,16 @@
     <Filter Include="src">
       <UniqueIdentifier>{f1abd599-d79e-415c-ae74-62da4fa31f98}</UniqueIdentifier>
     </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{f95491e6-45d2-4bed-a35d-66fa82a2ddc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{4ad0a667-67ca-4005-aa35-4c9ccbfe24b7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="debugconf.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -47,6 +54,39 @@
     <ClInclude Include="jfield_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\json\allocator.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\assertions.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\config.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\features.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\forwards.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\json.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\reader.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\value.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\version.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\json\writer.h">
+      <Filter>json</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\util\jutil_common_path.h">
+      <Filter>util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +97,9 @@
     </ClCompile>
     <ClCompile Include="..\..\cjson\cJSON.c">
       <Filter>cjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\util\jutil_common_path.cpp">
+      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

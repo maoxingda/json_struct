@@ -9,7 +9,7 @@
 		<Version>10.0</Version>
 	</HostApplication>
 	<Addin>
-		<FriendlyName>jstructtool 1.0.3</FriendlyName>
+		<FriendlyName>jstructtool</FriendlyName>
 		<Description>help to generate json struct configuration code\r\nFor more information about , see the  website at\r\nhttps://github.com/maoxingda/json_struct\r\nFor customer support, send mail to 954192476@qq.com.\r\nCopyright (c) 2019  Inc.</Description>
 		<Assembly>jstructtool.dll</Assembly>
 		<FullClassName>jstructtool.Connect</FullClassName>

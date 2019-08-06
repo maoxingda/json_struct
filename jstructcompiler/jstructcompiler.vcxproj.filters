@@ -9,6 +9,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{9b8f71ad-f118-48cd-8484-41530761894b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -20,8 +23,29 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jsterror.h">
+    <ClInclude Include="jalign.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jcomment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jparse_cmd_arg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jreader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jregex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="jwriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\jutil_common_path.h">
+      <Filter>util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +54,27 @@
     </ClCompile>
     <ClCompile Include="jstructcompiler.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jalign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jcomment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jparse_cmd_arg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jreader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jversion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="jwriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\jutil_common_path.cpp">
+      <Filter>util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

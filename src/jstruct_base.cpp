@@ -1,8 +1,10 @@
+#include "stdafx.h"
 #include "cJSON.h"
 #include "jmacro.h"
 #include "jqualifier.h"
 #include "jstruct_base.h"
 #include "jfield_info.h"
+#include "jutil_common_path.h"
 
 #include <list>
 #include <codecvt>
@@ -15,9 +17,7 @@ using namespace boost::xpressive;
 // common regex expressions
 static const sregex re_bool         = as_xpr("bool");
 
-static const sregex re_array        = as_xpr("[") >> (s1 = +_d) >> "]";
-
-static const sregex re_number       = (as_xpr("short") | "unsigned short" | "int" | "unsigned int" | "long" | "unsigned long" | "__int64" | "float" | "double");
+static const sregex re_number       = (as_xpr("int") | "unsigned int" | "__int64" | "unsigned __int64" | "float" | "double");
 static const sregex re_number_array = (re_number >> " " >> "[" >> (s1 = +_d) >> "]");
 
 static const sregex re_wchar_array  = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
@@ -25,6 +25,7 @@ static const sregex re_wchar_table  = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) 
 
 static const sregex re_struct       = (as_xpr("struct ") >> +_w);
 static const sregex re_struct_array = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
+
 
 static int array_size(const string& field_type)
 {
@@ -424,10 +425,39 @@ static void from_number_array(const string& field_type, void* field_address, cJS
     }
 }
 
+#ifdef _DEBUG
+#include <fstream>
+
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+
+namespace pt = boost::property_tree;
+
+
+struct debug_conf
+{
+    bool throw_;
+
+    void load(const std::string &filename)
+    {
+        pt::ptree tree;
+
+        pt::read_xml(filename, tree);
+
+        throw_ = tree.get<bool>("debug.throw");
+    }
+};
+
+#endif // _DEBUG
+
 static void report_error(string msg)
 {
 #ifdef _DEBUG
-    throw logic_error(msg);
+    debug_conf conf;
+
+    conf.load(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
+
+    conf.throw_ ? throw logic_error(msg) : 0;
 #endif // _DEBUG
 }
 
@@ -560,7 +590,7 @@ void* jstruct_base::to_json_(bool& success)
 
                 for (auto i = 0; i < size; ++i)
                 {
-                    string utf8 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().to_bytes((wchar_t*)field_address + i * field_information.offset_);
+                    string utf8 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().to_bytes((wchar_t*)field_address + i * field_information.offset_ / 2);
 
                     cJSON* item = cJSON_CreateString(utf8.c_str());
 
@@ -573,6 +603,8 @@ void* jstruct_base::to_json_(bool& success)
 
                     cJSON_AddItemToArray(array, item);
                 }
+
+                cJSON_AddItemToObject(object, field_name.c_str(), array);
             }
             break;
         case enum_struct:
@@ -608,7 +640,7 @@ void* jstruct_base::to_json_(bool& success)
                 {
                     bool subsuccess = true;
 
-                    cJSON* subobject = (cJSON*)((jstruct_base*)field_address + i * field_information.offset_)->to_json_(subsuccess);
+                    cJSON* subobject = (cJSON*)((jstruct_base*)((char*)field_address + i * field_information.offset_))->to_json_(subsuccess);
 
                     if (!subsuccess)
                     {
@@ -652,16 +684,13 @@ bool jstruct_base::from_json_(void* object)
     {
         auto&               field_information   = *iter;
         void*               field_address       = field_information.address_;
-        string              alias               = field_information.alias_;
 
-        cJSON*              item                = nullptr;
-        if (!alias.empty()) item                = cJSON_GetObjectItem((cJSON*)object, alias.c_str());
-        if (!item)          item                = cJSON_GetObjectItem((cJSON*)object, field_information.name_.c_str());
+        cJSON*              item                = cJSON_GetObjectItem((cJSON*)object, field_information.name_.c_str());
 
         if (nullptr == item)
         {
-            if (ESTR(OPTIONAL) == field_information.qualifier_) continue;
-            if (ESTR(REQUIRED) == field_information.qualifier_)
+            if (ESTR(jopt) == field_information.qualifier_) continue;
+            if (ESTR(jreq) == field_information.qualifier_)
             {
                 report_error("missing required field ---> " + field_information.name_);
 
@@ -828,7 +857,7 @@ void jstruct_base::register_field
     , string field_name_alias
     , void*  field_address
     , void*  field_address_array_size
-    , int    offset
+    , int    array_element_size
     )
 {
     field_info f_info;
@@ -841,7 +870,7 @@ void jstruct_base::register_field
     f_info.address_      = field_address;
     f_info.address_size_ = field_address_array_size;
     f_info.type_         = data_type(field_type, row, col);
-    f_info.offset_       = offset;
+    f_info.offset_       = array_element_size;
     f_info.row_          = row;
     f_info.col_          = col;
 

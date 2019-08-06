@@ -888,6 +888,142 @@
 <CRC>0</CRC>
 <StoreOnly>0</StoreOnly>
 </FileData>
+<FileData>
+<FldRef>0</FldRef>
+<FullName>..\jstructcompiler\version.xml</FullName>
+<FileName>version.xml</FileName>
+<Source>..\jstructcompiler</Source>
+<Ext>xml</Ext>
+<RTSource>Archive</RTSource>
+<Desc/>
+<Recurse>1</Recurse>
+<MatchMode>0</MatchMode>
+<Dest>%AppFolder%</Dest>
+<Overwrite>2</Overwrite>
+<Backup>0</Backup>
+<Protect>0</Protect>
+<InstallOrder>1000</InstallOrder>
+<SCStartRoot>0</SCStartRoot>
+<SCStartProgs>0</SCStartProgs>
+<SCAppFld>0</SCAppFld>
+<SCStartup>0</SCStartup>
+<SCDesk>0</SCDesk>
+<SCQLaunch>0</SCQLaunch>
+<SCCust>0</SCCust>
+<CustSCPath/>
+<SCDesc>version</SCDesc>
+<SCComment/>
+<SCArgs/>
+<SCWork/>
+<UseExtIco>0</UseExtIco>
+<IcoFN/>
+<IcoIdx>0</IcoIdx>
+<IcoShowMd>0</IcoShowMd>
+<IcoHK>0</IcoHK>
+<RegTTF>0</RegTTF>
+<TTFName/>
+<RegOCX>0</RegOCX>
+<RegTLB>0</RegTLB>
+<SupInUse>0</SupInUse>
+<Compress>1</Compress>
+<UseOrigAttr>1</UseOrigAttr>
+<Attr>0</Attr>
+<NoCRC>0</NoCRC>
+<NoRemove>0</NoRemove>
+<Shared>0</Shared>
+<OSCond>
+<OS>32768</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+</OSCond>
+<RTCond/>
+<BuildConfigs>
+<Cfg>All</Cfg>
+</BuildConfigs>
+<Package>None</Package>
+<Packages/>
+<Notes/>
+<CompSize>0</CompSize>
+<CRC>0</CRC>
+<StoreOnly>0</StoreOnly>
+</FileData>
+<FileData>
+<FldRef>0</FldRef>
+<FullName>..\jstruct\jstruct\debugconf.xml</FullName>
+<FileName>debugconf.xml</FileName>
+<Source>..\jstruct\jstruct</Source>
+<Ext>xml</Ext>
+<RTSource>Archive</RTSource>
+<Desc/>
+<Recurse>1</Recurse>
+<MatchMode>0</MatchMode>
+<Dest>%AppFolder%</Dest>
+<Overwrite>2</Overwrite>
+<Backup>0</Backup>
+<Protect>0</Protect>
+<InstallOrder>1000</InstallOrder>
+<SCStartRoot>0</SCStartRoot>
+<SCStartProgs>0</SCStartProgs>
+<SCAppFld>0</SCAppFld>
+<SCStartup>0</SCStartup>
+<SCDesk>0</SCDesk>
+<SCQLaunch>0</SCQLaunch>
+<SCCust>0</SCCust>
+<CustSCPath/>
+<SCDesc>debugconf</SCDesc>
+<SCComment/>
+<SCArgs/>
+<SCWork/>
+<UseExtIco>0</UseExtIco>
+<IcoFN/>
+<IcoIdx>0</IcoIdx>
+<IcoShowMd>0</IcoShowMd>
+<IcoHK>0</IcoHK>
+<RegTTF>0</RegTTF>
+<TTFName/>
+<RegOCX>0</RegOCX>
+<RegTLB>0</RegTLB>
+<SupInUse>0</SupInUse>
+<Compress>1</Compress>
+<UseOrigAttr>1</UseOrigAttr>
+<Attr>0</Attr>
+<NoCRC>0</NoCRC>
+<NoRemove>0</NoRemove>
+<Shared>0</Shared>
+<OSCond>
+<OS>32768</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+<OS>65535</OS>
+</OSCond>
+<RTCond/>
+<BuildConfigs>
+<Cfg>All</Cfg>
+</BuildConfigs>
+<Package>None</Package>
+<Packages/>
+<Notes/>
+<CompSize>0</CompSize>
+<CRC>0</CRC>
+<StoreOnly>0</StoreOnly>
+</FileData>
 </ArchiveFiles>
 <ExternalFiles/>
 <BeforeInstallingScreens>
@@ -3566,8 +3702,6 @@ end
 
 -- delete vs add new item wizard files
 
---File.Delete(shell_folder.."VC\\vcprojectitems\\jstruct\\*.*");
---Folder.Delete(shell_folder.."VC\\vcprojectitems\\jstruct");
 File.Delete(shell_folder.."VC\\vcprojectitems\\jstructwizd.*");
 </Script>
 <BookMarks count="0">
@@ -3812,45 +3946,8 @@ end
 <Name>On Post Install</Name>
 <Args/>
 <Script>-- copy vs add new item wizard files
-
---wizard_file_table_vsz_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.vsz";
---wizard_file_table_ico_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.ico";
---wizard_file_table_dir_filename = shell_folder.."VC\\vcprojectitems\\jstructwizd.vsdir";
-
---wizard_file_table_vsz = {};
---wizard_file_table_ico = {};
---wizard_file_table_dir = {};
---wiz_folder = {};
-
---[[
-
-result = Folder.DoesExist(shell_folder.."VC\\vcprojectitems\\jstruct");
-
-if (false == result) then
-
-	Folder.Create(shell_folder.."VC\\vcprojectitems\\jstruct");
-
-end
-
-File.Copy(SessionVar.Expand("%AppFolder%\\jstwiz\\*.*"), shell_folder.."VC\\vcprojectitems\\jstruct");
-     
-]]
      
 File.Copy(SessionVar.Expand("%AppFolder%\\jstwiz\\*.*"), shell_folder.."VC\\vcprojectitems");
-
---wiz_folder.FolderPath = shell_folder.."VC\\vcprojectitems\\jstruct";
-
---wizard_file_table_vsz.Filename = wizard_file_table_vsz_filename;
---wizard_file_table_ico.Filename = wizard_file_table_ico_filename;
---wizard_file_table_dir.Filename = wizard_file_table_dir_filename;
-
---UninstallData.AddItem(UNINDATA_FOLDERS, wiz_folder);
---UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_ico);
---UninstallData.AddItem(UNINDATA_FILES, wizard_file_table_dir);
-
---File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.vsz")		, wizard_file_table_vsz_filename);
---File.Copy(SessionVar.Expand("%AppFolder%\\jstructwizd.ico")		, wizard_file_table_ico_filename);
---File.Move(SessionVar.Expand("%AppFolder%\\jstructwizd.vsdir")	, wizard_file_table_dir_filename);
 
 
 -- add file extension (*.jst)
@@ -3878,6 +3975,23 @@ end
 args = "/codebase "..SessionVar.Expand("%SystemFolder%\\jstructwizd.dll");
 
 Shell.Execute(SessionVar.Expand("%AppFolder%\\RegAsm.exe"), "open", args, "", SW_HIDE);
+
+
+-- save version information
+
+XML.Load(SessionVar.Expand("%AppFolder%\\version.xml"));
+
+XML.SetValue("compiler/version", SessionVar.Expand("%ProductVer%"));
+
+XML.Save(SessionVar.Expand("%AppFolder%\\version.xml"));
+
+XML.Load(SessionVar.Expand("%AppFolder%\\jstructtool.AddIn"));
+
+FriendlyName = XML.GetValue("Extensibility/Addin/FriendlyName");
+
+XML.SetValue("Extensibility/Addin/FriendlyName", FriendlyName.." "..SessionVar.Expand("%ProductVer%"));
+
+XML.Save(SessionVar.Expand("%AppFolder%\\jstructtool.AddIn"));
 
 
 -- open json struct project website
@@ -3937,7 +4051,7 @@ g_HandleSystemReboot();
 </SessionVar>
 <SessionVar>
 <Name>%ProductVer%</Name>
-<Value>V1.0.3</Value>
+<Value>V1.0.4</Value>
 <Type>1</Type>
 </SessionVar>
 <SessionVar>
@@ -3990,7 +4104,7 @@ g_HandleSystemReboot();
 <PostBuildProg/>
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
-<Filename>jstructtool-1.0.3.exe</Filename>
+<Filename>jstructtool-1.0.4.exe</Filename>
 <OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>

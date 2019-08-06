@@ -1,139 +1,32 @@
-﻿// jstructdemo.cpp : Defines the entry point for the console application.
+// jstructdemo.cpp : Defines the entry point for the console application.
 //
 
 #include "stdafx.h"
-//#include <vld.h>
+#include "jperson.h"
 #include <fstream>
-#include <gtest/gtest.h>
-#include "mjst/json_student.h"
-#include "mjst/json_field_qualifier_test.h"
+#include <atlbase.h>
 
 
-#define gut
+using namespace std;
 
-#ifdef gut
-TEST(jstructdemo, int)
-{
-    std::fstream in("student.json");
-
-    if (in)
-    {
-        std::istreambuf_iterator<char> beg(in), end;
-
-        std::string student_json(beg, end);
-
-        student s;
-
-        s.sex = 1;
-
-        EXPECT_EQ(true, s.from_json(student_json));
-
-        EXPECT_EQ(1,    s.sex);
-        EXPECT_EQ(1001, s.identifier);
-        //EXPECT_EQ(1001, s.identifier);
-
-        std::string json = s.to_json();
-
-        wstring ucs2 = wstring_convert<codecvt_utf8 <wchar_t>, wchar_t>().from_bytes(json.c_str());
-    }
-}
-
-TEST(jstructdemo, wchar_array)
-{
-    std::fstream in("student.json");
-
-    if (in)
-    {
-        std::istreambuf_iterator<char> beg(in), end;
-
-        std::string student_json(beg, end);
-
-        student s;
-
-        s.sex = 2;
-
-        EXPECT_EQ(true, s.from_json(student_json));
-
-        EXPECT_EQ(2,                  s.sex);
-        EXPECT_EQ(0, wcscmp(L"毛兴达", s.name));
-    }
-}
-
-TEST(jstructdemo, int_array)
-{
-    std::fstream in("student.json");
-
-    if (in)
-    {
-        std::istreambuf_iterator<char> beg(in), end;
-
-        std::string student_json(beg, end);
-
-        student s;
-
-        EXPECT_EQ(true, s.from_json(student_json));
-
-        EXPECT_EQ(2,            s.qq_size);
-        EXPECT_EQ(954192476,    s.qq[0]);
-        EXPECT_EQ(1506851052,   s.qq[1]);
-    }
-}
-
-TEST(jstructdemo, wchar_table)
-{
-    std::fstream in("student.json");
-
-    if (in)
-    {
-        std::istreambuf_iterator<char> beg(in), end;
-
-        std::string student_json(beg, end);
-
-        student s;
-
-        EXPECT_EQ(true, s.from_json(student_json));
-
-        EXPECT_EQ(2,                                s.email_size);
-        EXPECT_EQ(0, wcscmp(L"954192476@qq.com",    s.email[0]));
-        EXPECT_EQ(0, wcscmp(L"1506851052@qq.com",   s.email[1]));
-    }
-}
-
-TEST(jstructdemo, struct)
-{
-    std::fstream in("student.json");
-
-    if (in)
-    {
-        std::istreambuf_iterator<char> beg(in), end;
-
-        std::string student_json(beg, end);
-
-        student s;
-
-        EXPECT_EQ(true, s.from_json(student_json));
-
-        EXPECT_EQ(0, wcscmp(L"1990",    s.birthday.year));
-        EXPECT_EQ(0, wcscmp(L"02",      s.birthday.month));
-        EXPECT_EQ(0, wcscmp(L"16",      s.birthday.day));
-    }
-}
-#endif // gut
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-    int result = 0;
+    ifstream in("mjst/jperson.json");
 
-#ifdef gut
-    testing::InitGoogleTest(&argc, argv);
-
-    result = RUN_ALL_TESTS();
-#endif // gut
-
-    if (0 != result)
+    if (in)
     {
-        std::system("pause");
+        istreambuf_iterator<char> beg(in), end;
+
+        string text(beg, end);
+
+        jperson jp1;
+
+        jp1.from_json(text);
+
+        wstring json = CA2T(jp1.to_json().c_str(), CP_UTF8);
     }
 
-	return result;
+	return 0;
 }
+

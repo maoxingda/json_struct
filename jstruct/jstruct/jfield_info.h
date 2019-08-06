@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <list>
 
 using namespace std;
 
@@ -20,6 +21,8 @@ enum type
     enum_struct_array,
 };
 
+typedef std::list<std::string>::iterator sliter;
+
 struct field_info
 {
     size_t      type_   : 4;    // 15
@@ -30,8 +33,18 @@ struct field_info
     void*       address_;       // save derived struct field address
     void*       address_size_;  // save derived struct array size field address
 
-    string      type_name_;     // int float double etc.
-    string      qualifier_;     // REQUIRED or OPTIONAL
+    string      type_name_;     // see jqualifier.h
+    string      qualifier_;     // jreq or jopt
     string      name_;          // c++ identifier
     string      alias_;         // use when name_ is not similar to json key name
+};
+
+struct struct_info
+{
+    std::string            stname_;
+    std::list<field_info>  fields_;
+    std::list<std::string> array_size_fields;
+    sliter                 iter_struct_beg_;
+    sliter                 iter_struct_end_;
+    std::list<sliter>      field_qualifiers;
 };

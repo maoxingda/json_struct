@@ -17,6 +17,8 @@ public:
     string to_json();
     bool from_json(string);
 
+    //template <typename T> T xpath(string json, string path);
+
 private:
     bool from_json_(void*);
     void* to_json_(bool&);
@@ -27,3 +29,5 @@ protected:
 private:
     void* d;
 };
+
+//#include "jstruct_base.inl"

@@ -38,7 +38,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(ProjectDir);$(SolutionDir)..\cjson;$(SolutionDir)..\inc;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)..\util;$(SolutionDir)..\cjson;$(SolutionDir)..\inc;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -46,7 +46,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>$(ProjectName)d</TargetName>
-    <IncludePath>$(ProjectDir);$(SolutionDir)..\cjson;$(SolutionDir)..\inc;C:\Qt\4.8.3\trunk\include\Qt;C:\Qt\4.8.3\trunk\include\QtGui;C:\Qt\4.8.3\trunk\include\QtCore;C:\Qt\4.8.3\trunk\include;D:\open_sources\boost_1_68_0;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir);$(SolutionDir)..\util;$(SolutionDir)..\cjson;$(SolutionDir)..\inc;C:\Qt\4.8.3\trunk\include\Qt;C:\Qt\4.8.3\trunk\include\QtGui;C:\Qt\4.8.3\trunk\include\QtCore;C:\Qt\4.8.3\trunk\include;D:\open_sources\boost_1_68_0;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -80,6 +80,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
+    <None Include="debugconf.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\cjson\cJSON.h" />
@@ -87,6 +88,17 @@
     <ClInclude Include="..\..\inc\jqualifier.h" />
     <ClInclude Include="..\..\inc\jstruct.h" />
     <ClInclude Include="..\..\inc\jstruct_base.h" />
+    <ClInclude Include="..\..\json\allocator.h" />
+    <ClInclude Include="..\..\json\assertions.h" />
+    <ClInclude Include="..\..\json\config.h" />
+    <ClInclude Include="..\..\json\features.h" />
+    <ClInclude Include="..\..\json\forwards.h" />
+    <ClInclude Include="..\..\json\json.h" />
+    <ClInclude Include="..\..\json\reader.h" />
+    <ClInclude Include="..\..\json\value.h" />
+    <ClInclude Include="..\..\json\version.h" />
+    <ClInclude Include="..\..\json\writer.h" />
+    <ClInclude Include="..\..\util\jutil_common_path.h" />
     <ClInclude Include="jfield_info.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -94,6 +106,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\cjson\cJSON.c" />
     <ClCompile Include="..\..\src\jstruct_base.cpp" />
+    <ClCompile Include="..\..\util\jutil_common_path.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

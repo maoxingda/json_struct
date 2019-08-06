@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{14919ABD-9A22-4125-8269-269AFA145482}</ProjectGuid>
+    <ProjectGuid>{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>jstructdemo</RootNamespace>
   </PropertyGroup>
@@ -39,15 +39,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\inc;$(SolutionDir)..\googletest-release-1.8.1\googletest\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\bin;$(SolutionDir)..\googletest-release-1.8.1\googletest\lib;$(LibraryPath)</LibraryPath>
     <ExecutablePath>$(SolutionDir)..\bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(SolutionDir)..\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)..\inc;$(SolutionDir)..\googletest-release-1.8.1\googletest\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)..\bin;$(SolutionDir)..\googletest-release-1.8.1\googletest\lib;$(LibraryPath)</LibraryPath>
-    <ExecutablePath>$(SolutionDir)..\bin;$(ExecutablePath)</ExecutablePath>
+    <ExecutablePath>$(SolutionDir)bin;$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(SolutionDir)inc;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -55,11 +55,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VisualStudioDir)\Addins\inc;.\mjst;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>gtestd.lib;jstructd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jstructd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VisualStudioDir)\Addins\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -70,51 +72,53 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(VisualStudioDir)\Addins\inc;.\mjst;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>gtest.lib;jstruct.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>jstruct.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(VisualStudioDir)\Addins\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CustomBuild Include="mjst\jperson.jst">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --include_path="$(IncludePath)" --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --include_path="$(IncludePath)" --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="mjst\jfoot.jst">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --include_path="$(IncludePath)" --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --include_path="$(IncludePath)" --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="mjst\other\jdate.jst">
+      <FileType>Document</FileType>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --include_path="$(IncludePath)" --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --include_path="$(IncludePath)" --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\%(Filename).h"</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\%(Filename).h;%(Outputs)</Outputs>
+    </CustomBuild>
     <None Include="ReadMe.txt" />
-    <None Include="test\student.json" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="test\field_qualifier_test.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="test\date.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
-    </CustomBuild>
-    <CustomBuild Include="test\student.h">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler --multi_build=off --h_out --input_file="%(FullPath)" --output_file="$(ProjectDir)mjst\json_%(Filename).h"</Command>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">jstructcompiler%27ing %(Identity)...</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)mjst\json_%(Filename).h;%(Outputs)</Outputs>
-    </CustomBuild>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="jstructdemo.cpp">
-      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreprocessToFile>
-    </ClCompile>
+    <ClCompile Include="jstructdemo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

@@ -1,0 +1,24 @@
+#pragma once
+#include <jstruct.h>
+#include "other/jdate.jst"
+#include "jfoot.jst"
+
+
+// TODO: Add your struct declaration code here
+#define MAX_NAME_LEN 32
+#define MAX_ADDR_LEN 256
+
+jstruct jperson
+{
+public jreq:
+    jbool  girl_friend;
+    juint  id;
+    juint  qq[3];
+    jwchar name[MAX_NAME_LEN];
+    jwchar addr[MAX_ADDR_LEN];
+    jwchar email[5][32];
+    jdate  birthday;
+    jfoot  foots[2];
+
+public jopt:
+};

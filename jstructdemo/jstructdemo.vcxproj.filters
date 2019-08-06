@@ -13,15 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="test">
-      <UniqueIdentifier>{af4c4708-72ea-49a3-a91f-34b938789566}</UniqueIdentifier>
+    <Filter Include="mjst">
+      <UniqueIdentifier>{019748a9-013c-4cdd-aeec-05449dfc8c98}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="date">
+      <UniqueIdentifier>{c5f357cb-319b-433e-a4e8-2a0015b79069}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
-    <None Include="test\student.json">
-      <Filter>test</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -40,14 +40,14 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="test\date.h">
-      <Filter>test</Filter>
+    <CustomBuild Include="mjst\jperson.jst">
+      <Filter>mjst</Filter>
     </CustomBuild>
-    <CustomBuild Include="test\field_qualifier_test.h">
-      <Filter>test</Filter>
+    <CustomBuild Include="mjst\jfoot.jst">
+      <Filter>mjst</Filter>
     </CustomBuild>
-    <CustomBuild Include="test\student.h">
-      <Filter>test</Filter>
+    <CustomBuild Include="mjst\other\jdate.jst">
+      <Filter>date</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>
