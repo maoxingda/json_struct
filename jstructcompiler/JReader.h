@@ -14,6 +14,7 @@ class jreader
 public:
     jreader(slist& lines , std::list<struct_info>& structs , jparse_cmd_arg& arg);
 
+private:
     type field_type(const string& line);
     bool is_jstruct(const std::string& struct_name);
     std::string search_inc_jst(std::string file_name);
@@ -25,7 +26,7 @@ public:
     void concurrent_parse(const std::vector<std::string>& files, std::string out_path);
 
 public:
-    jparse_cmd_arg&           arg_;
+    jparse_cmd_arg&         arg_;
     slist&                  lines_;
     std::list<struct_info>& structs_;
 

@@ -6,7 +6,7 @@
 #pragma comment(lib, "shell32.lib")
 
 
-std::string jutil_common_path::MyDocuments()
+std::string jutil_common_path::my_documents()
 {
     SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, path);
 

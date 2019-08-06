@@ -455,7 +455,7 @@ static void report_error(string msg)
 #ifdef _DEBUG
     debug_conf conf;
 
-    conf.load(jutil_common_path().MyDocuments() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
+    conf.load(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\debugconf.xml");
 
     conf.throw_ ? throw logic_error(msg) : 0;
 #endif // _DEBUG

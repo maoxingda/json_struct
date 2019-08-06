@@ -30,7 +30,7 @@ static const sregex inc_jst             = (bos >> (s1 = "#include" >> +_s >> '"'
 void jwriter::gen_warning_code(std::ofstream& out)
 {
     out << "/****************************************************************************" << "\n";
-    out << "** register struct field code from reading file '" << path(*argument_.input_file).filename().string() << "'\n";
+    out << "** register struct field code from reading file '" << path(*arg_.input_file).filename().string() << "'\n";
     out << "**" << "\n";
     out << "** created: " << to_simple_string(second_clock::local_time()) << "\n";
     out << "**      by: the json struct compiler version " << jversion().version_ << "\n";
@@ -182,7 +182,7 @@ void jwriter::align_reg_fields_code(std::list<std::string>& reg_fields_code)
 
 void jwriter::write_decl_file()
 {
-    std::ofstream out(*argument_.output_file);
+    std::ofstream out(*arg_.output_file);
 
     for (auto iter1 = structs_.begin(); iter1 != structs_.end(); ++iter1)
     {
@@ -235,17 +235,17 @@ jwriter::jwriter(std::list<std::string>& lines
 
     : lines_(lines)
     , structs_(structs)
-    , argument_(arg)
+    , arg_(arg)
 {
 }
 
 void jwriter::save()
 {
-    if (argument_.args_.count("h_out"))
+    if (arg_.args_.count("h_out"))
     {
         write_decl_file();
     }
-    else if (argument_.args_.count("cpp_out"))
+    else if (arg_.args_.count("cpp_out"))
     {
         write_impl_file();
     }

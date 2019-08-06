@@ -5,7 +5,7 @@
 class jutil_common_path
 {
 public:
-    std::string MyDocuments();
+    std::string my_documents();
 
 private:
     char path[260];

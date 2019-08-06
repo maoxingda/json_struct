@@ -12,7 +12,7 @@ jversion::jversion()
 {
     ptree tree;
 
-    read_xml(jutil_common_path().MyDocuments() + "\\Visual Studio 2010\\Addins\\version.xml", tree);
+    read_xml(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\version.xml", tree);
 
     version_ = tree.get<std::string>("compiler.version");
 }
