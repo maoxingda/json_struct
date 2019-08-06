@@ -47,10 +47,27 @@ namespace jstructwizd
 
                     File.Copy(template_file_name_src, template_file_name_dst);
 
-                    if (filter.CanAddFile(template_file_name_dst)) filter.AddFile(template_file_name_dst);
+                    if (filter.CanAddFile(template_file_name_dst))
+                    {
+                        string text = null;
 
-                    // open added file
-                    _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
+                        using (StreamReader sr = new StreamReader(template_file_name_dst))
+                        {
+                            text = sr.ReadToEnd();
+
+                            text = text.Replace("%struct_name%", Path.GetFileNameWithoutExtension(template_file_name_dst));
+                        }
+
+                        using (StreamWriter sw = new StreamWriter(template_file_name_dst))
+                        {
+                            sw.Write(text);
+                        }
+
+                        filter.AddFile(template_file_name_dst);
+
+                        // open added file
+                        _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
+                    }
                 }
             }
             catch (IOException e)
