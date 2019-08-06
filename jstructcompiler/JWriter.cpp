@@ -24,7 +24,7 @@ using namespace boost::posix_time;
 // common regex expressions
 static const sregex alpha_underscore    = (alpha | '_');
 static const sregex identifier          = (alpha_underscore >> *(_d | alpha_underscore));
-static const sregex inc_jst             = (bos >> (s1 = "#include" >> +_s >> '"' >> +_w) >> ".jst" >> before('"'));
+static const sregex inc_jst             = (bos >> *_s >> "#include" >> +_s >> '"' >> -*(boost::xpressive::set[alnum | (boost::xpressive::set = '.', '/', '\\')]) >> (s1 = +_w) >> ".jst" >> before('"'));
 
 
 void jwriter::gen_warning_code(std::ofstream& out)
@@ -182,6 +182,8 @@ void jwriter::align_reg_fields_code(std::list<std::string>& reg_fields_code)
 
 void jwriter::write_decl_file()
 {
+    //smatch what;
+
     std::ofstream out(*arg_.output_file);
 
     for (auto iter1 = structs_.begin(); iter1 != structs_.end(); ++iter1)
@@ -218,7 +220,27 @@ void jwriter::write_decl_file()
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
-        *iter = regex_replace(*iter, inc_jst, s1 + ".h");
+        *iter = regex_replace(*iter, inc_jst, "#include \"" + s1 + ".h");
+
+        //if (regex_search(*iter, what, inc_jst))
+        //{
+        //    *iter = "#include \"" + what[s1] + ".h\"";
+        //}
+
+        //if (regex_search(*iter, what, inc_jst))
+        //{
+        //    std::cout << *iter << std::endl;
+        //    if (1 == what[s1].length())
+        //    {
+        //        std::cout << 1 << std::endl;
+        //        *iter = "#include \"" + what[s1] + what[s2] + ".h\"";
+        //    }
+        //    else
+        //    {
+        //        std::cout << 2 << std::endl;
+        //        *iter = "#include \"" + what[s2] + ".h\"";
+        //    }
+        //}
 
         out << *iter << "\n";
     }

@@ -139,7 +139,7 @@ void jreader::parse_structs()
     std::string         jst_base      = " : public jstruct_base";
     static const sregex re_struct_end = bos >> *_s >> '}' >> *_s >> ';';
     static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = identifier);
-    static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = +_w >> ".jst") >> before('"');
+    static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = *(boost::xpressive::set[alnum | (boost::xpressive::set = '.', '/', '\\')]) >> +_w >> ".jst") >> before('"');
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
@@ -197,7 +197,7 @@ void jreader::parse_inc_structs(slist& lines)
     smatch what;
 
     static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = identifier);
-    static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = +_w >> ".jst") >> before('"');
+    static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = *(boost::xpressive::set[alnum | (boost::xpressive::set = '.', '/', '\\')]) >> +_w >> ".jst") >> before('"');
 
     for (auto iter = lines.begin(); iter != lines.end(); ++iter)
     {

@@ -13,6 +13,11 @@ int main(int argc, char *argv[])
         std::list<struct_info> structs;
         jparse_cmd_arg            args(argc, argv);
 
+        //for (auto iter = args.incs_.begin(); iter != args.incs_.end(); ++iter)
+        //{
+        //    std::cout << *iter << std::endl;
+        //}
+
         jreader reader(lines, structs, args);
         jwriter writer(lines, structs, args);
 
