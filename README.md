@@ -13,7 +13,7 @@
 
 # example
 ```
-jstruct JDate
+jstruct jdate
 {
 public jreq:
     jwchar year[6];
@@ -21,31 +21,37 @@ public jreq:
     jwchar day[4];
 };
 
-jstruct JPerson
+jstruct jperson
 {
 public jreq:
     jint     identifier;
     jwchar   name[32];
     jint     qq[2];
     jwchar   email[3][32];
-    JDate    birthday;
+    jdate    birthday;
 };
 
 int main(int argc, char** argv)
 {
-    JPerson p;
+    jperson p;
 	
-    assert(p.from_json("{\"id\":1001,\"name\":\"毛兴达\",\"qq\":[954192476],\"email\":[\"954192476@qq.com\",\"15068510522@qq.com\"],\"birthday\":{\"year\":\"1990\",\"month\":\"02\",\"day\":\"16}"));
+    assert(p.from_json("{\"id\":1001,\"name\":\"张三\",\"qq\":[123456789,987654321],\"email\":[\"123456789@qq.com\",\"987654321@qq.com\"],\"birthday\":{\"year\":\"2000\",\"month\":\"11\",\"day\":\"16}"));
 	
     string json = p.to_json();
 }
 ```
 
 # support field type
-1. bool
-2. number and number array (int, unsigned, __int64, unsigned __int64, float, double)
-3. string and string array (wchar_t)
-4. struct and struct array (struct)
+1. jbool ---> bool
+2. number and number array
+	jint    ---> int
+	juint   ---> unsigned int
+	jint64  ---> __int64
+	juint64 ---> unsigned __int64
+	jfloat  ---> float
+	jdouble ---> double)
+3. string and string array (jwchar  ---> wchar_t)
+4. struct and struct array (jstruct ---> struct)
 
 # note
 1. can only support ***utf8*** json stream, because the conversion between utf8 and utf16 was done internally
@@ -55,10 +61,7 @@ int main(int argc, char** argv)
 * derive
 * null value
 * concurrent
-* field type mismatch
-* delete intermediate files
 * if the optional field has a value
-* get name and location field value in vs add new item wizard
 * xpath
 * inline comment
 * use jsoncpp substitute cjson
