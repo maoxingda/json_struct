@@ -43,13 +43,13 @@ int main(int argc, char** argv)
 
 # support field type
 1. jbool ---> bool
-2. number and number array
-	jint    ---> int
-	juint   ---> unsigned int
-	jint64  ---> __int64
-	juint64 ---> unsigned __int64
-	jfloat  ---> float
-	jdouble ---> double
+2. number and number array  
+&emsp;jint    ---> int  
+&emsp;juint   ---> unsigned int  
+&emsp;jint64  ---> __int64  
+&emsp;juint64 ---> unsigned __int64  
+&emsp;jfloat  ---> float  
+&emsp;jdouble ---> double  
 3. string and string array (jwchar  ---> wchar_t)
 4. struct and struct array (jstruct ---> struct)
 
