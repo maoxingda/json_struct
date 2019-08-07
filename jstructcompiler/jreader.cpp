@@ -249,13 +249,14 @@ void jreader::parse_fields()
             {
                 auto& line = *cur;
 
-                if (line.empty()) continue; // skip empty line
+                if (line.empty()) continue;                    // skip empty line
+                if (regex_match(line, comment_line)) continue; // skip comment line
 
                 type t = field_type(line);
 
                 if (enum_none == t)
                 {
-                    cur->insert(4, "#error unknown field ---> ");
+                    line.insert(4, "#error unknown field ---> ");
 
                     continue;
                 }

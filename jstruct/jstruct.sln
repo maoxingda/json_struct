@@ -15,6 +15,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jstructdemo", "..\jstructde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jstructwizd", "..\jstructwizd\jstructwizd.csproj", "{0825DC0A-967C-481C-823D-EC45787C06F7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jstructdecompiler", "..\jstructdecompiler\jstructdecompiler.vcxproj", "{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,16 @@ Global
 		{0825DC0A-967C-481C-823D-EC45787C06F7}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{0825DC0A-967C-481C-823D-EC45787C06F7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{0825DC0A-967C-481C-823D-EC45787C06F7}.Release|Win32.ActiveCfg = Release|Any CPU
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Debug|Mixed Platforms.Build.0 = Debug|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Debug|Win32.Build.0 = Debug|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Release|Any CPU.ActiveCfg = Release|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Release|Mixed Platforms.Build.0 = Release|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Release|Win32.ActiveCfg = Release|Win32
+		{5DD45A62-FC3E-42CF-8251-587F1A27D1AF}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

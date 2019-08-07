@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     {
         std::list<std::string> lines;
         std::list<struct_info> structs;
-        jparse_cmd_arg            args(argc, argv);
+        jparse_cmd_arg         args(argc, argv);
 
         //for (auto iter = args.incs_.begin(); iter != args.incs_.end(); ++iter)
         //{

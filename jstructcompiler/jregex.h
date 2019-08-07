@@ -32,3 +32,5 @@ static const sregex wchar_table_field   = (bos >> *_s >> ESTR(jwchar) >> +_s >> 
 
 static const sregex struct_field        = (bos >> *_s >> (struct_name = identifier) >> +_s >> identifier >> *_s >> ';');
 static const sregex struct_array_field  = (bos >> *_s >> (struct_name = identifier) >> +_s >> identifier >> repeat<1, 1>(as_xpr("[") >> (+_d | identifier) >> "]") >> *_s >> ';');
+
+static const sregex comment_line        = (bos >> *_s >> "//" >> *_ >> eos);
