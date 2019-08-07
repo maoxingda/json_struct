@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 	jint64  ---> __int64
 	juint64 ---> unsigned __int64
 	jfloat  ---> float
-	jdouble ---> double)
+	jdouble ---> double
 3. string and string array (jwchar  ---> wchar_t)
 4. struct and struct array (jstruct ---> struct)
 
