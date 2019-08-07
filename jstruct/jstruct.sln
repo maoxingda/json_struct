@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jstructcompiler", "..\jstru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jstructtool", "..\jstructtool\jstructtool\jstructtool.csproj", "{7D93D932-466D-4664-88FC-716963571746}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jstructdemo", "..\jstructdemo\jstructdemo.vcxproj", "{14919ABD-9A22-4125-8269-269AFA145482}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jstructdemo", "..\jstructdemo\jstructdemo.vcxproj", "{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{203F7C91-72E1-4EF5-8763-8E49382C6140} = {203F7C91-72E1-4EF5-8763-8E49382C6140}
 		{937C8FDC-B4BB-4AC5-BDAE-F8D30B1815E2} = {937C8FDC-B4BB-4AC5-BDAE-F8D30B1815E2}
@@ -55,15 +55,14 @@ Global
 		{7D93D932-466D-4664-88FC-716963571746}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{7D93D932-466D-4664-88FC-716963571746}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7D93D932-466D-4664-88FC-716963571746}.Release|Win32.ActiveCfg = Release|Any CPU
-		{14919ABD-9A22-4125-8269-269AFA145482}.Debug|Any CPU.ActiveCfg = Debug|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Debug|Mixed Platforms.Build.0 = Debug|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Debug|Win32.ActiveCfg = Debug|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Debug|Win32.Build.0 = Debug|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Release|Any CPU.ActiveCfg = Release|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Release|Mixed Platforms.ActiveCfg = Release|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Release|Win32.ActiveCfg = Release|Win32
-		{14919ABD-9A22-4125-8269-269AFA145482}.Release|Win32.Build.0 = Release|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Debug|Mixed Platforms.ActiveCfg = Debug|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Debug|Win32.Build.0 = Debug|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Release|Any CPU.ActiveCfg = Release|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Release|Mixed Platforms.ActiveCfg = Release|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Release|Win32.ActiveCfg = Release|Win32
+		{30EEAE6B-F2E4-4900-8C04-D9DAFB374A5D}.Release|Win32.Build.0 = Release|Win32
 		{0825DC0A-967C-481C-823D-EC45787C06F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0825DC0A-967C-481C-823D-EC45787C06F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0825DC0A-967C-481C-823D-EC45787C06F7}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU

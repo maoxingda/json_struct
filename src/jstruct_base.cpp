@@ -15,23 +15,24 @@
 using namespace boost::xpressive;
 
 // common regex expressions
-static const sregex re_bool         = as_xpr("bool");
+static const sregex re_bool          = as_xpr("bool");
 
-static const sregex re_number       = (as_xpr("int") | "unsigned int" | "__int64" | "unsigned __int64" | "float" | "double");
-static const sregex re_number_array = (re_number >> " " >> "[" >> (s1 = +_d) >> "]");
+static const sregex re_number        = (as_xpr("int") | "unsigned int" | "__int64" | "unsigned __int64" | "float" | "double");
+static const sregex re_number_array1 = (re_number >> " " >> "[" >> (s1 = +_d) >> "]");
+static const sregex re_number_array2 = (s1 = re_number) >> " " >> "[" >> +_d >> "]";
 
-static const sregex re_wchar_array  = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
-static const sregex re_wchar_table  = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) >> "]") >> ("[" >> (s2 = +_d) >> "]"));
+static const sregex re_wchar_array   = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
+static const sregex re_wchar_table   = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) >> "]") >> ("[" >> (s2 = +_d) >> "]"));
 
-static const sregex re_struct       = (as_xpr("struct ") >> +_w);
-static const sregex re_struct_array = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
+static const sregex re_struct        = (as_xpr("struct ") >> +_w);
+static const sregex re_struct_array  = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
 
 
 static int array_size(const string& field_type)
 {
     smatch sm;
 
-    if (regex_match(field_type, sm, re_number_array))
+    if (regex_match(field_type, sm, re_number_array1))
     {
         return stoi(sm[s1]);
     }
@@ -70,7 +71,7 @@ static bool is_number(const string& field_type)
 
 static bool is_number_array(const string& field_type)
 {
-    return regex_match(field_type, re_number_array);
+    return regex_match(field_type, re_number_array1);
 }
 
 static bool is_wchar_array(const string& field_type)
@@ -147,27 +148,19 @@ static cJSON* to_number(const string& field_type, const string& field_name, void
     }
     else if (typeid(__int64).name() == field_type)
     {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(double*)field_address);
+        return cJSON_AddNumberToObject(object, field_name.c_str(), (double)(*(__int64*)field_address));
     }
-    else if (typeid(long).name() == field_type)
+    else if (typeid(unsigned __int64).name() == field_type)
     {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(long*)field_address);
-    }
-    else if (typeid(unsigned short).name() == field_type)
-    {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(unsigned short*)field_address);
-    }
-    else if (typeid(unsigned long).name() == field_type)
-    {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(unsigned long*)field_address);
+        return cJSON_AddNumberToObject(object, field_name.c_str(), (double)(*(unsigned __int64*)field_address));
     }
     else if (typeid(float).name() == field_type)
     {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(float*)field_address);
+        return cJSON_AddNumberToObject(object, field_name.c_str(), (double)*(float*)field_address);
     }
     else if (typeid(double).name() == field_type)
     {
-        return cJSON_AddNumberToObject(object, field_name.c_str(), *(double*)field_address);
+        return cJSON_AddNumberToObject(object, field_name.c_str(), (double)*(double*)field_address);
     }
 
     return nullptr;
@@ -175,7 +168,11 @@ static cJSON* to_number(const string& field_type, const string& field_name, void
 
 static bool to_number_array(const string& field_type, void* field_address, cJSON* array, int offset)
 {
-    if (std::string::npos != string(field_type).find("int"))
+    smatch what;
+
+    regex_match(field_type, what, re_number_array2);
+
+    if ("int" == what[s1])
     {
         cJSON* item = cJSON_CreateNumber(*((int*)field_address + offset));
 
@@ -183,7 +180,7 @@ static bool to_number_array(const string& field_type, void* field_address, cJSON
 
         cJSON_AddItemToArray(array, item);
     }
-    else if (std::string::npos != string(field_type).find("unsigned int"))
+    else if ("unsigned int" == what[s1])
     {
         cJSON* item = cJSON_CreateNumber(*((unsigned int*)field_address + offset));
 
@@ -191,39 +188,23 @@ static bool to_number_array(const string& field_type, void* field_address, cJSON
 
         cJSON_AddItemToArray(array, item);
     }
-    else if (std::string::npos != string(field_type).find("__int64"))
+    else if ("__int64" == what[s1])
     {
-        cJSON* item = cJSON_CreateNumber(*((double*)field_address + offset));
+        cJSON* item = cJSON_CreateNumber((double)(*((__int64*)field_address + offset)));
 
         if (nullptr == item) return false;
 
         cJSON_AddItemToArray(array, item);
     }
-    else if (std::string::npos != string(field_type).find("long"))
+    else if ("unsigned __int64" == what[s1])
     {
-        cJSON* item = cJSON_CreateNumber(*((long*)field_address + offset));
+        cJSON* item = cJSON_CreateNumber((double)(*((unsigned __int64*)field_address + offset)));
 
         if (nullptr == item) return false;
 
         cJSON_AddItemToArray(array, item);
     }
-    else if (std::string::npos != string(field_type).find("unsigned short"))
-    {
-        cJSON* item = cJSON_CreateNumber(*((unsigned short*)field_address + offset));
-
-        if (nullptr == item) return false;
-
-        cJSON_AddItemToArray(array, item);
-    }
-    else if (std::string::npos != string(field_type).find("unsigned long"))
-    {
-        cJSON* item = cJSON_CreateNumber(*((unsigned long*)field_address + offset));
-
-        if (nullptr == item) return false;
-
-        cJSON_AddItemToArray(array, item);
-    }
-    else if (std::string::npos != string(field_type).find("float"))
+    else if ("float" == what[s1])
     {
         cJSON* item = cJSON_CreateNumber(*((float*)field_address + offset));
 
@@ -231,7 +212,7 @@ static bool to_number_array(const string& field_type, void* field_address, cJSON
 
         cJSON_AddItemToArray(array, item);
     }
-    else if (std::string::npos != string(field_type).find("double"))
+    else if ("double" == what[s1])
     {
         cJSON* item = cJSON_CreateNumber(*((double*)field_address + offset));
 
@@ -251,77 +232,53 @@ static void from_number(const string& field_type, void* field_address, cJSON* it
     }
     else if (typeid(unsigned int).name() == field_type)
     {
-        if (UINT_MAX <= item->valuedouble)
+        auto& field = *((unsigned int*)field_address);
+
+        if (UINT_MAX < item->valuedouble)
         {
-            *((unsigned int*)field_address) = UINT_MAX;
+            field = UINT_MAX;
         }
-        else if ((double)0 >= item->valuedouble)
+        else if (0.0 > item->valuedouble)
         {
-            *((unsigned int*)field_address) = (unsigned int)0;
+            field = 0u;
         }
         else
         {
-            *((unsigned int*)field_address) = (unsigned int)item->valuedouble;
+            field = (unsigned int)item->valuedouble;
         }
     }
     else if (typeid(__int64).name() == field_type)
     {
-        if (INT64_MAX <= item->valuedouble)
+        auto& field = *((__int64*)field_address);
+
+        if (INT64_MAX < item->valuedouble)
         {
-            *((__int64*)field_address) = INT64_MAX;
+            field = INT64_MAX;
         }
-        else if ((double)INT64_MIN >= item->valuedouble)
+        else if ((double)INT64_MIN > item->valuedouble)
         {
-            *((__int64*)field_address) = (__int64)INT64_MIN;
+            field = INT64_MIN;
         }
         else
         {
-            *((__int64*)field_address) = (__int64)item->valuedouble;
+            field = (__int64)item->valuedouble;
         }
     }
-    else if (typeid(long).name() == field_type)
+    else if (typeid(unsigned __int64).name() == field_type)
     {
-        if (LONG_MAX <= item->valuedouble)
+        auto& field = *((unsigned __int64*)field_address);
+
+        if (UINT64_MAX < item->valuedouble)
         {
-            *((long*)field_address) = LONG_MAX;
+            field = UINT64_MAX;
         }
-        else if ((double)LONG_MIN >= item->valuedouble)
+        else if (0.0 > item->valuedouble)
         {
-            *((long*)field_address) = LONG_MIN;
+            field = 0u;
         }
         else
         {
-            *((long*)field_address) = (long)item->valuedouble;
-        }
-    }
-    else if (typeid(unsigned short).name() == field_type)
-    {
-        if (0xffff <= item->valuedouble)
-        {
-            *((unsigned short*)field_address) = (unsigned short)0xffff;
-        }
-        else if ((double)0 >= item->valuedouble)
-        {
-            *((unsigned short*)field_address) = (unsigned short)0;
-        }
-        else
-        {
-            *((unsigned short*)field_address) = (unsigned short)item->valuedouble;
-        }
-    }
-    else if (typeid(unsigned long).name() == field_type)
-    {
-        if (ULONG_MAX <= item->valuedouble)
-        {
-            *((unsigned long*)field_address) = ULONG_MAX;
-        }
-        else if ((double)0 >= item->valuedouble)
-        {
-            *((unsigned long*)field_address) = (unsigned long)0;
-        }
-        else
-        {
-            *((unsigned long*)field_address) = (unsigned long)item->valuedouble;
+            field = (unsigned __int64)item->valuedouble;
         }
     }
     else if (typeid(float).name() == field_type)
@@ -336,90 +293,70 @@ static void from_number(const string& field_type, void* field_address, cJSON* it
 
 static void from_number_array(const string& field_type, void* field_address, cJSON* item, int offset)
 {
-    if (string::npos != string(field_type).find("int"))
+    smatch what;
+
+    regex_match(field_type, what, re_number_array2);
+
+    if ("int" == what[s1])
     {
         *((int*)field_address + offset) = item->valueint;
     }
-    else if (string::npos != string(field_type).find("unsigned int"))
+    else if ("unsigned int" == what[s1])
     {
-        if (UINT_MAX <= item->valuedouble)
+        auto& field = *((unsigned int*)field_address + offset);
+
+        if (UINT_MAX < item->valuedouble)
         {
-            *((unsigned int*)field_address + offset) = UINT_MAX;
+            field = UINT_MAX;
         }
-        else if ((double)0 >= item->valuedouble)
+        else if (0.0 > item->valuedouble)
         {
-            *((unsigned int*)field_address + offset) = (unsigned int)0;
+            field = 0u;
         }
         else
         {
-            *((unsigned int*)field_address + offset) = (unsigned int)item->valuedouble;
+            field = (unsigned int)item->valuedouble;
         }
     }
-    else if (string::npos != string(field_type).find("__int64"))
+    else if ("__int64" == what[s1])
     {
-        if (INT64_MAX <= item->valuedouble)
+        auto& field = *((__int64*)field_address + offset);
+
+        if (INT64_MAX < item->valuedouble)
         {
-            *((__int64*)field_address + offset) = INT64_MAX;
+            field = INT64_MAX;
         }
-        else if ((double)INT64_MIN >= item->valuedouble)
+        else if ((double)INT64_MIN > item->valuedouble)
         {
-            *((__int64*)field_address + offset) = (__int64)INT64_MIN;
+            field = INT64_MIN;
         }
         else
         {
-            *((__int64*)field_address + offset) = (__int64)item->valuedouble;
+            field = (__int64)item->valuedouble;
         }
     }
-    else if (string::npos != string(field_type).find("long"))
+    else if ("unsigned __int64" == what[s1])
     {
-        if (LONG_MAX <= item->valuedouble)
+        auto& field = *((__int64*)field_address + offset);
+
+        if (UINT64_MAX < item->valuedouble)
         {
-            *((long*)field_address + offset) = LONG_MAX;
+            field = UINT64_MAX;
         }
-        else if ((double)LONG_MIN >= item->valuedouble)
+        else if (0.0 > item->valuedouble)
         {
-            *((long*)field_address + offset) = LONG_MIN;
+            field = 0u;
         }
         else
         {
-            *((long*)field_address + offset) = (long)item->valuedouble;
+            field = (unsigned __int64)item->valuedouble;
         }
     }
-    else if (string::npos != string(field_type).find("unsigned short"))
-    {
-        if (0xffff <= item->valuedouble)
-        {
-            *((unsigned short*)field_address + offset) = (unsigned short)0xffff;
-        }
-        else if ((double)0 >= item->valuedouble)
-        {
-            *((unsigned short*)field_address + offset) = (unsigned short)0;
-        }
-        else
-        {
-            *((unsigned short*)field_address + offset) = (unsigned short)item->valuedouble;
-        }
-    }
-    else if (string::npos != string(field_type).find("unsigned long"))
-    {
-        if (ULONG_MAX <= item->valuedouble)
-        {
-            *((unsigned long*)field_address + offset) = ULONG_MAX;
-        }
-        else if ((double)0 >= item->valuedouble)
-        {
-            *((unsigned long*)field_address + offset) = (unsigned long)0;
-        }
-        else
-        {
-            *((unsigned long*)field_address + offset) = (unsigned long)item->valuedouble;
-        }
-    }
-    else if (string::npos != string(field_type).find("float"))
+    else if ("float" == what[s1])
     {
         *((float*)field_address + offset) = (float)item->valuedouble;
     }
-    else if (string::npos != string(field_type).find("double"))
+    else if ("double" == what[s1])
     {
         *((double*)field_address + offset) = item->valuedouble;
     }
@@ -548,7 +485,7 @@ void* jstruct_base::to_json_(bool& success)
 
                 for (auto i = 0; i < size; ++i)
                 {
-                    bool success = to_number_array(field_information.type_name_, field_address, array, i * field_information.offset_);
+                    bool success = to_number_array(field_information.type_name_, field_address, array, i);
 
                     if (!success)
                     {
@@ -640,17 +577,19 @@ void* jstruct_base::to_json_(bool& success)
                 {
                     bool subsuccess = true;
 
-                    cJSON* subobject = (cJSON*)((jstruct_base*)((char*)field_address + i * field_information.offset_))->to_json_(subsuccess);
+                    cJSON* arrItem = (cJSON*)((jstruct_base*)((char*)field_address + i * field_information.offset_))->to_json_(subsuccess);
 
                     if (!subsuccess)
                     {
-                        cJSON_Delete(subobject);
+                        cJSON_Delete(arrItem);
 
                         return nullptr;
                     }
 
-                    cJSON_AddItemToObject(object, field_name.c_str(), subobject);
+                    cJSON_AddItemToArray(array, arrItem);
                 }
+
+                cJSON_AddItemToObject(object, field_name.c_str(), array);
             }
             break;
         }
