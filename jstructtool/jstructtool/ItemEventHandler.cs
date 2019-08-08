@@ -47,7 +47,7 @@ namespace jstructtool
                     {
                         cbt.CommandLine = "jstructdecompiler \"%(FullPath)\" \"$(ProjectDir)%(Filename).jst\"";
                         cbt.Description = "jstructdecompiler%27ing %(Identity)...";
-                        cbt.Outputs     = "$(ProjectDir)%(Filename).jst";
+                        cbt.Outputs     = "$(ProjectDir)__%(Filename).jst";
                     }
                 }
 
