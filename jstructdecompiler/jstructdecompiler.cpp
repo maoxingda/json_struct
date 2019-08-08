@@ -32,6 +32,11 @@ int main(int argc, char* argv[])
         //cout << arg.i_file_name_ << "\n";
         cout << arg.o_file_name_ << "\n";
 
+        if (exists(path(arg.o_file_name_)))
+        {
+            remove(path(arg.o_file_name_));
+        }
+
         std::ifstream in(arg.i_file_name_);
 
         if (!in) throw logic_error("\nopen file [" + arg.i_file_name_ + "] failed");

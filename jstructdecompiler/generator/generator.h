@@ -17,7 +17,7 @@ public:
     void write();
 
 private:
-    void object(const Json::Value& obj, unsigned num);
+    void object(const Json::Value& obj, const string& stname);
 
 private:
     align               align_;

@@ -16,15 +16,32 @@ generator::generator(const Json::Value& val, const args& arg)
 
 void generator::write()
 {
-    object(json_, 1);
+    object(json_, "jroot");
 
     out_ << "#pragma once\n";
     out_ << "#include <jstruct.h>\n\n";
 
+    static unsigned num = 0;
+    boost::format fmt("%1%");
+
     BOOST_FOREACH(const struct_info& jst, jstructs_)
     {
+        if ("jroot" == jst.stname_)
+        {
+            fmt % ++num;
+        }
+
         out_ << "\n";
-        out_ << "jstruct " << jst.stname_ << "\n";
+
+        if ("jroot" == jst.stname_)
+        {
+            out_ << "jstruct " << jst.stname_ << fmt << "\n";
+        }
+        else
+        {
+            out_ << "jstruct " << jst.stname_ << "\n";
+        }
+
         out_ << "{\n";
         out_ << "public jreq:\n";
 
@@ -37,7 +54,7 @@ void generator::write()
     }
 }
 
-void generator::object(const Json::Value& obj, unsigned num)
+void generator::object(const Json::Value& obj, const string& stname)
 {
     if (obj.isNull() || !obj.isObject()) return;
 
@@ -47,9 +64,7 @@ void generator::object(const Json::Value& obj, unsigned num)
     auto& max_offset = st_info.max_offset_;
     max_offset       = 0;
 
-    boost::format fmt("struct_name_%1%");
-
-    st_info.stname_ = (fmt % num).str();
+    st_info.stname_ = stname;
 
     BOOST_FOREACH(auto member, obj.getMemberNames())
     {
@@ -88,11 +103,10 @@ void generator::object(const Json::Value& obj, unsigned num)
             break;
 
         case Json::objectValue:
-            ++num;
-            object(obj[member], num);
-            fd_info.type_name_ = (fmt % num).str();
+            fd_info.type_name_ = "j" + member;
             fd_info.name_ += ";";
             max_offset = max_offset < fd_info.type_name_.length() ? fd_info.type_name_.length() : max_offset;
+            object(obj[member], fd_info.type_name_);
             break;
 
         case Json::arrayValue:
@@ -128,11 +142,10 @@ void generator::object(const Json::Value& obj, unsigned num)
                     break;
 
                 case Json::objectValue:
-                    ++num;
-                    object(arrItem[0], num);
-                    fd_info.type_name_ = (fmt % num).str();
+                    fd_info.type_name_ = "j" + member;
                     fd_info.name_ += "[2];";
                     max_offset = max_offset < fd_info.type_name_.length() ? fd_info.type_name_.length() : max_offset;
+                    object(arrItem[0], fd_info.type_name_);
                     break;
                 }
             }
