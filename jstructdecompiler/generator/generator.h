@@ -2,6 +2,8 @@
 #include "json.h"
 #include <fstream>
 #include <args.h>
+#include "align\align.h"
+#include "..\jstruct\jstruct\jfield_info.h"
 
 
 using namespace std;
@@ -18,8 +20,9 @@ private:
     void object(const Json::Value& obj, unsigned num);
 
 private:
-    ofstream                 out_;
-    const Json::Value&       json_;
-    vector< vector<string> > jstructs_;
+    align               align_;
+    std::ofstream       out_;
+    const Json::Value&  json_;
+    vector<struct_info> jstructs_;
 };
 

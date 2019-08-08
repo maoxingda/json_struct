@@ -10,6 +10,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/format.hpp>
+#include <atlbase.h>
 
 
 using namespace std;
@@ -21,15 +22,19 @@ int main(int argc, char* argv[])
 {
     try
     {
-        if (2 > argc) throw logic_error("\nno input file!");
+        if (3 > argc) throw logic_error("\nno input or output file");
 
         args arg;
 
         arg.i_file_name_ = argv[1];
+        arg.o_file_name_ = argv[2];
+
+        //cout << arg.i_file_name_ << "\n";
+        cout << arg.o_file_name_ << "\n";
 
         std::ifstream in(arg.i_file_name_);
 
-        if (!in) throw logic_error("\nopen file [" + arg.i_file_name_ + "] failed!");
+        if (!in) throw logic_error("\nopen file [" + arg.i_file_name_ + "] failed");
 
         char_separator<char> sep(";");
 
@@ -39,16 +44,16 @@ int main(int argc, char* argv[])
 
         tokenizer< char_separator<char> > tokens(json, sep);
 
-        int num = 0;
-        path ip(arg.i_file_name_);
-        string dir = path(arg.i_file_name_).remove_filename().string() + "\\";
         for (auto iter = tokens.begin(); iter != tokens.end(); ++iter)
         {
             Json::Value root;
 
-            if (!Json::Reader(Json::Features::strictMode()).parse(*iter, root, false)) continue;
+            if (!Json::Reader(Json::Features::strictMode()).parse(*iter, root, false))
+            {
+                cout << "invalid json format:\n" << CT2A(CA2T(iter->c_str(), CP_UTF8)) << "\n";
 
-            arg.o_file_name_ = (format("%1%%2%.jst") % (dir + ip.stem().string()) % ++num).str();
+                continue;
+            }
 
             generator gen(root, arg);
 
@@ -57,7 +62,7 @@ int main(int argc, char* argv[])
     }
     catch (const std::exception& e)
     {
-        cout<< "\t" << e.what() << "\n" << endl;
+        cout << e.what() << "\n";
     }
 
     return 0;//system("pause");

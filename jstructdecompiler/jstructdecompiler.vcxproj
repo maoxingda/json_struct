@@ -39,12 +39,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)error;$(ProjectDir)args;$(ProjectDir)json;$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)..\bin\</OutDir>
+    <IncludePath>$(ProjectDir)generator;$(ProjectDir)error;$(ProjectDir)args;$(ProjectDir)json;$(IncludePath)</IncludePath>
+    <OutDir>C:\Windows\SysWOW64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(ProjectDir)error;$(ProjectDir)args;$(ProjectDir)json;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)generator;$(ProjectDir)error;$(ProjectDir)args;$(ProjectDir)json;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)..\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -53,7 +53,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VisualStudioDir)\Addins\inc;.\mjst;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VisualStudioDir)\Addins\inc;.\mjst;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -69,7 +69,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(VisualStudioDir)\Addins\inc;.\mjst;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(VisualStudioDir)\Addins\inc;.\mjst;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -86,9 +86,11 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\util\jutil_common_path.h" />
+    <ClInclude Include="align\align.h" />
     <ClInclude Include="args\args.h" />
     <ClInclude Include="error\error.h" />
-    <ClInclude Include="generator.h" />
+    <ClInclude Include="generator\generator.h" />
     <ClInclude Include="json\autolink.h" />
     <ClInclude Include="json\config.h" />
     <ClInclude Include="json\forwards.h" />
@@ -103,8 +105,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\util\jutil_common_path.cpp" />
+    <ClCompile Include="align\align.cpp" />
     <ClCompile Include="args\args.cpp" />
-    <ClCompile Include="generator.cpp" />
+    <ClCompile Include="generator\generator.cpp" />
     <ClCompile Include="json\json_reader.cpp" />
     <ClCompile Include="json\json_value.cpp" />
     <ClCompile Include="json\json_writer.cpp" />

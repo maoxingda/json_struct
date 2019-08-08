@@ -13,9 +13,10 @@ namespace jstructwizd
 {
     public class AddNewItem : IDTWizard
     {
-        private DTE2 _applicationObject = null;
-        private string template_file_name_src = null;
-        private string template_file_name_dst = null;
+        private DTE2 _applicationObject            = null;
+        private string template_file_name_src_jst  = null;
+        private string template_file_name_src_json = null;
+        private string template_file_name_dst      = null;
 
         public void Execute(object Application,
             int hwndOwner,
@@ -27,11 +28,12 @@ namespace jstructwizd
             {
                 _applicationObject = Application as DTE2;
 
-                if (null == template_file_name_src)
+                if (null == template_file_name_src_jst || null == template_file_name_src_json)
                 {
                     RegistryKey vs2010 = Registry.CurrentUser.OpenSubKey("software\\jstructtool");
 
-                    template_file_name_src = vs2010.GetValue("AppFolder").ToString() + "\\inc\\template.jst";
+                    template_file_name_src_jst  = vs2010.GetValue("AppFolder").ToString() + "\\inc\\template.jst";
+                    template_file_name_src_json = vs2010.GetValue("AppFolder").ToString() + "\\inc\\template.json";
 
                     vs2010.Close();
                 }
@@ -43,30 +45,42 @@ namespace jstructwizd
 
                     template_file_name_dst = contextParams[4] as string;
 
-                    template_file_name_dst += ".jst";
+                    if (!template_file_name_dst.EndsWith(".json"))
+                    {
+                        template_file_name_dst += ".jst";
 
-                    File.Copy(template_file_name_src, template_file_name_dst);
+                        File.Copy(template_file_name_src_jst, template_file_name_dst);
+                    }
+                    else
+                    {
+                        File.Copy(template_file_name_src_json, template_file_name_dst);
+                    }
 
                     if (filter.CanAddFile(template_file_name_dst))
                     {
-                        string text = null;
-
-                        using (StreamReader sr = new StreamReader(template_file_name_dst))
+                        if (template_file_name_dst.EndsWith(".jst"))
                         {
-                            text = sr.ReadToEnd();
+                            string text = null;
 
-                            text = text.Replace("%struct_name%", Path.GetFileNameWithoutExtension(template_file_name_dst));
-                        }
+                            using (StreamReader sr = new StreamReader(template_file_name_dst))
+                            {
+                                text = sr.ReadToEnd();
 
-                        using (StreamWriter sw = new StreamWriter(template_file_name_dst))
-                        {
-                            sw.Write(text);
+                                text = text.Replace("%struct_name%", Path.GetFileNameWithoutExtension(template_file_name_dst));
+                            }
+
+                            using (StreamWriter sw = new StreamWriter(template_file_name_dst))
+                            {
+                                sw.Write(text);
+                            }
                         }
 
                         filter.AddFile(template_file_name_dst);
 
                         // open added file
                         _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
+
+                        if (template_file_name_dst.EndsWith(".json")) filter.AddFile(template_file_name_dst.Replace(".json", ".jst"));
                     }
                 }
             }

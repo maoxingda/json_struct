@@ -47,4 +47,5 @@ struct struct_info
     sliter                 iter_struct_beg_;
     sliter                 iter_struct_end_;
     std::list<sliter>      field_qualifiers;
+    unsigned               max_offset_;
 };

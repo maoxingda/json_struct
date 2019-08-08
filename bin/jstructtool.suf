@@ -3724,13 +3724,13 @@ end
 
 -- if vs2010 is in use, prompt user to exit vs
 
-if File.IsInUse(shell_folder.."\\Common7\\IDE\\devenv.exe") then
+--if File.IsInUse(shell_folder.."\\Common7\\IDE\\devenv.exe") then
 
-	Dialog.Message("Microsoft visual studio 2010", "The microsoft visual studio 2010 application is in use, Please exit it and come back to install");
+--	Dialog.Message("Microsoft visual studio 2010", "The microsoft visual studio 2010 application is in use, Please exit it and come back to install");
 	
-	Application.Exit();
+--	Application.Exit();
 
-end
+--end
 </Script>
 <BookMarks count="0">
 </BookMarks>

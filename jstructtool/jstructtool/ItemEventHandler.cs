@@ -28,7 +28,7 @@ namespace jstructtool
             {
                 VCFile file = projectItem.Object as VCFile;
 
-                if (!file.Name.EndsWith(".jst")) return;
+                if (!file.Name.EndsWith(".jst") && !file.Name.EndsWith(".json")) return;
 
                 //// open added file
                 //projectItem.Open();
@@ -37,10 +37,21 @@ namespace jstructtool
                 {
                     VCCustomBuildTool cbt = fc.Tool as VCCustomBuildTool;
 
-                    cbt.CommandLine = "jstructcompiler --multi_build=off --include_path=\"$(IncludePath)\" --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
-                    cbt.Description = "jstructcompiler%27ing %(Identity)...";
-                    cbt.Outputs     = "$(ProjectDir)mjst\\%(Filename).h";
+                    if (file.Name.EndsWith(".jst"))
+                    {
+                        cbt.CommandLine = "jstructcompiler --multi_build=off --include_path=\"$(IncludePath)\" --h_out --input_file=\"%(FullPath)\" --output_file=\"$(ProjectDir)mjst\\%(Filename).h\"";
+                        cbt.Description = "jstructcompiler%27ing %(Identity)...";
+                        cbt.Outputs = "$(ProjectDir)mjst\\%(Filename).h";
+                    }
+                    else if (file.Name.EndsWith(".json"))
+                    {
+                        cbt.CommandLine = "jstructdecompiler \"%(FullPath)\" \"$(ProjectDir)%(Filename).jst\"";
+                        cbt.Description = "jstructdecompiler%27ing %(Identity)...";
+                        cbt.Outputs     = "$(ProjectDir)%(Filename).jst";
+                    }
                 }
+
+                if (file.Name.EndsWith(".json")) return;
 
                 VCProject           proj;
                 IVCCollection       cfgs, tools;

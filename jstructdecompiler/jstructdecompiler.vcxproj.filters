@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="json">
       <UniqueIdentifier>{d2bb9dd5-0b32-424e-a104-ece5013567eb}</UniqueIdentifier>
     </Filter>
@@ -24,6 +20,12 @@
     </Filter>
     <Filter Include="args">
       <UniqueIdentifier>{91e004bb-9fea-4b1d-af39-a79ea4380012}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="util">
+      <UniqueIdentifier>{fae9cec6-8cb1-4168-802e-19c1aa260c77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="align">
+      <UniqueIdentifier>{3078d1f7-0f7b-40e2-a590-4f9340cd4d4f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -78,11 +80,17 @@
     <ClInclude Include="error\error.h">
       <Filter>error</Filter>
     </ClInclude>
-    <ClInclude Include="generator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="args\args.h">
       <Filter>args</Filter>
+    </ClInclude>
+    <ClInclude Include="..\util\jutil_common_path.h">
+      <Filter>util</Filter>
+    </ClInclude>
+    <ClInclude Include="generator\generator.h">
+      <Filter>generator</Filter>
+    </ClInclude>
+    <ClInclude Include="align\align.h">
+      <Filter>align</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -101,11 +109,17 @@
     <ClCompile Include="json\json_writer.cpp">
       <Filter>json</Filter>
     </ClCompile>
-    <ClCompile Include="generator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="args\args.cpp">
       <Filter>args</Filter>
+    </ClCompile>
+    <ClCompile Include="..\util\jutil_common_path.cpp">
+      <Filter>util</Filter>
+    </ClCompile>
+    <ClCompile Include="generator\generator.cpp">
+      <Filter>generator</Filter>
+    </ClCompile>
+    <ClCompile Include="align\align.cpp">
+      <Filter>align</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
