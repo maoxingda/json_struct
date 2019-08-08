@@ -19,15 +19,17 @@ using namespace filesystem;
 
 int main(int argc, char* argv[])
 {
-    if (2 > argc) return invalid_cmd_line_args;
-
     try
     {
+        if (2 > argc) throw logic_error("\nno input file!");
+
         args arg;
 
         arg.i_file_name_ = argv[1];
 
         std::ifstream in(arg.i_file_name_);
+
+        if (!in) throw logic_error("\nopen file [" + arg.i_file_name_ + "] failed!");
 
         char_separator<char> sep(";");
 
@@ -46,14 +48,16 @@ int main(int argc, char* argv[])
 
             if (!Json::Reader(Json::Features::strictMode()).parse(*iter, root, false)) continue;
 
-            arg.o_file_name_ = (format("%1%%2%.h") % (dir + ip.stem().string()) % ++num).str();
+            arg.o_file_name_ = (format("%1%%2%.jst") % (dir + ip.stem().string()) % ++num).str();
 
             generator gen(root, arg);
+
+            gen.write();
         }
     }
     catch (const std::exception& e)
     {
-        cout << e.what() << endl;
+        cout<< "\t" << e.what() << "\n" << endl;
     }
 
     return 0;//system("pause");

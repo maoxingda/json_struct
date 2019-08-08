@@ -3,106 +3,116 @@
 #include <boost/foreach.hpp>
 
 
-#define indent(depth) string().insert(0, 4 * (depth - 1), ' ')
+#define indent(depth) string().insert(0, 4 * depth, ' ')
 
 
 generator::generator(const Json::Value& val, const args& arg)
     : json_(val)
     , out_(arg.o_file_name_)
 {
-    out_ << "#include \"jstruct.h\"\n\n\n";
-
-    object(json_, 1, 1);
-    array(json_, "", 1, 1);
+    object(json_, 1);
 }
 
-void generator::object(const Json::Value& obj, unsigned depth, unsigned num)
+void generator::write()
+{
+    out_ << "#pragma once\n";
+    out_ << "#include <jstruct.h>\n\n";
+
+    BOOST_FOREACH(const auto& row, jstructs_)
+    {
+        out_ << "\n";
+
+        BOOST_FOREACH(const auto& col, row)
+        {
+            out_ << col;
+        }
+
+        out_ << "\n";
+    }
+}
+
+void generator::object(const Json::Value& obj, unsigned num)
 {
     if (obj.isNull() || !obj.isObject()) return;
+
+    vector<string> jstruct;
 
     boost::format fmt("struct_name_%1%");
 
     string name = (fmt % num).str();
 
-    out_ << indent(depth) << "jstruct " << name << "\n";
-    out_ << indent(depth) << "{\n";
+    jstruct.push_back("jstruct " + name + "\n");
+    jstruct.push_back("{\n");
+    jstruct.push_back("public jreq:\n");
 
     BOOST_FOREACH(auto member, obj.getMemberNames())
     {
         switch (obj[member].type())
         {
         case Json::booleanValue:
-            out_ << indent(depth + 1) << "jbool " << member << ";\n";
+            jstruct.push_back(indent(1) + "jbool " + member + ";\n");
             break;
 
         case Json::intValue:
-            out_ << indent(depth + 1) << "jint64 " << member << ";\n";
+            jstruct.push_back(indent(1) + "jint64 " + member + ";\n");
             break;
 
         case Json::uintValue:
-            out_ << indent(depth + 1) << "juint64 " << member << ";\n";
+            jstruct.push_back(indent(1) + "juint64 " + member + ";\n");
             break;
 
         case Json::realValue:
-            out_ << indent(depth + 1) << "jdouble " << member << ";\n";
+            jstruct.push_back(indent(1) + "jdouble " + member + ";\n");
             break;
 
         case Json::stringValue:
-            out_ << indent(depth + 1) << "jwchar " << member << "[2];\n";
+            jstruct.push_back(indent(1) + "jwchar " + member + ";\n");
             break;
 
         case Json::objectValue:
             ++num;
-            object(obj[member], depth + 1, num);
+            object(obj[member], num);
             name = (fmt % num).str();
-            out_ << indent(depth + 1) << name << " " << member << ";\n";
+            jstruct.push_back(indent(1) + name + " " + member + ";\n");
             break;
 
         case Json::arrayValue:
             {
-                auto& preview = obj[member];
+                auto& arrItem = obj[member];
 
-                !preview.isNull() && preview.size() && preview[0].isObject() ? ++num : 0;
+                if (arrItem.isNull() || !arrItem.isArray() || 0 == arrItem.size()) return;
 
-                array(obj[member], member, depth + 1, num);
+                switch (arrItem[0].type())
+                {
+                case Json::intValue:
+                    jstruct.push_back(indent(1) + "jint64 " + member + "[col];\n");
+                    break;
+
+                case Json::uintValue:
+                    jstruct.push_back(indent(1) + "juint64 " + member + "[col];\n");
+                    break;
+
+                case Json::realValue:
+                    jstruct.push_back(indent(1) + "jdouble " + member + "[col];\n");
+                    break;
+
+                case Json::stringValue:
+                    jstruct.push_back(indent(1) + "jwchar " + member + "[row][col];\n");
+                    break;
+
+                case Json::objectValue:
+                    ++num;
+                    object(arrItem[0], num);
+                    string name = (boost::format("struct_name_%1%") % num).str();
+                    jstruct.push_back(indent(1) + name + " " + member + "[col];\n");
+                    break;
+                }
             }
             break;
         }
     }
 
-    out_ << indent(depth) << "};\n";
-}
+    jstruct.push_back("};");
 
-void generator::array(const Json::Value& arr, const string& member, unsigned depth, unsigned num)
-{
-    if (arr.isNull() || !arr.isArray() || 0 == arr.size()) return;
-
-    switch (arr[0].type())
-    {
-    case Json::intValue:
-        out_ << indent(depth) << "jint64 " << member << "[2];\n";
-        break;
-
-    case Json::uintValue:
-        out_ << indent(depth) << "juint64 " << member << "[2];\n";
-        break;
-
-    case Json::realValue:
-        out_ << indent(depth) << "jdouble " << member << "[2];\n";
-        break;
-
-    case Json::stringValue:
-        out_ << indent(depth) << "jwchar " << member << "[2][2];\n";
-        break;
-
-    case Json::objectValue:
-        object(arr[0], depth, num);
-        boost::format fmt("struct_name_%1%");
-        string name = (fmt % num).str();
-        out_ << indent(depth) << name << " " << member << "[2];\n";
-        break;
-
-    //case Json::arrayValue:
-    //    break;
-    }
+    jstructs_.push_back(jstruct);
 }

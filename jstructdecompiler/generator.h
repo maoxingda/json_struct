@@ -12,12 +12,14 @@ class generator
 public:
     generator(const Json::Value& val, const args& arg);
 
-private:
-    void object(const Json::Value& obj, unsigned depth, unsigned num);
-    void array(const Json::Value& arr, const string& member, unsigned depth, unsigned num);
+    void write();
 
 private:
-    const Json::Value&  json_;
-    ofstream            out_;
+    void object(const Json::Value& obj, unsigned num);
+
+private:
+    ofstream                 out_;
+    const Json::Value&       json_;
+    vector< vector<string> > jstructs_;
 };
 
