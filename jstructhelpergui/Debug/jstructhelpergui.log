@@ -1,0 +1,27 @@
+﻿Build started 08/09/2019 12:33:48 PM.
+     1>Project "C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstructhelpergui\jstructhelpergui.vcxproj" on node 2 (build target(s)).
+     1>CustomBuild:
+         All outputs are up-to-date.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I.\GeneratedFiles /I. /IC:\Qt\4.8.3\trunk\include /I.\GeneratedFiles\Debug /IC:\Qt\4.8.3\trunk\include\QtCore /IC:\Qt\4.8.3\trunk\include\QtGui /Zi /nologo /W1 /WX- /Od /Oy- /D UNICODE /D WIN32 /D QT_LARGEFILE_SUPPORT /D QT_DLL /D QT_CORE_LIB /D QT_GUI_LIB /Gm- /EHsc /MDd /GS /fp:precise /Zc:wchar_t- /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt jstructhelpergui.cpp
+         jstructhelpergui.cpp
+         All outputs are up-to-date.
+       ResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstruct\..\bin\\jstructhelpergui.exe" /NOLOGO /LIBPATH:C:\Qt\4.8.3\trunk\lib qtmaind.lib QtCored4.lib QtGuid4.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\jstructhelpergui.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\bin\jstructhelpergui.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstruct\..\bin\jstructhelpergui.lib" /MACHINE:X86 Debug\jstructhelpergui.res
+         Debug\align.obj
+         Debug\jutil_common_path.obj
+         Debug\moc_jstructhelpergui.obj
+         Debug\qrc_jstructhelpergui.obj
+         Debug\jstructhelpergui.obj
+         Debug\main.obj
+         LINK : C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstruct\..\bin\\jstructhelpergui.exe not found or not built by the last incremental link; performing full link
+         jstructhelpergui.vcxproj -> C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstruct\..\bin\jstructhelpergui.exe
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /outputresource:"C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstruct\..\bin\\jstructhelpergui.exe;#1" /manifest Debug\jstructhelpergui.exe.intermediate.manifest
+     1>Done Building Project "C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\jstructhelpergui\jstructhelpergui.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.09
