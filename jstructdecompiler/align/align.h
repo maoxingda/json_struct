@@ -10,10 +10,10 @@ class align
 public:
     align(void);
 
-    std::string align_field(const string& struct_name, const string& field_type);
+    void load();
+    void save();
 
-    unsigned width_;
-    unsigned max_width_;
-    string   align_placeholder_;
+    std::string reserve_arr_len_;
+    std::string reserve_str_len_;
 };
 

@@ -89,12 +89,9 @@ namespace jstructwizd
                     }
                 }
             }
-            catch (IOException e)
-            {
-                MessageBox.Show(template_file_name_dst + " existed!");
-            }
             catch (Exception e)
             {
+                MessageBox.Show(e.ToString());
             }
         }
     }

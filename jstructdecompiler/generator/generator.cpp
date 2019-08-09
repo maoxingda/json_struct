@@ -12,6 +12,7 @@ generator::generator(const Json::Value& val, const args& arg)
     : json_(val)
     , out_(arg.o_file_name_, ios::app)
 {
+    align_.load();
 }
 
 void generator::write()
@@ -98,7 +99,9 @@ void generator::object(const Json::Value& obj, const string& stname)
 
         case Json::stringValue:
             fd_info.type_name_ = estr(jwchar);
-            fd_info.name_ += "[512];";
+            fd_info.name_ += "[";
+            fd_info.name_ += align_.reserve_str_len_;
+            fd_info.name_ += "];";
             calc_max_offset(estr(jwchar));
             break;
 
@@ -119,31 +122,44 @@ void generator::object(const Json::Value& obj, const string& stname)
                 {
                 case Json::intValue:
                     fd_info.type_name_ = estr(jint64);
-                    fd_info.name_ += "[2];";
+                    fd_info.name_ += "[";
+                    fd_info.name_ += align_.reserve_arr_len_;
+                    fd_info.name_ += "];";
                     calc_max_offset(estr(jint64));
                     break;
 
                 case Json::uintValue:
                     fd_info.type_name_ = estr(juint64);
-                    fd_info.name_ += "[2];";
+                    fd_info.name_ += "[";
+                    fd_info.name_ += align_.reserve_arr_len_;
+                    fd_info.name_ += "];";
                     calc_max_offset(estr(juint64));
                     break;
 
                 case Json::realValue:
                     fd_info.type_name_ = estr(jdouble);
-                    fd_info.name_ += "[2];";
+                    fd_info.name_ += "[";
+                    fd_info.name_ += align_.reserve_arr_len_;
+                    fd_info.name_ += "];";
                     calc_max_offset(estr(jdouble));
                     break;
 
                 case Json::stringValue:
                     fd_info.type_name_ = estr(jwchar);
-                    fd_info.name_ += "[2][512];";
+                    fd_info.name_ += "[";
+                    fd_info.name_ += align_.reserve_arr_len_;
+                    fd_info.name_ += "]";
+                    fd_info.name_ += "[";
+                    fd_info.name_ += align_.reserve_str_len_;
+                    fd_info.name_ += "];";
                     calc_max_offset(estr(jwchar));
                     break;
 
                 case Json::objectValue:
                     fd_info.type_name_ = "j" + member;
-                    fd_info.name_ += "[2];";
+                    fd_info.name_ += "[";
+                    fd_info.name_ += align_.reserve_arr_len_;
+                    fd_info.name_ += "];";
                     max_offset = max_offset < fd_info.type_name_.length() ? fd_info.type_name_.length() : max_offset;
                     object(arrItem[0], fd_info.type_name_);
                     break;

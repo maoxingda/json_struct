@@ -1,26 +1,34 @@
 #include "align.h"
-//#include <boost/property_tree/ptree.hpp>
-//#include <boost/property_tree/xml_parser.hpp>
-//#include "../util/jutil_common_path.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/xml_parser.hpp>
+#include "../util/jutil_common_path.h"
 
 
-//using namespace boost::property_tree;
+using namespace boost::property_tree;
 
 
 align::align(void)
-    : width_(0)
-    , max_width_(8)
-    , align_placeholder_("@maoxd")
+    : reserve_arr_len_("2")
+    , reserve_str_len_("512")
 {
-    //ptree tree;
-
-    //read_xml(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\alignconf.xml", tree);
-
-    //width_ = tree.get<unsigned>("align.width");
 }
 
-std::string align::align_field(const string& struct_name, const string& field_type)
+void align::load()
 {
-    max_width_ < field_type.length() ? max_width_ = field_type.length() : 0;
-    return '@' + struct_name + '@' + field_type + '@' + ' '/* + align_placeholder_*/;
+    ptree tree;
+
+    read_xml(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\fieldconf.xml", tree);
+
+    reserve_arr_len_ = tree.get<std::string>("field.reserve_arr_len");
+    reserve_str_len_ = tree.get<std::string>("field.reserve_str_len");
+}
+
+void align::save()
+{
+    ptree tree;
+
+    tree.put("field.reserve_arr_len", reserve_arr_len_);
+    tree.put("field.reserve_str_len", reserve_str_len_);
+
+    write_xml(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\fieldconf.xml", tree);
 }

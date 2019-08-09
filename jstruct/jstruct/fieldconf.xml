@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<field>
+    <reserve_arr_len>20</reserve_arr_len>
+    <reserve_str_len>512</reserve_str_len>
+</field>
