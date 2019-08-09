@@ -80,7 +80,12 @@ namespace jstructwizd
                         // open added file
                         _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
 
-                        if (template_file_name_dst.EndsWith(".json")) filter.AddFile(template_file_name_dst.Replace(".json", ".jst"));
+                        if (template_file_name_dst.EndsWith(".json"))
+                        {
+                            template_file_name_dst = template_file_name_dst.Remove(template_file_name_dst.LastIndexOf(".json")) + ".jst";
+
+                            filter.AddFile(template_file_name_dst);
+                        }
                     }
                 }
             }
