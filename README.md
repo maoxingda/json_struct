@@ -65,3 +65,4 @@ int main(int argc, char** argv)
 * xpath
 * inline comment
 * use jsoncpp substitute cjson
+* serialize
