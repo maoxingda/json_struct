@@ -20,6 +20,7 @@ private:
     void object(const Json::Value& obj, const string& stname);
 
 private:
+    const args&         arg_;
     align               align_;
     std::ofstream       out_;
     const Json::Value&  json_;

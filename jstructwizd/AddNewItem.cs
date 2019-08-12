@@ -60,7 +60,7 @@ namespace jstructwizd
                         {
                             text = sr.ReadToEnd();
 
-                            text = text.Replace("%struct_name%", Path.GetFileNameWithoutExtension(template_file_name_dst));
+                            text = text.Replace("%ns%", Path.GetFileNameWithoutExtension(template_file_name_dst));
                         }
 
                         using (StreamWriter sw = new StreamWriter(template_file_name_dst))

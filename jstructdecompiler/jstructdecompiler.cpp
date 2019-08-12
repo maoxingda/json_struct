@@ -26,6 +26,7 @@ int main(int argc, char* argv[])
 
         args arg;
 
+        arg.file_name_   = path(argv[1]).stem().string();
         arg.i_file_name_ = argv[1];
         arg.o_file_name_ = argv[1];
         arg.o_file_name_.replace(arg.o_file_name_.length() - 5, 5, ".jst");

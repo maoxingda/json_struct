@@ -3,6 +3,9 @@
 
 #define ESTR(expression) #expression
 
+#define END_NAMESPACE     }
+#define BEG_NAMESPACE(ns) namespace ns {
+
 #define JSTRUCT_INIT_FIELD_ZERO(struct_name, field_name) memset((char*)this + offsetof(struct_name, field_name), 0, sizeof(field_name))
 
 //////////////////////////////////////////////////////////////////////////

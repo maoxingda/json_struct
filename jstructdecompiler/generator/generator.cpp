@@ -11,6 +11,7 @@
 generator::generator(const Json::Value& val, const args& arg)
     : json_(val)
     , out_(arg.o_file_name_, ios::app)
+    , arg_(arg)
 {
     align_.load();
 }
@@ -24,6 +25,8 @@ void generator::write()
 
     static unsigned num = 0;
     boost::format fmt("%1%");
+
+    out_ << "\nBEG_NAMESPACE(" << arg_.file_name_ << ")\n";
 
     BOOST_FOREACH(const struct_info& jst, jstructs_)
     {
@@ -53,6 +56,8 @@ void generator::write()
 
         out_ << "};\n";
     }
+
+    out_ << "\nEND_NAMESPACE\n";
 }
 
 void generator::object(const Json::Value& obj, const string& stname)

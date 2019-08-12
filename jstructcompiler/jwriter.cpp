@@ -155,7 +155,7 @@ void jwriter::align_reg_fields_code(std::list<std::string>& reg_fields_code)
     smatch sm;
     int max_qualifier_index = 0;
     sliter max_qualifier_iter;
-    static const sregex re_qualifier = (s1 = (as_xpr(ESTR(jreq)) | ESTR(jopt)));
+    static const sregex re_qualifier = (s1 = '(' >>  (as_xpr(ESTR(jreq)) | ESTR(jopt)));
     for (auto iter = reg_fields_code.begin(); iter != reg_fields_code.end(); ++iter)
     {
         if (!regex_search(*iter, sm, re_qualifier))
