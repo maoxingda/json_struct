@@ -55,6 +55,34 @@
       <item row="1" column="1">
        <widget class="QLineEdit" name="lineEditStrLen"/>
       </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="labelThro">
+        <property name="text">
+         <string>是否抛调试异常</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="labelAdd">
+        <property name="text">
+         <string>是否添加头文件</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="checkBoxThrow">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QCheckBox" name="checkBoxAdd">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
@@ -79,6 +107,12 @@
        <widget class="QPushButton" name="pushButtonSave">
         <property name="text">
          <string>保存</string>
+        </property>
+        <property name="autoDefault">
+         <bool>true</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

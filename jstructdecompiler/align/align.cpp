@@ -30,5 +30,5 @@ void align::save()
     tree.put("field.reserve_arr_len", reserve_arr_len_);
     tree.put("field.reserve_str_len", reserve_str_len_);
 
-    write_xml(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\fieldconf.xml", tree);
+    write_xml(jutil_common_path().my_documents() + "\\Visual Studio 2010\\Addins\\fieldconf.xml", tree, std::locale(), xml_writer_settings<typename ptree::key_type>(' ', 4));
 }

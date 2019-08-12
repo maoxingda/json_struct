@@ -9,6 +9,15 @@ class jstructhelpergui : public QMainWindow
 {
     Q_OBJECT
 
+    struct debug_conf
+    {
+        bool   throw_;
+        string add_output_file_;
+
+        void load();
+        void save();
+    };
+
 public:
     jstructhelpergui(QWidget *parent = 0, Qt::WFlags flags = 0);
     ~jstructhelpergui();
@@ -19,6 +28,7 @@ private slots:
 private:
     Ui::jstructhelperguiClass ui;
     align                     align_;
+    debug_conf                dbg_;
 };
 
 #endif // JSTRUCTHELPERGUI_H

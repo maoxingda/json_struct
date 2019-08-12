@@ -10,15 +10,15 @@ using Microsoft.Win32;
 using Microsoft.VisualStudio.VCProjectEngine;
 using System.Windows.Forms;
 
-namespace jstructwizd
+namespace jstructwizdjson
 {
     public class AddNewItem : IDTWizard
     {
-        private DTE2 _applicationObject        = null;
-        private string template_file_name_src  = null;
-        private string template_file_name_dst  = null;
-        private string add_output_file         = null;
-        private string app_folder              = null;
+        private DTE2 _applicationObject       = null;
+        private string template_file_name_src = null;
+        private string template_file_name_dst = null;
+        private string add_output_file        = null;
+        private string app_folder             = null;
 
         public void Execute(object Application,
             int hwndOwner,
@@ -36,7 +36,7 @@ namespace jstructwizd
 
                     app_folder = vs2010.GetValue("AppFolder").ToString();
 
-                    template_file_name_src = app_folder + "\\inc\\template.jst";
+                    template_file_name_src = app_folder + "\\inc\\template.json";
 
                     vs2010.Close();
                 }
@@ -48,25 +48,18 @@ namespace jstructwizd
 
                     template_file_name_dst = contextParams[4] as string;
 
-                    template_file_name_dst += ".jst";
+                    template_file_name_dst += ".json";
 
                     File.Copy(template_file_name_src, template_file_name_dst);
 
                     if (filter.CanAddFile(template_file_name_dst))
                     {
-                        string text = null;
+                        filter.AddFile(template_file_name_dst);
 
-                        using (StreamReader sr = new StreamReader(template_file_name_dst))
-                        {
-                            text = sr.ReadToEnd();
+                        // open added file
+                        _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
 
-                            text = text.Replace("%struct_name%", Path.GetFileNameWithoutExtension(template_file_name_dst));
-                        }
-
-                        using (StreamWriter sw = new StreamWriter(template_file_name_dst))
-                        {
-                            sw.Write(text);
-                        }
+                        template_file_name_dst = template_file_name_dst.Remove(template_file_name_dst.LastIndexOf(".json")) + ".jst";
 
                         filter.AddFile(template_file_name_dst);
 
@@ -82,9 +75,6 @@ namespace jstructwizd
                         }
 
                         if ("true" == add_output_file) filter.AddFile(proj.ProjectDirectory + "\\mjst\\" + Path.GetFileNameWithoutExtension(template_file_name_dst) + ".h");
-
-                        // open added file
-                        _applicationObject.ItemOperations.OpenFile(template_file_name_dst);
                     }
                 }
             }

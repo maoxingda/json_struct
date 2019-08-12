@@ -276,7 +276,7 @@ void jreader::parse_fields()
 
                     --cur, iter1->array_size_fields.push_back((boost::format("%1%_size") % f_info.name_).str());
 
-                    sregex re = sregex::compile(f_info.name_);
+                    sregex re = +_s >> sregex::compile(f_info.name_);
 
                     jalign().align(*iter6, line, (s1 = re) >> before("_size"), (s1 = re));
                 }

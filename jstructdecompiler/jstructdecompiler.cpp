@@ -22,12 +22,13 @@ int main(int argc, char* argv[])
 {
     try
     {
-        if (3 > argc) throw logic_error("\nno input or output file");
+        if (2 > argc) throw logic_error("\nno input file");
 
         args arg;
 
         arg.i_file_name_ = argv[1];
-        arg.o_file_name_ = argv[2];
+        arg.o_file_name_ = argv[1];
+        arg.o_file_name_.replace(arg.o_file_name_.length() - 5, 5, ".jst");
 
         //cout << arg.i_file_name_ << "\n";
         cout << arg.o_file_name_ << "\n";

@@ -2,4 +2,5 @@
 
 <debug>
     <throw>false</throw>
+	<add_output_file>false</add_output_file>
 </debug>
