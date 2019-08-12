@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'jstructhelpergui.ui'
 **
-** Created: Fri Aug 9 12:20:06 2019
+** Created: Mon Aug 12 15:25:00 2019
 **      by: Qt User Interface Compiler version 4.8.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -14,6 +14,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
 #include <QtGui/QFormLayout>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
@@ -37,6 +38,10 @@ public:
     QLineEdit *lineEditArrLen;
     QLabel *labelStrLen;
     QLineEdit *lineEditStrLen;
+    QLabel *labelThro;
+    QLabel *labelAdd;
+    QCheckBox *checkBoxThrow;
+    QCheckBox *checkBoxAdd;
     QSpacerItem *verticalSpacer;
     QHBoxLayout *horizontalLayout;
     QPushButton *pushButtonSave;
@@ -79,6 +84,26 @@ public:
 
         formLayout->setWidget(1, QFormLayout::FieldRole, lineEditStrLen);
 
+        labelThro = new QLabel(centralWidget);
+        labelThro->setObjectName(QString::fromUtf8("labelThro"));
+
+        formLayout->setWidget(2, QFormLayout::LabelRole, labelThro);
+
+        labelAdd = new QLabel(centralWidget);
+        labelAdd->setObjectName(QString::fromUtf8("labelAdd"));
+
+        formLayout->setWidget(3, QFormLayout::LabelRole, labelAdd);
+
+        checkBoxThrow = new QCheckBox(centralWidget);
+        checkBoxThrow->setObjectName(QString::fromUtf8("checkBoxThrow"));
+
+        formLayout->setWidget(2, QFormLayout::FieldRole, checkBoxThrow);
+
+        checkBoxAdd = new QCheckBox(centralWidget);
+        checkBoxAdd->setObjectName(QString::fromUtf8("checkBoxAdd"));
+
+        formLayout->setWidget(3, QFormLayout::FieldRole, checkBoxAdd);
+
 
         verticalLayout->addLayout(formLayout);
 
@@ -92,6 +117,8 @@ public:
         horizontalLayout->setContentsMargins(-1, 0, -1, -1);
         pushButtonSave = new QPushButton(centralWidget);
         pushButtonSave->setObjectName(QString::fromUtf8("pushButtonSave"));
+        pushButtonSave->setAutoDefault(true);
+        pushButtonSave->setDefault(true);
 
         horizontalLayout->addWidget(pushButtonSave, 0, Qt::AlignRight);
 
@@ -110,6 +137,10 @@ public:
         jstructhelperguiClass->setWindowTitle(QApplication::translate("jstructhelperguiClass", "jstructhelpergui", 0, QApplication::UnicodeUTF8));
         labelArrLen->setText(QApplication::translate("jstructhelperguiClass", "\351\242\204\347\225\231\346\225\260\347\273\204\345\244\247\345\260\217", 0, QApplication::UnicodeUTF8));
         labelStrLen->setText(QApplication::translate("jstructhelperguiClass", "\351\242\204\347\225\231\345\255\227\347\254\246\344\270\262\345\244\247\345\260\217", 0, QApplication::UnicodeUTF8));
+        labelThro->setText(QApplication::translate("jstructhelperguiClass", "\346\230\257\345\220\246\346\212\233\350\260\203\350\257\225\345\274\202\345\270\270", 0, QApplication::UnicodeUTF8));
+        labelAdd->setText(QApplication::translate("jstructhelperguiClass", "\346\230\257\345\220\246\346\267\273\345\212\240\345\244\264\346\226\207\344\273\266", 0, QApplication::UnicodeUTF8));
+        checkBoxThrow->setText(QString());
+        checkBoxAdd->setText(QString());
         pushButtonSave->setText(QApplication::translate("jstructhelperguiClass", "\344\277\235\345\255\230", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
