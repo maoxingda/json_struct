@@ -1391,8 +1391,8 @@
 <SCComment/>
 <SCArgs/>
 <SCWork/>
-<UseExtIco>0</UseExtIco>
-<IcoFN/>
+<UseExtIco>1</UseExtIco>
+<IcoFN>%AppFolder%\jstwiz\jstructwizd.ico</IcoFN>
 <IcoIdx>0</IcoIdx>
 <IcoShowMd>0</IcoShowMd>
 <IcoHK>0</IcoHK>

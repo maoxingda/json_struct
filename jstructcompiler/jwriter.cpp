@@ -218,29 +218,14 @@ void jwriter::write_decl_file()
     // save
     gen_warning_code(out);
 
+    static const sregex jst_decl = bos >> *_s >> ESTR(jstruct);
+    static const sregex access_qualifier = bos >> *_s >> "public" >> +_s >> (as_xpr(ESTR(jreq)) | ESTR(jopt)) >> ':';
+
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
         *iter = regex_replace(*iter, inc_jst, "#include \"" + s1 + ".h");
-
-        //if (regex_search(*iter, what, inc_jst))
-        //{
-        //    *iter = "#include \"" + what[s1] + ".h\"";
-        //}
-
-        //if (regex_search(*iter, what, inc_jst))
-        //{
-        //    std::cout << *iter << std::endl;
-        //    if (1 == what[s1].length())
-        //    {
-        //        std::cout << 1 << std::endl;
-        //        *iter = "#include \"" + what[s1] + what[s2] + ".h\"";
-        //    }
-        //    else
-        //    {
-        //        std::cout << 2 << std::endl;
-        //        *iter = "#include \"" + what[s2] + ".h\"";
-        //    }
-        //}
+        *iter = regex_replace(*iter, jst_decl, "struct");
+        *iter = regex_replace(*iter, access_qualifier, "public:");
 
         out << *iter << "\n";
     }

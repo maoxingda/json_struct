@@ -29,10 +29,11 @@ int main(int argc, char* argv[])
         arg.file_name_   = path(argv[1]).stem().string();
         arg.i_file_name_ = argv[1];
         arg.o_file_name_ = argv[1];
+
         arg.o_file_name_.replace(arg.o_file_name_.length() - 5, 5, ".jst");
 
         //cout << arg.i_file_name_ << "\n";
-        cout << arg.o_file_name_ << "\n";
+        //cout << arg.o_file_name_ << "\n";
 
         if (exists(path(arg.o_file_name_)))
         {

@@ -24,8 +24,8 @@ static const sregex re_number_array2 = (s1 = re_number) >> " " >> "[" >> +_d >> 
 static const sregex re_wchar_array   = (as_xpr("wchar_t ") >> "[" >> (s1 = +_d) >> "]");
 static const sregex re_wchar_table   = (as_xpr("wchar_t ") >> ("[" >> (s1 = +_d) >> "]") >> ("[" >> (s2 = +_d) >> "]"));
 
-static const sregex re_struct        = (as_xpr("struct ") >> +_w);
-static const sregex re_struct_array  = (as_xpr("struct ") >> +_w >> " " >> "[" >> (s1 = +_d) >> "]");
+static const sregex re_struct        = (as_xpr("struct ") >> +_w >> *("::" >> +_w));
+static const sregex re_struct_array  = (as_xpr("struct ") >> +_w >> *("::" >> +_w) >> " " >> "[" >> (s1 = +_d) >> "]");
 
 
 static int array_size(const string& field_type)
