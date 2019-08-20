@@ -1,6 +1,6 @@
 # struct <---> json
 
-[usage video](https://github.com/maoxingda/json_struct/tree/master/doc)
+# [usage video](https://github.com/maoxingda/json_struct/tree/master/doc)
 
 # support field type
 1. jbool ---> bool
