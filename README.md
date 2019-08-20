@@ -2,44 +2,7 @@
 
 # usage
 
-1. install [jstructtool.exe](https://github.com/maoxingda/json_struct/releases)
-
-2. add new item to vc++ project
-[①](img/addnewitem.png)
-[②](img/item.png)
-[③](img/nonstdext.png)
-
-3. declare struct, create struct object instance and call member function ***from_json <---> to_json***, so that's all
-
-# example
-```
-jstruct jdate
-{
-public jreq:
-    jwchar year[6];
-    jwchar month[4];
-    jwchar day[4];
-};
-
-jstruct jperson
-{
-public jreq:
-    jint     identifier;
-    jwchar   name[32];
-    jint     qq[2];
-    jwchar   email[3][32];
-    jdate    birthday;
-};
-
-int main(int argc, char** argv)
-{
-    jperson p;
-	
-    assert(p.from_json("{\"id\":1001,\"name\":\"张三\",\"qq\":[123456789,987654321],\"email\":[\"123456789@qq.com\",\"987654321@qq.com\"],\"birthday\":{\"year\":\"2000\",\"month\":\"11\",\"day\":\"16}"));
-	
-    string json = p.to_json();
-}
-```
+see [root_directory/doc/usage.avi]
 
 # support field type
 1. jbool ---> bool
