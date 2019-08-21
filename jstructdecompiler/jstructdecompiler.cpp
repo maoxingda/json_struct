@@ -58,9 +58,7 @@ int main(int argc, char* argv[])
 
             if (!Json::Reader(Json::Features::strictMode()).parse(*iter, root, false))
             {
-                cout << "invalid json format:\n" << CT2A(CA2T(iter->c_str(), CP_UTF8)) << "\n";
-
-                continue;
+                throw logic_error(string("invalid json format:\n") + (LPCSTR)CT2A(CA2T(iter->c_str(), CP_UTF8)));
             }
 
             generator gen(root, arg);
@@ -71,6 +69,8 @@ int main(int argc, char* argv[])
     catch (const std::exception& e)
     {
         cout << e.what() << "\n";
+
+        return -1;
     }
 
     return 0;//system("pause");

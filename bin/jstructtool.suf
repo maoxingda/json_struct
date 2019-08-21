@@ -4253,7 +4253,7 @@ g_HandleSystemReboot();
 <PostBuildCmdLine/>
 <PostBuildWait>0</PostBuildWait>
 <Filename>jstructtool-1.0.4.exe</Filename>
-<OutputFolder>C:\Users\Administrator\Desktop\json_struct\bin</OutputFolder>
+<OutputFolder>C:\Users\Administrator\Documents\Visual Studio 2010\Projects\json_struct\json_struct\bin</OutputFolder>
 <SegmentSizeMode>0</SegmentSizeMode>
 <CustomSegSize>100</CustomSegSize>
 <CustomSegSizeMode>2</CustomSegSizeMode>
