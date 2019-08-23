@@ -140,13 +140,27 @@ void jwriter::gen_init_fields_code(const struct_info& st_info)
     {
         if (enum_struct != iter2->type_ && enum_struct_array != iter2->type_)
         {
-            lines_.insert(st_info.iter_struct_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % iter2->name_).str());
+            if (st_info.iter_ctor_end_ == lines_.end())
+            {
+                lines_.insert(st_info.iter_struct_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % iter2->name_).str());
+            }
+            else
+            {
+                lines_.insert(st_info.iter_ctor_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % iter2->name_).str());
+            }
         }
     }
 
     for (auto iter2 = st_info.array_size_fields.begin(); iter2 != st_info.array_size_fields.end(); ++iter2)
     {
-        lines_.insert(st_info.iter_struct_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % *iter2).str());
+        if (st_info.iter_ctor_end_ == lines_.end())
+        {
+            lines_.insert(st_info.iter_struct_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % *iter2).str());
+        }
+        else
+        {
+            lines_.insert(st_info.iter_ctor_end_, (boost::format("        JSTRUCT_INIT_FIELD_ZERO(%1%, %2%);") % st_info.stname_ % *iter2).str());
+        }
     }
 }
 
@@ -195,8 +209,11 @@ void jwriter::write_decl_file()
         if (st_info.stname_.empty()) continue;
 
         // generate register field code in construct function
-        lines_.insert(position, (boost::format("\n    %1%()") % st_info.stname_).str());
-        lines_.insert(position, "    {");
+        if (st_info.iter_ctor_end_ == lines_.end())
+        {
+            lines_.insert(position, (boost::format("\n    %1%()") % st_info.stname_).str());
+            lines_.insert(position, "    {");
+        }
         {
             std::list<std::string> reg_fields_code;
 
@@ -204,15 +221,35 @@ void jwriter::write_decl_file()
 
             align_reg_fields_code(reg_fields_code);
 
-            BOOST_FOREACH(auto item, reg_fields_code) lines_.insert(position, item);
+            BOOST_FOREACH(auto item, reg_fields_code)
+            {
+                if (st_info.iter_ctor_end_ == lines_.end())
+                {
+                    lines_.insert(position, item);
+                }
+                else
+                {
+                    lines_.insert(st_info.iter_ctor_end_, item);
+                }
+            }
 
             // insert empty line
-            lines_.insert(position, "");
+            if (st_info.iter_ctor_end_ == lines_.end())
+            {
+                lines_.insert(position, "");
+            }
+            else
+            {
+                lines_.insert(st_info.iter_ctor_end_, "");
+            }
 
             // field initialization
             gen_init_fields_code(st_info);
         }
-        lines_.insert(position, "    }");
+        if (st_info.iter_ctor_end_ == lines_.end())
+        {
+            lines_.insert(position, "    }");
+        }
     }
 
     // save
