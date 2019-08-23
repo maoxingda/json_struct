@@ -182,8 +182,13 @@ void jreader::parse_structs()
 
             structs_.push_back(st_info);
 
+            st_info.iter_ctor_end_ = lines_.end();
             st_info.field_qualifiers.clear();
             st_info.iter_ctor_end_ = lines_.end();
+        }
+        else if (regex_match(*iter, re_ctor_end))
+        {
+            st_info.iter_ctor_end_ = iter;
         }
         else if (regex_match(*iter, re_ctor_end))
         {
