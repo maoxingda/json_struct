@@ -46,6 +46,7 @@ struct struct_info
     std::list<std::string> array_size_fields;
     sliter                 iter_struct_beg_;
     sliter                 iter_struct_end_;
+    sliter                 iter_ctor_end_;
     std::list<sliter>      field_qualifiers;
     unsigned               max_offset_;
 };

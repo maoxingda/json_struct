@@ -140,6 +140,7 @@ void jreader::parse_structs()
     static const sregex re_struct_end = bos >> *_s >> '}' >> *_s >> ';';
     static const sregex re_struct_beg = bos >> *_s >> "jstruct" >> +_s >> (struct_name = identifier);
     static const sregex re_inc_jst    = bos >> *_s >> "#include" >> +_s >> '"' >> (s1 = *(boost::xpressive::set[alnum | (boost::xpressive::set = '.', '/', '\\')]) >> +_w >> ".jst") >> before('"');
+    static const sregex re_ctor_end   = bos >> *_s >> '}' >> *_s >> eos;
 
     for (auto iter = lines_.begin(); iter != lines_.end(); ++iter)
     {
@@ -166,6 +167,7 @@ void jreader::parse_structs()
         {
             st_info.stname_             = what[struct_name];
             st_info.iter_struct_beg_    = iter;
+            st_info.iter_ctor_end_      = lines_.end();
 
             if ("struct_name" != what[struct_name])
             {
@@ -181,6 +183,11 @@ void jreader::parse_structs()
             structs_.push_back(st_info);
 
             st_info.field_qualifiers.clear();
+            st_info.iter_ctor_end_ = lines_.end();
+        }
+        else if (regex_match(*iter, re_ctor_end))
+        {
+            st_info.iter_ctor_end_ = iter;
         }
 
         if (!field_qualifier(*iter).empty())
