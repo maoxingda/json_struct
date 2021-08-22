@@ -1,8 +1,14 @@
-# struct <---> json
+- [1. struct <---> json](#1-struct-----json)
+- [2. usage video](#2-usage-video)
+- [3. support field type](#3-support-field-type)
+- [4. note](#4-note)
+- [5. todo](#5-todo)
 
-# [usage video](https://github.com/maoxingda/json_struct/tree/master/doc)
+# 1. struct <---> json
 
-# support field type
+# 2. [usage video](https://github.com/maoxingda/json_struct/tree/master/doc)
+
+# 3. support field type
 1. jbool ---> bool
 2. number and number array  
 &emsp;jint    ---> int  
@@ -14,11 +20,11 @@
 3. string and string array (jwchar  ---> wchar_t)
 4. struct and struct array (jstruct ---> struct)
 
-# note
+# 4. note
 1. can only support ***utf8*** json stream, because the conversion between utf8 and utf16 was done internally
 2. gtest has memory leak itself
 
-# todo
+# 5. todo
 * derive
 * null value
 * concurrent
