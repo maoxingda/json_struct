@@ -20,8 +20,6 @@
   | juint64                            | unsigned int64 |
   | jfloat                             | float          |
   | jdouble                            | double         |
-  | string and string array(jwchar)    | wchar_t        |
-  | jstruct and jstruct array(jstruct) | struct         |
 
 3. string and string array (jwchar  ---> wchar_t)
 
