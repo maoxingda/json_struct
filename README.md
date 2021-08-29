@@ -10,14 +10,21 @@
 
 # 3. support field type
 1. jbool ---> bool
+
 2. number and number array  
-&emsp;jint    ---> int  
-&emsp;juint   ---> unsigned int  
-&emsp;jint64  ---> __int64  
-&emsp;juint64 ---> unsigned __int64  
-&emsp;jfloat  ---> float  
-&emsp;jdouble ---> double  
+
+  | jint                               | int            |
+  | ---------------------------------- | -------------- |
+  | juint                              | unsigned int   |
+  | jint64                             | int64          |
+  | juint64                            | unsigned int64 |
+  | jfloat                             | float          |
+  | jdouble                            | double         |
+  | string and string array(jwchar)    | wchar_t        |
+  | jstruct and jstruct array(jstruct) | struct         |
+
 3. string and string array (jwchar  ---> wchar_t)
+
 4. struct and struct array (jstruct ---> struct)
 
 # 4. note
